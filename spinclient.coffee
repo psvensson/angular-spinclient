@@ -1,4 +1,4 @@
-angular.module('angular-spinclient', [uuid4, $websocket]).factory 'ngSpinclient', [ ->
+angular.module('angular-spinclient', ['uuid4', 'ngWebSocket']).factory 'ngSpinClient', (uuid4, $websocket) ->
   #public methods & properties
   service = {
 
@@ -47,7 +47,7 @@ angular.module('angular-spinclient', [uuid4, $websocket]).factory 'ngSpinclient'
         subscriber obj
   ]
 
-  service.io.on 'message', (reply) ->
+  service.io.onMessage (reply) ->
     status = reply.status
     message = reply.payload
     info = reply.info
@@ -79,4 +79,4 @@ angular.module('angular-spinclient', [uuid4, $websocket]).factory 'ngSpinclient'
 
   #private methods and properties - should ONLY expose methods and properties publicly (via the 'return' object) that are supposed to be used; everything else (helper methods that aren't supposed to be called externally) should be private.
   service
-]
+

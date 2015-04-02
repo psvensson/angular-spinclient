@@ -6,8 +6,8 @@
 'use strict';
 
 angular.module('myApp', [
-'ngRoute', 'ngSanitize', 'ngTouch',		//additional angular modules
-'psvensson.angular-spinclient'
+'ngRoute', 'ngSanitize', 'ngTouch',	'ngLocale', 'ngWebSocket',
+'angular-spinclient'
 ]).
 config(['$routeProvider', '$locationProvider', '$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
 	/**
@@ -19,7 +19,7 @@ config(['$routeProvider', '$locationProvider', '$compileProvider', function($rou
 	// var staticPath ='/';
 	var staticPath;
 	// staticPath ='/angular-services/angular-spinclient/';		//local
-	staticPath ='/';		//nodejs (local)
+	staticPath ='';		//nodejs (local)
 	// staticPath ='/angular-spinclient/';		//gh-pages
 	var appPathRoute ='/';
 	var pagesPath =staticPath+'pages/';
