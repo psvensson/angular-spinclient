@@ -4,5 +4,13 @@
 'use strict';
 
 angular.module('myApp').controller('HomeCtrl', ['$scope', 'ngSpinClient', function($scope, ngSpinClient) {
-	//TODO - put any directive code here
+
+  /*
+  var d = ngSpinClient.listTargets().then(function(targets) {
+    console.log ('---list of targets');
+    console.dir (targets);
+
+  });
+  */
+
 }]);
