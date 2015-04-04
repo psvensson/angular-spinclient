@@ -1,0 +1,11 @@
+<div>
+    <h2>Status: {{status}}</h2>
+    <div ng-repeat="target in targets">
+        <button ng-click="callTarget(target)">{{target.name}}</button> - <span>{{target.args}}</span>
+    </div>
+
+    <h2>Results:</h2>
+    <div ng-repeat="result in results">
+        <div>{{result}}</div>
+    </div>
+</div>

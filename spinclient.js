@@ -26,20 +26,23 @@
         }));
       },
       emitMessage: function(detail) {
+        var d;
         console.log('emitMessage called');
         console.dir(detail);
+        d = $q.defer();
         detail.messageId = uuid4.generate();
         service.outstandingMessages.push(detail);
         service.io.emit('message', JSON.stringify(detail));
+        detail.d = d;
+        return d.promise;
       },
       listTargets: function() {
         var d;
         d = $q.defer();
         service.emitMessage({
-          target: 'listcommands',
-          callback: function(targets) {
-            return d.resolve(targets);
-          }
+          target: 'listcommands'
+        }).then(function(targets) {
+          return d.resolve(targets);
         });
         return d.promise;
       }
@@ -72,9 +75,13 @@
         while (i < service.outstandingMessages.length) {
           detail = service.outstandingMessages[i];
           if (detail.messageId === reply.messageId) {
-            detail.callback(message);
-            index = i;
-            break;
+            if (reply.status === 'FAILURE') {
+              detail.d.reject(reply);
+            } else {
+              detail.d.resolve(message);
+              index = i;
+              break;
+            }
           }
           i++;
         }
@@ -99,11 +106,13 @@
       return {
         restrict: 'AE',
         replace: true,
-        template: '<div ng-repeat="target in targets">{{target.name}}</div>',
+        templateUrl: 'alltargets.html',
         link: function(scope, elem, attrs) {},
         controller: function($scope) {
+          var failure, success;
+          $scope.results = ['<none>'];
           console.log('alltargets controller');
-          return client.listTargets().then(function(_targets) {
+          client.listTargets().then(function(_targets) {
             var k, v, _results;
             $scope.targets = [];
             _results = [];
@@ -116,6 +125,21 @@
             }
             return _results;
           });
+          success = function(results) {
+            $scope.results = results;
+            return console.dir($scope.results);
+          };
+          failure = function(reply) {
+            console.log('failure' + reply);
+            return $scope.status = reply.status + ' - ' + reply.info;
+          };
+          return $scope.callTarget = function(t) {
+            $scope.status = "";
+            console.log('calltarget called with ' + t.name);
+            return client.emitMessage({
+              target: t.name
+            }).then(success, failure);
+          };
         }
       };
     }

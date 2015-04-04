@@ -29,19 +29,18 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket']).factory 'ngSpinCl
     emitMessage : (detail) ->
       console.log 'emitMessage called'
       console.dir detail
+      d = $q.defer()
       detail.messageId = uuid4.generate()
       service.outstandingMessages.push detail
       service.io.emit 'message', JSON.stringify(detail)
-      return
+      detail.d = d
+      return d.promise
 
     # ------------------------------------------------------------------------------------------------------------------
 
     listTargets: () ->
       d = $q.defer()
-      service.emitMessage {
-        target:'listcommands', callback:(targets)->
-          d.resolve(targets);
-      }
+      service.emitMessage({target:'listcommands'}).then((targets)-> d.resolve(targets))
       return d.promise
   }
 
@@ -70,9 +69,12 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket']).factory 'ngSpinCl
       while i < service.outstandingMessages.length
         detail = service.outstandingMessages[i]
         if detail.messageId == reply.messageId
-          detail.callback message
-          index = i
-          break
+          if reply.status == 'FAILURE'
+            detail.d.reject reply
+          else
+            detail.d.resolve message
+            index = i
+            break
         i++
       if index > 0
         service.outstandingMessages.splice index, 1
@@ -96,15 +98,29 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket']).factory 'ngSpinCl
     {
     restrict: 'AE'
     replace: true
-    template: '<div ng-repeat="target in targets">{{target.name}}</div>'
+    templateUrl: 'alltargets.html'
     link: (scope, elem, attrs) ->
 
     controller: ($scope) ->
+      $scope.results = ['<none>']
       console.log 'alltargets controller'
       client.listTargets().then (_targets) ->
         $scope.targets = []
         for k,v of _targets
           $scope.targets.push {name:k, args:v}
+
+      success = (results)->
+        $scope.results = results
+        console.dir($scope.results)
+
+      failure = (reply) ->
+        console.log 'failure'+reply
+        $scope.status = reply.status + ' - ' +reply.info
+
+      $scope.callTarget = (t) ->
+        $scope.status = "";
+        console.log 'calltarget called with '+t.name
+        client.emitMessage({target:t.name}).then(success,failure)
 
     }
 ]
