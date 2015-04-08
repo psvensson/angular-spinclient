@@ -6,7 +6,7 @@
 'use strict';
 
 angular.module('myApp', [
-'ngRoute', 'ngSanitize', 'ngTouch',	'ngLocale', 'ngWebSocket',
+'ngRoute', 'ngSanitize', 'ngTouch',	'ngLocale', 'ngWebSocket', 'ngMaterial',
 'angular-spinclient'
 ]).
 config(['$routeProvider', '$locationProvider', '$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {

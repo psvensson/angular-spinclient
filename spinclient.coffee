@@ -1,4 +1,4 @@
-angular.module('angular-spinclient', ['uuid4', 'ngWebSocket']).factory 'ngSpinClient', (uuid4, $websocket, $q) ->
+angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).factory 'ngSpinClient', (uuid4, $websocket, $q) ->
   #public methods & properties
   service = {
 
@@ -102,7 +102,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket']).factory 'ngSpinCl
     link: (scope, elem, attrs) ->
 
     controller: ($scope) ->
-      $scope.results = ['<none>']
+      $scope.results = []
       console.log 'alltargets controller'
       client.listTargets().then (_targets) ->
         $scope.targets = []
@@ -123,5 +123,27 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket']).factory 'ngSpinCl
         client.emitMessage({target:t.name}).then(success,failure)
 
     }
-]
+  ]
+.directive 'spinmodel', [
+  'ngSpinClient'
+  (client) ->
+    {
+    restrict:    'AE'
+    replace:     true
+    templateUrl: 'spinmodel.html'
+    scope:
+      model: '=model'
+      edit: '=edit'
+
+    link:        (scope, elem, attrs) ->
+
+    controller:  ($scope) ->
+      $scope.listprops = []
+      if $scope.model
+        console.log 'spinmodel model = '+$scope.model
+        console.dir $scope.model
+        for k,v of $scope.model
+          $scope.listprops.push {name: k, value: v}
+    }
+  ]
 
