@@ -5,7 +5,7 @@
     </div>
 
     <h2>Results:</h2>
-    <div ng-repeat="result in results">
-        <spinmodel model="result"></spinmodel>
-    </div>
+
+    <spinlist ng-if="results && results.length > 0" list="results" listmodel="'samplegame'"></spinlist>
+
 </div>

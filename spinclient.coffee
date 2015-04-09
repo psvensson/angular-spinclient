@@ -15,16 +15,18 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       return
 
     registerObjectSubscriber: (detail) ->
-      #console.dir(arguments);
-      console.log 'message-router registering subscriber for object ' + detail.obj.id + ' type ' + detail.obj.type
-      subscribers = service.objsubscribers[detail.obj.id] or []
-      subscribers.push detail.callback
-      service.objsubscribers[detail.obj.id] = subscribers
-      service.io.emit 'message', JSON.stringify(
+      console.dir(detail);
+      d = $q.defer()
+      console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
+      subscribers = service.objsubscribers[detail.id] or []
+      subscribers.push detail.cb
+      service.objsubscribers[detail.id] = subscribers
+      service.emitMessage(
         target: 'registerForUpdatesOn'
         messageId: uuid4.generate()
-        obj: detail.obj)
-      return
+        obj: {id: detail.id, type: detail.type}).then (reply) ->
+          d.resolve(reply)
+      return d.promise
 
     emitMessage : (detail) ->
       console.log 'emitMessage called'
@@ -90,6 +92,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         console.dir reply
     return
   return service
+
   #---------------------------------------------------------------------------------
 
 .directive 'alltargets', [
@@ -140,10 +143,45 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     controller:  ($scope) ->
       $scope.listprops = []
       if $scope.model
-        console.log 'spinmodel model = '+$scope.model
-        console.dir $scope.model
         for k,v of $scope.model
           $scope.listprops.push {name: k, value: v}
+    }
+  ]
+.directive 'spinlist', [
+  'ngSpinClient'
+  (client) ->
+    {
+    restrict:    'AE'
+    replace:     true
+    templateUrl: 'spinlist.html'
+    scope:
+      list: '=list'
+      listmodel: '=listmodel'
+    link:        (scope, elem, attrs) ->
+
+    controller:  ($scope) ->
+      console.log 'spinlist created. list is '+$scope.list+' type is '+$scope.listmodel
+      $scope.subscriptions = []
+      $scope.objects = []
+      $scope.expandedlist = []
+
+      $scope.onSubscribedObject = (o) ->
+        console.log 'onSubscribecObject called ++++++++++++++++++++++++'
+        $scope.objects[o.id] = o
+        $scope.expandedlist = []
+        for k,v of $scope.objects
+          $scope.expandedlist.push v
+
+      console.log 'subscribing to list ids..'
+      $scope.list.forEach (obj) ->
+        client.registerObjectSubscriber(
+          id: obj.id
+          type: $scope.listmodel
+          cb: $scope.onSubscribedObject
+        ).then (listenerid) ->
+          $scope.subscriptions.push listenerid
+
+
     }
   ]
 

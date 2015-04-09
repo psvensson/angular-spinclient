@@ -14,16 +14,24 @@
         service.subscribers[detail.message] = subscribers;
       },
       registerObjectSubscriber: function(detail) {
-        var subscribers;
-        console.log('message-router registering subscriber for object ' + detail.obj.id + ' type ' + detail.obj.type);
-        subscribers = service.objsubscribers[detail.obj.id] || [];
-        subscribers.push(detail.callback);
-        service.objsubscribers[detail.obj.id] = subscribers;
-        service.io.emit('message', JSON.stringify({
+        var d, subscribers;
+        console.dir(detail);
+        d = $q.defer();
+        console.log('message-router registering subscriber for object ' + detail.id + ' type ' + detail.type);
+        subscribers = service.objsubscribers[detail.id] || [];
+        subscribers.push(detail.cb);
+        service.objsubscribers[detail.id] = subscribers;
+        service.emitMessage({
           target: 'registerForUpdatesOn',
           messageId: uuid4.generate(),
-          obj: detail.obj
-        }));
+          obj: {
+            id: detail.id,
+            type: detail.type
+          }
+        }).then(function(reply) {
+          return d.resolve(reply);
+        });
+        return d.promise;
       },
       emitMessage: function(detail) {
         var d;
@@ -158,8 +166,6 @@
           var k, v, _ref, _results;
           $scope.listprops = [];
           if ($scope.model) {
-            console.log('spinmodel model = ' + $scope.model);
-            console.dir($scope.model);
             _ref = $scope.model;
             _results = [];
             for (k in _ref) {
@@ -171,6 +177,48 @@
             }
             return _results;
           }
+        }
+      };
+    }
+  ]).directive('spinlist', [
+    'ngSpinClient', function(client) {
+      return {
+        restrict: 'AE',
+        replace: true,
+        templateUrl: 'spinlist.html',
+        scope: {
+          list: '=list',
+          listmodel: '=listmodel'
+        },
+        link: function(scope, elem, attrs) {},
+        controller: function($scope) {
+          console.log('spinlist created. list is ' + $scope.list + ' type is ' + $scope.listmodel);
+          $scope.subscriptions = [];
+          $scope.objects = [];
+          $scope.expandedlist = [];
+          $scope.onSubscribedObject = function(o) {
+            var k, v, _ref, _results;
+            console.log('onSubscribecObject called ++++++++++++++++++++++++');
+            $scope.objects[o.id] = o;
+            $scope.expandedlist = [];
+            _ref = $scope.objects;
+            _results = [];
+            for (k in _ref) {
+              v = _ref[k];
+              _results.push($scope.expandedlist.push(v));
+            }
+            return _results;
+          };
+          console.log('subscribing to list ids..');
+          return $scope.list.forEach(function(obj) {
+            return client.registerObjectSubscriber({
+              id: obj.id,
+              type: $scope.listmodel,
+              cb: $scope.onSubscribedObject
+            }).then(function(listenerid) {
+              return $scope.subscriptions.push(listenerid);
+            });
+          });
         }
       };
     }
