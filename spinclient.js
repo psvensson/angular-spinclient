@@ -169,6 +169,7 @@
         },
         link: function(scope, elem, attrs) {},
         controller: function($scope) {
+          $scope.isarray = angular.isArray;
           return $scope.$watch('model', function(newval, oldval) {
             var k, v, _ref, _results;
             console.log('model is');

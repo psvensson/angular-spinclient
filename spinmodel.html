@@ -1,10 +1,13 @@
 <div>
     <md-list >
-        <md-subheader class="md-no-sticky">SpinCycle Model {{model.type}}</md-subheader>
-        <md-list-item ng-repeat="prop in listprops">
-            <div class="md-list-item-text">
-                <span> {{ prop.name }} </span>
-                <span class="md-secondary"> {{prop.value}}</span>
+        <md-subheader class="md-no-sticky">
+            <md-icon md-svg-src="bower_components/material-design-icons/file/svg/design/ic_folder_shared_24px.svg" ></md-icon>
+            SpinCycle Model {{model.type}}</md-subheader>
+        <md-list-item ng-repeat="prop in listprops" >
+            <div class="md-list-item-text" layout="row">
+                <span flex> {{ prop.name }} </span>
+                <span ng-if="!isarray(prop.value)" flex class="md-secondary"> {{prop.value}}</span>
+                <spinlist ng-if="isarray(prop.value)" flex class="md-secondary" listmodel="prop.name" list="prop.value"></spinlist>
             </div>
         </md-list-item>
     </md-list>

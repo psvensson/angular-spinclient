@@ -1,10 +1,12 @@
 <div>
     <md-list >
-        <md-subheader class="md-no-sticky">SpinCycle List of {{listmodel}}s</md-subheader>
-        <md-list-item ng-repeat="item in expandedlist track by item.id">
-            <div class="md-list-item-text" ng-click="selectItem(item)">
-                <span> {{ item.name }} </span>
-                <span class="md-secondary"> {{item.id}}</span>
+        <md-subheader class="md-no-sticky">
+            <md-icon md-svg-src="bower_components/material-design-icons/navigation/svg/design/ic_apps_24px.svg" ></md-icon>
+                SpinCycle List of {{listmodel}}s</md-subheader>
+        <md-list-item ng-repeat="item in expandedlist track by item.id" >
+            <div class="md-list-item-text" ng-click="selectItem(item)" layout="row">
+                <span flex ></md-icon> {{ item.name }} </span>
+                <span flex class="md-secondary"> {{item.id}}</span>
             </div>
         </md-list-item>
     </md-list>

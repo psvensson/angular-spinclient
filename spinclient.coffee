@@ -146,6 +146,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     link:        (scope, elem, attrs) ->
 
     controller:  ($scope) ->
+      $scope.isarray = angular.isArray
 
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'model is'
