@@ -2,7 +2,7 @@
     <md-list >
         <md-subheader class="md-no-sticky">SpinCycle List of {{listmodel}}s</md-subheader>
         <md-list-item ng-repeat="item in expandedlist track by item.id">
-            <div class="md-list-item-text">
+            <div class="md-list-item-text" ng-click="selectItem(item)">
                 <span> {{ item.name }} </span>
                 <span class="md-secondary"> {{item.id}}</span>
             </div>

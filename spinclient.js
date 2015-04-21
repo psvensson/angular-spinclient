@@ -120,6 +120,12 @@
           var failure, success;
           $scope.results = [];
           console.log('alltargets controller');
+          $scope.onitemselect = (function(_this) {
+            return function(item) {
+              console.log('alltargets item selected ' + item.id);
+              return $scope.itemselected = item;
+            };
+          })(this);
           client.listTargets().then(function(_targets) {
             var k, v, _results;
             $scope.targets = [];
@@ -164,12 +170,15 @@
         link: function(scope, elem, attrs) {},
         controller: function($scope) {
           var k, v, _ref, _results;
+          console.log('model is');
+          console.dir($scope.model);
           $scope.listprops = [];
           if ($scope.model) {
             _ref = $scope.model;
             _results = [];
             for (k in _ref) {
               v = _ref[k];
+              console.log('adding model prop ' + k + ' -> ' + v);
               _results.push($scope.listprops.push({
                 name: k,
                 value: v
@@ -188,14 +197,25 @@
         templateUrl: 'spinlist.html',
         scope: {
           list: '=list',
-          listmodel: '=listmodel'
+          listmodel: '=listmodel',
+          onselect: '&'
         },
-        link: function(scope, elem, attrs) {},
+        link: function(scope, elem, attrs) {
+          return scope.onselect = scope.onselect();
+        },
         controller: function($scope) {
           console.log('spinlist created. list is ' + $scope.list + ' type is ' + $scope.listmodel);
           $scope.subscriptions = [];
           $scope.objects = [];
           $scope.expandedlist = [];
+          $scope.selectItem = (function(_this) {
+            return function(item) {
+              console.log('item ' + item.name + ' selected');
+              if ($scope.onselect) {
+                return $scope.onselect(item);
+              }
+            };
+          })(this);
           $scope.onSubscribedObject = function(o) {
             var k, v, _ref, _results;
             console.log('onSubscribecObject called ++++++++++++++++++++++++');

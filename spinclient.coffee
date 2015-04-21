@@ -107,6 +107,11 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     controller: ($scope) ->
       $scope.results = []
       console.log 'alltargets controller'
+
+      $scope.onitemselect = (item) =>
+        console.log 'alltargets item selected '+item.id
+        $scope.itemselected = item
+
       client.listTargets().then (_targets) ->
         $scope.targets = []
         for k,v of _targets
@@ -141,9 +146,12 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     link:        (scope, elem, attrs) ->
 
     controller:  ($scope) ->
+      console.log 'model is'
+      console.dir $scope.model
       $scope.listprops = []
       if $scope.model
         for k,v of $scope.model
+          console.log 'adding model prop '+k+' -> '+v
           $scope.listprops.push {name: k, value: v}
     }
   ]
@@ -157,13 +165,19 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     scope:
       list: '=list'
       listmodel: '=listmodel'
+      onselect: '&'
     link:        (scope, elem, attrs) ->
+      scope.onselect = scope.onselect()
 
     controller:  ($scope) ->
       console.log 'spinlist created. list is '+$scope.list+' type is '+$scope.listmodel
       $scope.subscriptions = []
       $scope.objects = []
       $scope.expandedlist = []
+
+      $scope.selectItem = (item) =>
+        console.log 'item '+item.name+' selected'
+        $scope.onselect(item) if $scope.onselect
 
       $scope.onSubscribedObject = (o) ->
         console.log 'onSubscribecObject called ++++++++++++++++++++++++'
