@@ -146,13 +146,15 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     link:        (scope, elem, attrs) ->
 
     controller:  ($scope) ->
-      console.log 'model is'
-      console.dir $scope.model
-      $scope.listprops = []
-      if $scope.model
-        for k,v of $scope.model
-          console.log 'adding model prop '+k+' -> '+v
-          $scope.listprops.push {name: k, value: v}
+
+      $scope.$watch 'model', (newval, oldval) ->
+        console.log 'model is'
+        console.dir $scope.model
+        $scope.listprops = []
+        if $scope.model
+          for k,v of $scope.model
+            console.log 'adding model prop '+k+' -> '+v
+            $scope.listprops.push {name: k, value: v}
     }
   ]
 .directive 'spinlist', [
@@ -176,7 +178,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       $scope.expandedlist = []
 
       $scope.selectItem = (item) =>
-        console.log 'item '+item.name+' selected'
+        #console.log 'item '+item.name+' selected'
         $scope.onselect(item) if $scope.onselect
 
       $scope.onSubscribedObject = (o) ->

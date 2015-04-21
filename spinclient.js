@@ -169,23 +169,25 @@
         },
         link: function(scope, elem, attrs) {},
         controller: function($scope) {
-          var k, v, _ref, _results;
-          console.log('model is');
-          console.dir($scope.model);
-          $scope.listprops = [];
-          if ($scope.model) {
-            _ref = $scope.model;
-            _results = [];
-            for (k in _ref) {
-              v = _ref[k];
-              console.log('adding model prop ' + k + ' -> ' + v);
-              _results.push($scope.listprops.push({
-                name: k,
-                value: v
-              }));
+          return $scope.$watch('model', function(newval, oldval) {
+            var k, v, _ref, _results;
+            console.log('model is');
+            console.dir($scope.model);
+            $scope.listprops = [];
+            if ($scope.model) {
+              _ref = $scope.model;
+              _results = [];
+              for (k in _ref) {
+                v = _ref[k];
+                console.log('adding model prop ' + k + ' -> ' + v);
+                _results.push($scope.listprops.push({
+                  name: k,
+                  value: v
+                }));
+              }
+              return _results;
             }
-            return _results;
-          }
+          });
         }
       };
     }
@@ -210,7 +212,6 @@
           $scope.expandedlist = [];
           $scope.selectItem = (function(_this) {
             return function(item) {
-              console.log('item ' + item.name + ' selected');
               if ($scope.onselect) {
                 return $scope.onselect(item);
               }
