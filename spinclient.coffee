@@ -15,9 +15,9 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       return
 
     registerObjectSubscriber: (detail) ->
-      console.dir(detail);
+      #console.dir(detail);
       d = $q.defer()
-      console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
+      #console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
       subscribers.push detail.cb
       service.objsubscribers[detail.id] = subscribers
@@ -29,8 +29,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       return d.promise
 
     emitMessage : (detail) ->
-      console.log 'emitMessage called'
-      console.dir detail
+      #console.log 'emitMessage called'
+      #console.dir detail
       d = $q.defer()
       detail.messageId = uuid4.generate()
       service.outstandingMessages.push detail
@@ -63,8 +63,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     status = reply.status
     message = reply.payload
     info = reply.info
-    console.log 'got reply id ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message
-    console.dir reply
+    #console.log 'got reply id ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message
+    #console.dir reply
     index = -1
     if reply.messageId
       i = 0
@@ -156,15 +156,15 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
 
         if $scope.model
           $scope.listprops.push {name: 'id', value: $scope.model.id}
-          delete $scope.model.id
+          #delete $scope.model.id
           for k,v of $scope.model
             console.log 'pass 1 '+k+' isarray = '+(angular.isArray(v))
-            if(angular.isArray(v) == no)
+            if(k != 'id' and angular.isArray(v) == no)
               console.log 'adding model prop '+k+' -> '+v
               $scope.listprops.push {name: k, value: v}
           for k,v of $scope.model
             console.log 'pass 2 '+k+' isarray = '+(angular.isArray(v))
-            if(angular.isArray(v) == yes)
+            if(k != 'id' and  angular.isArray(v) == yes)
               $scope.listprops.push {name: k, value: v}
 
       success = (result) =>
@@ -218,7 +218,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
               model[k] = v
         $scope.$apply()
 
-      console.log 'subscribing to list ids..'
+      #console.log 'subscribing to list ids..'
       $scope.list.forEach (obj) ->
         client.registerObjectSubscriber(
           id: obj.id
