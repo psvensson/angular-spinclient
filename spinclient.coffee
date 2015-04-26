@@ -148,8 +148,6 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     controller:  ($scope) ->
       $scope.isarray = angular.isArray
 
-
-
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'model is'
         console.dir $scope.model
@@ -180,6 +178,10 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         console.dir model
         console.dir prop
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
+
+      $scope.addModel = () ->
+        client.emitMessage({target:'_create'+$scope.model.type, obj: {name: 'new '+$scope.model.type, type:$scope.model.type}}).then(success, failure)
+
     }
   ]
 .directive 'spinlist', [

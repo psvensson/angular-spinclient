@@ -222,7 +222,7 @@
               return console.log('error: ' + err);
             };
           })(this);
-          return $scope.onChange = (function(_this) {
+          $scope.onChange = (function(_this) {
             return function(model, prop) {
               console.log('onChange called for');
               console.dir(model);
@@ -233,6 +233,15 @@
               }).then(success, failure);
             };
           })(this);
+          return $scope.addModel = function() {
+            return client.emitMessage({
+              target: '_create' + $scope.model.type,
+              obj: {
+                name: 'new ' + $scope.model.type,
+                type: $scope.model.type
+              }
+            }).then(success, failure);
+          };
         }
       };
     }
