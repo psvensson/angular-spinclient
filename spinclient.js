@@ -172,21 +172,42 @@
           var failure, success;
           $scope.isarray = angular.isArray;
           $scope.$watch('model', function(newval, oldval) {
-            var k, ref, results1, v;
+            var k, ref, ref1, results1, v;
             console.log('model is');
             console.dir($scope.model);
             console.log('edit is ' + $scope.edit);
             $scope.listprops = [];
             if ($scope.model) {
+              $scope.listprops.push({
+                name: 'id',
+                value: $scope.model.id
+              });
+              delete $scope.model.id;
               ref = $scope.model;
-              results1 = [];
               for (k in ref) {
                 v = ref[k];
-                console.log('adding model prop ' + k + ' -> ' + v);
-                results1.push($scope.listprops.push({
-                  name: k,
-                  value: v
-                }));
+                console.log('pass 1 ' + k + ' isarray = ' + (angular.isArray(v)));
+                if (angular.isArray(v) === false) {
+                  console.log('adding model prop ' + k + ' -> ' + v);
+                  $scope.listprops.push({
+                    name: k,
+                    value: v
+                  });
+                }
+              }
+              ref1 = $scope.model;
+              results1 = [];
+              for (k in ref1) {
+                v = ref1[k];
+                console.log('pass 2 ' + k + ' isarray = ' + (angular.isArray(v)));
+                if (angular.isArray(v) === true) {
+                  results1.push($scope.listprops.push({
+                    name: k,
+                    value: v
+                  }));
+                } else {
+                  results1.push(void 0);
+                }
               }
               return results1;
             }

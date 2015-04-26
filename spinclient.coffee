@@ -148,15 +148,26 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     controller:  ($scope) ->
       $scope.isarray = angular.isArray
 
+
+
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'model is'
         console.dir $scope.model
         console.log 'edit is '+$scope.edit
         $scope.listprops = []
+
         if $scope.model
+          $scope.listprops.push {name: 'id', value: $scope.model.id}
+          delete $scope.model.id
           for k,v of $scope.model
-            console.log 'adding model prop '+k+' -> '+v
-            $scope.listprops.push {name: k, value: v}
+            console.log 'pass 1 '+k+' isarray = '+(angular.isArray(v))
+            if(angular.isArray(v) == no)
+              console.log 'adding model prop '+k+' -> '+v
+              $scope.listprops.push {name: k, value: v}
+          for k,v of $scope.model
+            console.log 'pass 2 '+k+' isarray = '+(angular.isArray(v))
+            if(angular.isArray(v) == yes)
+              $scope.listprops.push {name: k, value: v}
 
       success = (result) =>
         console.log 'success: '+result
