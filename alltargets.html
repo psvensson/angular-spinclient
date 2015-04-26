@@ -6,7 +6,7 @@
 
     <h2>Results:</h2>
 
-    <spinlist ng-if="results && results.length > 0" list="results" listmodel="'samplegame'" onselect="onitemselect"></spinlist>
-    <spinmodel ng-if="itemselected" model="itemselected"></spinmodel>
+    <spinlist ng-if="results && results.length > 0" list="results" listmodel="'samplegame'" edit="'true'" onselect="onitemselect"></spinlist>
+    <spinmodel ng-if="itemselected" model="itemselected" edit="'true'"></spinmodel>
 
 </div>

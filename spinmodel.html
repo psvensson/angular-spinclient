@@ -5,9 +5,18 @@
             SpinCycle Model {{model.type}}</md-subheader>
         <md-list-item ng-repeat="prop in listprops" >
             <div class="md-list-item-text" layout="row">
-                <span flex> {{ prop.name }} </span>
-                <span ng-if="!isarray(prop.value)" flex class="md-secondary"> {{prop.value}}</span>
-                <spinlist ng-if="isarray(prop.value)" flex class="md-secondary" listmodel="prop.name" list="prop.value"></spinlist>
+                <div flex> {{ prop.name }} </div>
+                <div ng-if="!isarray(prop.value)" flex class="md-secondary">
+                    <span ng-if="edit"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
+                    <span ng-if="!edit">{{prop.value}}</span>
+                </div>
+                <span ng-if="edit && isarray(prop.value)">
+                    <button ng-click="addModel(prop.type)">New</button>
+                    <spinlist  flex class="md-secondary" listmodel="prop.name" edit="edit" list="prop.value"></spinlist>
+                </span>
+                <span ng-if="!edit && isarray(prop.value)">
+                    <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value"></spinlist>
+                </span>
             </div>
         </md-list-item>
     </md-list>

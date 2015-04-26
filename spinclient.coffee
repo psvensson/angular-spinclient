@@ -151,11 +151,24 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'model is'
         console.dir $scope.model
+        console.log 'edit is '+$scope.edit
         $scope.listprops = []
         if $scope.model
           for k,v of $scope.model
             console.log 'adding model prop '+k+' -> '+v
             $scope.listprops.push {name: k, value: v}
+
+      success = (result) =>
+        console.log 'success: '+result
+
+      failure = (err) =>
+        console.log 'error: '+err
+
+      $scope.onChange = (model,prop) =>
+        console.log 'onChange called for'
+        console.dir model
+        console.dir prop
+        client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
     }
   ]
 .directive 'spinlist', [
@@ -183,11 +196,14 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         $scope.onselect(item) if $scope.onselect
 
       $scope.onSubscribedObject = (o) ->
-        console.log 'onSubscribecObject called ++++++++++++++++++++++++'
-        $scope.objects[o.id] = o
-        $scope.expandedlist = []
-        for k,v of $scope.objects
-          $scope.expandedlist.push v
+        console.log 'onSubscribedObject called ++++++++++++++++++++++++'
+        console.dir(o)
+        for model,i in $scope.list
+          if model.id == o.id
+            console.log 'found match in update for object '+o.id+' name '+o.name
+            for k,v of o
+              model[k] = v
+        $scope.$apply()
 
       console.log 'subscribing to list ids..'
       $scope.list.forEach (obj) ->
