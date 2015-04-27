@@ -128,6 +128,7 @@
               v = _targets[k];
               _results.push($scope.targets.push({
                 name: k,
+                argnames: v,
                 args: v
               }));
             }
@@ -142,11 +143,20 @@
             return $scope.status = reply.status + ' - ' + reply.info;
           };
           return $scope.callTarget = function(t) {
+            var callobj, i, values;
             $scope.status = "";
             console.log('calltarget called with ' + t.name);
-            return client.emitMessage({
+            callobj = {
               target: t.name
-            }).then(success, failure);
+            };
+            if (t.argnames !== "<none>") {
+              values = t.args.split(',');
+              i = 0;
+              t.argnames.split(',').forEach(function(arg) {
+                return callobj[arg] = values[i++];
+              });
+            }
+            return client.emitMessage(callobj).then(success, failure);
           };
         }
       };

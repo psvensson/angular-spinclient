@@ -115,7 +115,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       client.listTargets().then (_targets) ->
         $scope.targets = []
         for k,v of _targets
-          $scope.targets.push {name:k, args:v}
+          $scope.targets.push {name:k, argnames: v, args:v}
 
       success = (results)->
         $scope.results = results
@@ -128,7 +128,13 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       $scope.callTarget = (t) ->
         $scope.status = "";
         console.log 'calltarget called with '+t.name
-        client.emitMessage({target:t.name}).then(success,failure)
+        callobj = {target:t.name}
+        if t.argnames != "<none>"
+          values = t.args.split(',')
+          i = 0
+          t.argnames.split(',').forEach (arg) ->
+            callobj[arg] = values[i++]
+        client.emitMessage(callobj).then(success,failure)
 
     }
   ]
