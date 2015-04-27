@@ -5,6 +5,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     subscribers         : []
     objsubscribers      : []
     outstandingMessages : []
+    modelcache          : []
     #io                  : $websocket('ws://localhost:3003')
     io                  : io('ws://localhost:3003')
 
@@ -40,10 +41,29 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    getModelFor: (type) ->
+      d = $q.defer()
+      if service.modelcache[type]
+        d.resolve(service.modelcache[type])
+      else
+        service.emitMessage({target:'getModelFor', modelname: type}).then((model)->
+          service.modelcache[type] = model
+          d.resolve(model))
+      return d.promise
+
     listTargets: () ->
       d = $q.defer()
       service.emitMessage({target:'listcommands'}).then((targets)-> d.resolve(targets))
       return d.promise
+
+    flattenModel: (model) ->
+      rv = {}
+      for k,v of model
+        if angular.isArray(v)
+          rv[k] = v.map (e) -> e.id
+        else
+          rv[k] = v
+      return rv
   }
 
   service.subscribers['OBJECT_UPDATE'] = [ (obj) ->
@@ -157,21 +177,20 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'model is'
         console.dir $scope.model
-        console.log 'edit is '+$scope.edit
+        #console.log 'edit is '+$scope.edit
         $scope.listprops = []
-
-        if $scope.model
-          $scope.listprops.push {name: 'id', value: $scope.model.id}
-          #delete $scope.model.id
-          for k,v of $scope.model
-            console.log 'pass 1 '+k+' isarray = '+(angular.isArray(v))
-            if(k != 'id' and angular.isArray(v) == no)
-              console.log 'adding model prop '+k+' -> '+v
-              $scope.listprops.push {name: k, value: v}
-          for k,v of $scope.model
-            console.log 'pass 2 '+k+' isarray = '+(angular.isArray(v))
-            if(k != 'id' and  angular.isArray(v) == yes)
-              $scope.listprops.push {name: k, value: v}
+        client.getModelFor($scope.model.type).then (md) ->
+          modeldef = {}
+          md.forEach (modelprop) -> modeldef[modelprop.name] = modelprop
+          if $scope.model
+            $scope.listprops.push {name: 'id', value: $scope.model.id}
+            #delete $scope.model.id
+            for prop,i in md
+              if(prop.name != 'id' and angular.isArray($scope.model[prop.name]) == no)
+                $scope.listprops.push {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name]?.type}
+            for prop,i in md
+              if(prop.name != 'id' and  angular.isArray($scope.model[prop.name]) == yes)
+                $scope.listprops.push {name: prop.name, value: $scope.model[prop.name], type: modeldef[prop.name]?.type}
 
       success = (result) =>
         console.log 'success: '+result
@@ -185,8 +204,16 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         console.dir prop
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
 
-      $scope.addModel = () ->
-        client.emitMessage({target:'_create'+$scope.model.type, obj: {name: 'new '+$scope.model.type, type:$scope.model.type}}).then(success, failure)
+      $scope.addModel = (type, propname) ->
+        console.log 'addModel called for type '+type
+        client.emitMessage({target:'_create'+type, obj: {name: 'new '+type, type:type}}).then((o)=>
+          ## TODO: actually add the new object id to the list and update the container object
+          console.log 'addModel for '+type+' got back object id for new instance = '+o.id
+          $scope.model[propname].push(o)
+          console.log 'parent model is now'
+          console.dir $scope.model
+          client.emitMessage({target:'_update'+$scope.model.type, obj: client.flattenModel($scope.model)}).then(success, failure)
+        , failure)
 
     }
   ]
@@ -210,9 +237,21 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       $scope.objects = []
       $scope.expandedlist = []
 
+      success = (result) =>
+        console.log 'success: '+result
+
+      failure = (err) =>
+        console.log 'error: '+err
+
       $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'
         $scope.onselect(item) if $scope.onselect
+
+      for modelid in $scope.list
+        client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
+          for mid,i in $scope.list
+            if mid == o.id then $scope.list[i] = o
+        , failure)
 
       $scope.onSubscribedObject = (o) ->
         console.log 'onSubscribedObject called ++++++++++++++++++++++++'
@@ -225,14 +264,14 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         $scope.$apply()
 
       #console.log 'subscribing to list ids..'
-      $scope.list.forEach (obj) ->
-        client.registerObjectSubscriber(
-          id: obj.id
-          type: $scope.listmodel
-          cb: $scope.onSubscribedObject
-        ).then (listenerid) ->
-          $scope.subscriptions.push listenerid
-
+      $scope.list.forEach (id) ->
+        if id
+          client.registerObjectSubscriber(
+            id: id
+            type: $scope.listmodel
+            cb: $scope.onSubscribedObject
+          ).then (listenerid) ->
+            $scope.subscriptions.push listenerid
 
     }
   ]

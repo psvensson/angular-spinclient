@@ -1,12 +1,16 @@
 <div>
     <h2>Status: {{status}}</h2>
-    <div ng-repeat="target in targets">
-        <button ng-click="callTarget(target)">{{target.name}}</button> - <span ng-if="target.args=='<none>'">{{target.args}}</span><span ng-if="target.args!='<none>'"><input type="text" ng-model="target.args"></span>
+    <div layout="row">
+        <div flex>
+            <div ng-repeat="target in targets">
+                <button ng-click="callTarget(target)">{{target.name}}</button> - <span ng-if="target.args=='<none>'">{{target.args}}</span><span ng-if="target.args!='<none>'"><input type="text" ng-model="target.args"></span>
+            </div>
+        </div>
+        <div flex>
+            <h2>Results:</h2>
+
+            <spinlist ng-if="results && results.length > 0" list="results" listmodel="'SampleGame'" edit="'true'" onselect="onitemselect"></spinlist>
+            <spinmodel ng-if="itemselected" model="itemselected" edit="'true'"></spinmodel>
+        </div>
     </div>
-
-    <h2>Results:</h2>
-
-    <spinlist ng-if="results && results.length > 0" list="results" listmodel="'samplegame'" edit="'true'" onselect="onitemselect"></spinlist>
-    <spinmodel ng-if="itemselected" model="itemselected" edit="'true'"></spinmodel>
-
 </div>

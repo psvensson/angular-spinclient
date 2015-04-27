@@ -10,11 +10,11 @@
                     <span ng-if="edit && prop.name != 'id'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
                     <span ng-if="!edit || prop.name == 'id'">{{prop.value}}</span>
                 </div>
-                <div style="margin:10px" ng-if="edit && isarray(prop.value)">
-                    <div><button ng-click="addModel(prop.type)">New</button></div>
-                    <spinlist  flex class="md-secondary" listmodel="prop.name" edit="edit" list="prop.value"></spinlist>
+                <div flex style="margin:10px" ng-if="edit && isarray(prop.value)">
+                    <div><button ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</button></div>
+                    <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value"></spinlist>
                 </div>
-                <span ng-if="!edit && isarray(prop.value)">
+                <span flex ng-if="!edit && isarray(prop.value)">
                     <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value"></spinlist>
                 </span>
             </div>
