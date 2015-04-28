@@ -16,11 +16,6 @@
       },
       registerObjectSubscriber: function(detail) {
         var d, subscribers;
-        console.dir(detail);
-        if (!detail.cb) {
-          console.log('***************************************************************** AUGH *********************************************************************');
-          xyzzy;
-        }
         d = $q.defer();
         subscribers = service.objsubscribers[detail.id] || [];
         service.emitMessage({
@@ -167,7 +162,7 @@
           console.log('alltargets controller');
           $scope.onitemselect = (function(_this) {
             return function(item) {
-              console.log('alltargets item selected ' + item.id);
+              console.log('alltargets item selected ' + item.name);
               return $scope.itemselected = item;
             };
           })(this);
@@ -228,8 +223,6 @@
         },
         controller: function($scope) {
           var failure, success;
-          console.log('spinmodel got model');
-          console.dir($scope.model);
           $scope.isarray = angular.isArray;
           $scope.subscriptions = [];
           $scope.onSubscribedObject = function(o) {
@@ -248,6 +241,7 @@
             });
           }
           $scope.$watch('model', function(newval, oldval) {
+            console.log('spinmodel watch fired for ' + newval.name);
             return $scope.renderModel();
           });
           success = (function(_this) {
@@ -307,6 +301,7 @@
           };
           $scope.renderModel = (function(_this) {
             return function() {
+              console.log('spinmodel::renderModel called for ' + $scope.model.name);
               $scope.listprops = [];
               return client.getModelFor($scope.model.type).then(function(md) {
                 var i, modeldef, prop, _i, _j, _len, _len1, _ref, _ref1, _results;
@@ -409,6 +404,7 @@
             }
           };
           return $scope.onselect = function(listmodel) {
+            console.log('spinwalker onselect for model ' + listmodel.name);
             $scope.selectedmodel = listmodel;
             return $scope.breadcrumbs.push(listmodel);
           };
@@ -475,7 +471,6 @@
               for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
                 mid = _ref1[i];
                 if (mid === o.id) {
-                  console.log('-- exhanging list id with actual list model from server for ' + o.name);
                   _results.push($scope.expandedlist[i] = o);
                 } else {
                   _results.push(void 0);

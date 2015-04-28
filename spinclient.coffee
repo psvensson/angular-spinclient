@@ -15,11 +15,6 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       service.subscribers[detail.message] = subscribers
 
     registerObjectSubscriber: (detail) ->
-      console.dir detail
-      if not detail.cb
-        console.log '***************************************************************** AUGH *********************************************************************'
-        xyzzy
-      #console.dir(detail);
       d = $q.defer()
       #.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
@@ -142,7 +137,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       console.log 'alltargets controller'
 
       $scope.onitemselect = (item) =>
-        console.log 'alltargets item selected '+item.id
+        console.log 'alltargets item selected '+item.name
         $scope.itemselected = item
 
       client.listTargets().then (_targets) ->
@@ -187,8 +182,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       scope.onselect = scope.onselect()
 
     controller:  ($scope) ->
-      console.log 'spinmodel got model'
-      console.dir $scope.model
+      #console.log 'spinmodel got model'
+      #console.dir $scope.model
 
       $scope.isarray = angular.isArray
       $scope.subscriptions = []
@@ -201,6 +196,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
           $scope.subscriptions.push {sid: listenerid, o: $scope.model}
 
       $scope.$watch 'model', (newval, oldval) ->
+        console.log 'spinmodel watch fired for '+newval.name
         #console.log 'edit is '+$scope.edit
         $scope.renderModel()
 
@@ -236,6 +232,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
           , failure)
 
       $scope.renderModel = () =>
+        console.log 'spinmodel::renderModel called for '+$scope.model.name
         $scope.listprops = []
         client.getModelFor($scope.model.type).then (md) ->
           modeldef = {}
@@ -294,6 +291,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
           $scope.breadcrumbs.splice idx,1
 
       $scope.onselect = (listmodel) ->
+        console.log 'spinwalker onselect for model '+listmodel.name
         $scope.selectedmodel = listmodel
         $scope.breadcrumbs.push listmodel
 
@@ -341,7 +339,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
           for mid,i in $scope.list
             if mid == o.id
-              console.log '-- exhanging list id with actual list model from server for '+o.name
+              #console.log '-- exhanging list id with actual list model from server for '+o.name
               $scope.expandedlist[i] = o
         , failure)
 
