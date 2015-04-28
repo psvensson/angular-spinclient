@@ -12,7 +12,7 @@
                 </div>
                 <div flex style="margin:10px" ng-if="edit && isarray(prop.value)">
                     <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
-                    <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect"></spinlist>
+                    <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect" ondelete="ondelete"></spinlist>
                 </div>
                 <span flex ng-if="!edit && isarray(prop.value)">
                     <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value" onselect="onselect"></spinlist>

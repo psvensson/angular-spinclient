@@ -216,6 +216,25 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         #console.dir prop
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
 
+      $scope.ondelete = (item) ->
+        #console.log 'model delete for list item'
+        # get property name for item type
+        client.getModelFor($scope.model.type).then (md) ->
+          propname = null
+          md.forEach (m) -> propname = m.name if m.type == item.type
+          # get the list and splice out the deleted item
+          list = $scope.model[propname]
+          for mid,i in list
+            if mid == item.id
+              list.splice i,1
+          # update this model
+          console.log 'updating parent model to list with spliced list'
+          client.emitMessage({target:'updateObject', obj: $scope.model}).then( ()->
+            # actually delete the model formerly in the list
+            client.emitMessage( {target:'_delete'+item.type, obj: {id:mid, type:item.type}}).then (o)=>
+              console.log 'deleted '+item.type+' on server'
+          , failure)
+
       $scope.renderModel = () =>
         $scope.listprops = []
         client.getModelFor($scope.model.type).then (md) ->
@@ -270,8 +289,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         idx = -1
         for crumb, i  in $scope.breadcrumbs
           idx = i if crumb.id = model.id
-
-        if idx != -1 and $scope.breadcrumbs.length > 0
+        console.log 'crumbClicked crumbs length = '+$scope.breadcrumbs.length
+        if idx > -1 and $scope.breadcrumbs.length > 1
           $scope.breadcrumbs.splice idx,1
 
       $scope.onselect = (listmodel) ->
@@ -291,8 +310,11 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       list: '=list'
       listmodel: '=listmodel'
       onselect: '&'
+      ondelete: '&'
+
     link:        (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
+      scope.ondelete = scope.ondelete()
 
     controller:  ($scope) ->
       console.log 'spinlist created. list is '+$scope.list+' type is '+$scope.listmodel
@@ -311,16 +333,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         $scope.onselect(item) if $scope.onselect
 
       $scope.deleteItem = (item) ->
-        for mid,i in $scope.list
-          if mid == item.id
-            $scope.list.splice i,1
-            #
-            #
-            # ---  TODO: Do this in model instead, so that we can update the object carrying the listm then this will be automatically rerendered.
-            #
-            #
-            client.emitMessage( {target:'_delete'+item.type, obj: {id:mid, type:item.type}}).then (o)=>
-              console.log 'deleted '+item.type+' on server'
+        #console.log 'list delete'
+        $scope.ondelete(item) if $scope.ondelete
 
 
       for modelid in $scope.list
