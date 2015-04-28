@@ -416,6 +416,31 @@
               }
             };
           })(this);
+          $scope.deleteItem = function(item) {
+            var i, j, len, mid, ref, results1;
+            ref = $scope.list;
+            results1 = [];
+            for (i = j = 0, len = ref.length; j < len; i = ++j) {
+              mid = ref[i];
+              if (mid === item.id) {
+                $scope.list.splice(i, 1);
+                results1.push(client.emitMessage({
+                  target: '_delete' + item.type,
+                  obj: {
+                    id: mid,
+                    type: item.type
+                  }
+                }).then((function(_this) {
+                  return function(o) {
+                    return console.log('deleted ' + item.type + ' on server');
+                  };
+                })(this)));
+              } else {
+                results1.push(void 0);
+              }
+            }
+            return results1;
+          };
           ref = $scope.list;
           for (j = 0, len = ref.length; j < len; j++) {
             modelid = ref[j];

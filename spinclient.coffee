@@ -310,6 +310,19 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         #console.log 'item '+item.name+' selected'
         $scope.onselect(item) if $scope.onselect
 
+      $scope.deleteItem = (item) ->
+        for mid,i in $scope.list
+          if mid == item.id
+            $scope.list.splice i,1
+            #
+            #
+            # ---  TODO: Do this in model instead, so that we can update the object carrying the listm then this will be automatically rerendered.
+            #
+            #
+            client.emitMessage( {target:'_delete'+item.type, obj: {id:mid, type:item.type}}).then (o)=>
+              console.log 'deleted '+item.type+' on server'
+
+
       for modelid in $scope.list
         client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
           for mid,i in $scope.list
@@ -346,8 +359,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       $scope.$on '$destroy', () =>
         console.log 'spinlist captured $destroy event'
         $scope.subscriptions.forEach (s) =>
-          client.deRegisterObjectSubscriber(s.sid, s.o)
-
+          client.deRegisterObjectSubscriber(s.sid,s.o)
     }
   ]
 
