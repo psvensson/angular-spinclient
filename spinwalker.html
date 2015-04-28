@@ -1,0 +1,7 @@
+<div>
+    <span ng-repeat="crumb in breadcrumbs">
+       <md-button ng-click="crumbClicked(crumb)">{{crumb.name}}</md-button> >
+    </span>
+    <md-divider></md-divider>
+    <spinmodel model="selectedmodel" edit="edit" onselect="onselect"></spinmodel>
+</div>

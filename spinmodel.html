@@ -11,11 +11,11 @@
                     <span ng-if="!edit || prop.name == 'id'">{{prop.value}}</span>
                 </div>
                 <div flex style="margin:10px" ng-if="edit && isarray(prop.value)">
-                    <div><button ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</button></div>
-                    <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value"></spinlist>
+                    <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                    <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect"></spinlist>
                 </div>
                 <span flex ng-if="!edit && isarray(prop.value)">
-                    <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value"></spinlist>
+                    <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value" onselect="onselect"></spinlist>
                 </span>
             </div>
         </md-list-item>

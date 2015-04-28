@@ -13,21 +13,31 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       subscribers = service.subscribers[detail.message] or []
       subscribers.push detail.callback
       service.subscribers[detail.message] = subscribers
-      return
 
     registerObjectSubscriber: (detail) ->
+      console.dir detail
+      if not detail.cb
+        console.log '***************************************************************** AUGH *********************************************************************'
+        xyzzy
       #console.dir(detail);
       d = $q.defer()
-      #console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
+      #.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
-      subscribers.push detail.cb
-      service.objsubscribers[detail.id] = subscribers
       service.emitMessage(
         target: 'registerForUpdatesOn'
         messageId: uuid4.generate()
         obj: {id: detail.id, type: detail.type}).then (reply) ->
+          subscribers[reply] = detail.cb
+          service.objsubscribers[detail.id] = subscribers
           d.resolve(reply)
       return d.promise
+
+    deRegisterObjectSubscriber: (sid, o) =>
+      subscribers = service.objsubscribers[o.id] or []
+      if subscribers and subscribers[sid]
+        delete subscribers[sid]
+        service.objsubscribers[o.id] = subscribers
+        service.emitMessage( { target: 'deRegisterForUpdatesOn', id:o.id, type: o.type, listenerid: sid } ).then (reply) ->
 
     emitMessage : (detail) ->
       #console.log 'emitMessage called'
@@ -70,12 +80,15 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     console.log '+++++++++++ obj update message router got obj'
     #console.dir(obj);
     subscribers = service.objsubscribers[obj.id] or []
-    if subscribers.length == 0
-      console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
-      console.dir service.objsubscribers
-    else
-      subscribers.forEach (subscriber) ->
-        subscriber obj
+    #if subscribers.length == 0
+    #  console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
+    #  console.dir service.objsubscribers
+    #else
+    #  subscribers.forEach (subscriber) ->
+    #    subscriber obj
+    for k,v of subscribers
+      #console.log k+' -> '+v
+      v obj
   ]
 
   #service.io.onMessage (reply) ->
@@ -168,16 +181,42 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     scope:
       model: '=model'
       edit: '=edit'
+      onselect: '&'
 
     link:        (scope, elem, attrs) ->
+      scope.onselect = scope.onselect()
 
     controller:  ($scope) ->
+      console.log 'spinmodel got model'
+      console.dir $scope.model
+
       $scope.isarray = angular.isArray
+      $scope.subscriptions = []
+
+      $scope.onSubscribedObject = (o) ->
+        $scope.model = o
+
+      if($scope.model)
+        client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
+          $scope.subscriptions.push {sid: listenerid, o: $scope.model}
 
       $scope.$watch 'model', (newval, oldval) ->
-        console.log 'model is'
-        console.dir $scope.model
         #console.log 'edit is '+$scope.edit
+        $scope.renderModel()
+
+      success = (result) =>
+        console.log 'success: '+result
+
+      failure = (err) =>
+        console.log 'error: '+err
+
+      $scope.onChange = (model,prop) =>
+        console.log 'onChange called for'
+        console.dir model
+        #console.dir prop
+        client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
+
+      $scope.renderModel = () =>
         $scope.listprops = []
         client.getModelFor($scope.model.type).then (md) ->
           modeldef = {}
@@ -192,28 +231,52 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
               if(prop.name != 'id' and  angular.isArray($scope.model[prop.name]) == yes)
                 $scope.listprops.push {name: prop.name, value: $scope.model[prop.name], type: modeldef[prop.name]?.type}
 
-      success = (result) =>
-        console.log 'success: '+result
-
-      failure = (err) =>
-        console.log 'error: '+err
-
-      $scope.onChange = (model,prop) =>
-        console.log 'onChange called for'
-        console.dir model
-        console.dir prop
-        client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
-
       $scope.addModel = (type, propname) ->
         console.log 'addModel called for type '+type
         client.emitMessage({target:'_create'+type, obj: {name: 'new '+type, type:type}}).then((o)=>
-          ## TODO: actually add the new object id to the list and update the container object
-          console.log 'addModel for '+type+' got back object id for new instance = '+o.id
-          $scope.model[propname].push(o)
+          #console.log 'addModel for '+type+' got back object id for new instance = '+o.id
+          $scope.model[propname].push(o.id)
           console.log 'parent model is now'
           console.dir $scope.model
-          client.emitMessage({target:'_update'+$scope.model.type, obj: client.flattenModel($scope.model)}).then(success, failure)
+          client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
         , failure)
+
+      $scope.$on '$destroy', () =>
+        console.log 'spinmodel captured $destroy event'
+        $scope.subscriptions.forEach (s) =>
+          client.deRegisterObjectSubscriber(s.sid, s.o)
+
+    }
+  ]
+.directive 'spinwalker', [
+  'ngSpinClient'
+  (client) ->
+    {
+    restrict: 'AE'
+    replace: true
+    templateUrl: 'spinwalker.html'
+    scope:
+      model: '=model'
+      edit: '=edit'
+
+    link: (scope, elem, attrs) ->
+
+    controller: ($scope) ->
+      $scope.selectedmodel = $scope.model
+      $scope.breadcrumbs = [$scope.model]
+
+      $scope.crumbClicked = (model) ->
+        $scope.selectedmodel = model
+        idx = -1
+        for crumb, i  in $scope.breadcrumbs
+          idx = i if crumb.id = model.id
+
+        if idx != -1 and $scope.breadcrumbs.length > 0
+          $scope.breadcrumbs.splice idx,1
+
+      $scope.onselect = (listmodel) ->
+        $scope.selectedmodel = listmodel
+        $scope.breadcrumbs.push listmodel
 
     }
   ]
@@ -250,17 +313,24 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       for modelid in $scope.list
         client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
           for mid,i in $scope.list
-            if mid == o.id then $scope.list[i] = o
+            if mid == o.id
+              console.log '-- exhanging list id with actual list model from server for '+o.name
+              $scope.expandedlist[i] = o
         , failure)
 
       $scope.onSubscribedObject = (o) ->
-        console.log 'onSubscribedObject called ++++++++++++++++++++++++'
+        #console.log 'onSubscribedObject called ++++++++++++++++++++++++'
         console.dir(o)
-        for model,i in $scope.list
-          if model.id == o.id
+        added = false
+        for mid,i in $scope.list
+          if mid == o.id
             console.log 'found match in update for object '+o.id+' name '+o.name
+            model = $scope.expandedlist[i]
             for k,v of o
+              added = true
               model[k] = v
+        if not added
+          $scope.expandedlist.push(o)
         $scope.$apply()
 
       #console.log 'subscribing to list ids..'
@@ -271,7 +341,12 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
             type: $scope.listmodel
             cb: $scope.onSubscribedObject
           ).then (listenerid) ->
-            $scope.subscriptions.push listenerid
+            $scope.subscriptions.push {sid: listenerid, o: {type:$scope.listmodel, id: id}}
+
+      $scope.$on '$destroy', () =>
+        console.log 'spinlist captured $destroy event'
+        $scope.subscriptions.forEach (s) =>
+          client.deRegisterObjectSubscriber(s.sid, s.o)
 
     }
   ]

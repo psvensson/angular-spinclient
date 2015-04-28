@@ -7,10 +7,9 @@
             </div>
         </div>
         <div flex>
-            <h2>Results:</h2>
-
             <spinlist ng-if="results && results.length > 0" list="results" listmodel="'SampleGame'" edit="'true'" onselect="onitemselect"></spinlist>
-            <spinmodel ng-if="itemselected" model="itemselected" edit="'true'"></spinmodel>
+            <md-divider></md-divider>
+            <spinwalker ng-if="itemselected" model="itemselected" edit="'true'"></spinwalker>
         </div>
     </div>
 </div>

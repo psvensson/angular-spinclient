@@ -12,14 +12,17 @@
         var subscribers;
         subscribers = service.subscribers[detail.message] || [];
         subscribers.push(detail.callback);
-        service.subscribers[detail.message] = subscribers;
+        return service.subscribers[detail.message] = subscribers;
       },
       registerObjectSubscriber: function(detail) {
         var d, subscribers;
+        console.dir(detail);
+        if (!detail.cb) {
+          console.log('***************************************************************** AUGH *********************************************************************');
+          xyzzy;
+        }
         d = $q.defer();
         subscribers = service.objsubscribers[detail.id] || [];
-        subscribers.push(detail.cb);
-        service.objsubscribers[detail.id] = subscribers;
         service.emitMessage({
           target: 'registerForUpdatesOn',
           messageId: uuid4.generate(),
@@ -28,10 +31,28 @@
             type: detail.type
           }
         }).then(function(reply) {
+          subscribers[reply] = detail.cb;
+          service.objsubscribers[detail.id] = subscribers;
           return d.resolve(reply);
         });
         return d.promise;
       },
+      deRegisterObjectSubscriber: (function(_this) {
+        return function(sid, o) {
+          var subscribers;
+          subscribers = service.objsubscribers[o.id] || [];
+          if (subscribers && subscribers[sid]) {
+            delete subscribers[sid];
+            service.objsubscribers[o.id] = subscribers;
+            return service.emitMessage({
+              target: 'deRegisterForUpdatesOn',
+              id: o.id,
+              type: o.type,
+              listenerid: sid
+            }).then(function(reply) {});
+          }
+        };
+      })(this),
       emitMessage: function(detail) {
         var d;
         d = $q.defer();
@@ -85,17 +106,15 @@
     };
     service.subscribers['OBJECT_UPDATE'] = [
       function(obj) {
-        var subscribers;
+        var k, results1, subscribers, v;
         console.log('+++++++++++ obj update message router got obj');
         subscribers = service.objsubscribers[obj.id] || [];
-        if (subscribers.length === 0) {
-          console.log('* OH NOES! * No subscribers for object update on object ' + obj.id);
-          return console.dir(service.objsubscribers);
-        } else {
-          return subscribers.forEach(function(subscriber) {
-            return subscriber(obj);
-          });
+        results1 = [];
+        for (k in subscribers) {
+          v = subscribers[k];
+          results1.push(v(obj));
         }
+        return results1;
       }
     ];
     service.io.on('message', function(reply) {
@@ -201,53 +220,35 @@
         templateUrl: 'spinmodel.html',
         scope: {
           model: '=model',
-          edit: '=edit'
+          edit: '=edit',
+          onselect: '&'
         },
-        link: function(scope, elem, attrs) {},
+        link: function(scope, elem, attrs) {
+          return scope.onselect = scope.onselect();
+        },
         controller: function($scope) {
           var failure, success;
+          console.log('spinmodel got model');
+          console.dir($scope.model);
           $scope.isarray = angular.isArray;
-          $scope.$watch('model', function(newval, oldval) {
-            console.log('model is');
-            console.dir($scope.model);
-            $scope.listprops = [];
-            return client.getModelFor($scope.model.type).then(function(md) {
-              var i, j, l, len, len1, modeldef, prop, ref, ref1, results1;
-              modeldef = {};
-              md.forEach(function(modelprop) {
-                return modeldef[modelprop.name] = modelprop;
+          $scope.subscriptions = [];
+          $scope.onSubscribedObject = function(o) {
+            return $scope.model = o;
+          };
+          if ($scope.model) {
+            client.registerObjectSubscriber({
+              id: $scope.model.id,
+              type: $scope.model.type,
+              cb: $scope.onSubscribedObject
+            }).then(function(listenerid) {
+              return $scope.subscriptions.push({
+                sid: listenerid,
+                o: $scope.model
               });
-              if ($scope.model) {
-                $scope.listprops.push({
-                  name: 'id',
-                  value: $scope.model.id
-                });
-                for (i = j = 0, len = md.length; j < len; i = ++j) {
-                  prop = md[i];
-                  if (prop.name !== 'id' && angular.isArray($scope.model[prop.name]) === false) {
-                    $scope.listprops.push({
-                      name: prop.name,
-                      value: $scope.model[prop.name] || "",
-                      type: (ref = modeldef[prop.name]) != null ? ref.type : void 0
-                    });
-                  }
-                }
-                results1 = [];
-                for (i = l = 0, len1 = md.length; l < len1; i = ++l) {
-                  prop = md[i];
-                  if (prop.name !== 'id' && angular.isArray($scope.model[prop.name]) === true) {
-                    results1.push($scope.listprops.push({
-                      name: prop.name,
-                      value: $scope.model[prop.name],
-                      type: (ref1 = modeldef[prop.name]) != null ? ref1.type : void 0
-                    }));
-                  } else {
-                    results1.push(void 0);
-                  }
-                }
-                return results1;
-              }
             });
+          }
+          $scope.$watch('model', function(newval, oldval) {
+            return $scope.renderModel();
           });
           success = (function(_this) {
             return function(result) {
@@ -263,14 +264,55 @@
             return function(model, prop) {
               console.log('onChange called for');
               console.dir(model);
-              console.dir(prop);
               return client.emitMessage({
                 target: 'updateObject',
                 obj: model
               }).then(success, failure);
             };
           })(this);
-          return $scope.addModel = function(type, propname) {
+          $scope.renderModel = (function(_this) {
+            return function() {
+              $scope.listprops = [];
+              return client.getModelFor($scope.model.type).then(function(md) {
+                var i, j, l, len, len1, modeldef, prop, ref, ref1, results1;
+                modeldef = {};
+                md.forEach(function(modelprop) {
+                  return modeldef[modelprop.name] = modelprop;
+                });
+                if ($scope.model) {
+                  $scope.listprops.push({
+                    name: 'id',
+                    value: $scope.model.id
+                  });
+                  for (i = j = 0, len = md.length; j < len; i = ++j) {
+                    prop = md[i];
+                    if (prop.name !== 'id' && angular.isArray($scope.model[prop.name]) === false) {
+                      $scope.listprops.push({
+                        name: prop.name,
+                        value: $scope.model[prop.name] || "",
+                        type: (ref = modeldef[prop.name]) != null ? ref.type : void 0
+                      });
+                    }
+                  }
+                  results1 = [];
+                  for (i = l = 0, len1 = md.length; l < len1; i = ++l) {
+                    prop = md[i];
+                    if (prop.name !== 'id' && angular.isArray($scope.model[prop.name]) === true) {
+                      results1.push($scope.listprops.push({
+                        name: prop.name,
+                        value: $scope.model[prop.name],
+                        type: (ref1 = modeldef[prop.name]) != null ? ref1.type : void 0
+                      }));
+                    } else {
+                      results1.push(void 0);
+                    }
+                  }
+                  return results1;
+                }
+              });
+            };
+          })(this);
+          $scope.addModel = function(type, propname) {
             console.log('addModel called for type ' + type);
             return client.emitMessage({
               target: '_create' + type,
@@ -280,16 +322,59 @@
               }
             }).then((function(_this) {
               return function(o) {
-                console.log('addModel for ' + type + ' got back object id for new instance = ' + o.id);
-                $scope.model[propname].push(o);
+                $scope.model[propname].push(o.id);
                 console.log('parent model is now');
                 console.dir($scope.model);
                 return client.emitMessage({
-                  target: '_update' + $scope.model.type,
-                  obj: client.flattenModel($scope.model)
+                  target: 'updateObject',
+                  obj: $scope.model
                 }).then(success, failure);
               };
             })(this), failure);
+          };
+          return $scope.$on('$destroy', (function(_this) {
+            return function() {
+              console.log('spinmodel captured $destroy event');
+              return $scope.subscriptions.forEach(function(s) {
+                return client.deRegisterObjectSubscriber(s.sid, s.o);
+              });
+            };
+          })(this));
+        }
+      };
+    }
+  ]).directive('spinwalker', [
+    'ngSpinClient', function(client) {
+      return {
+        restrict: 'AE',
+        replace: true,
+        templateUrl: 'spinwalker.html',
+        scope: {
+          model: '=model',
+          edit: '=edit'
+        },
+        link: function(scope, elem, attrs) {},
+        controller: function($scope) {
+          $scope.selectedmodel = $scope.model;
+          $scope.breadcrumbs = [$scope.model];
+          $scope.crumbClicked = function(model) {
+            var crumb, i, idx, j, len, ref;
+            $scope.selectedmodel = model;
+            idx = -1;
+            ref = $scope.breadcrumbs;
+            for (i = j = 0, len = ref.length; j < len; i = ++j) {
+              crumb = ref[i];
+              if (crumb.id = model.id) {
+                idx = i;
+              }
+            }
+            if (idx !== -1 && $scope.breadcrumbs.length > 0) {
+              return $scope.breadcrumbs.splice(idx, 1);
+            }
+          };
+          return $scope.onselect = function(listmodel) {
+            $scope.selectedmodel = listmodel;
+            return $scope.breadcrumbs.push(listmodel);
           };
         }
       };
@@ -347,7 +432,8 @@
               for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
                 mid = ref1[i];
                 if (mid === o.id) {
-                  results1.push($scope.list[i] = o);
+                  console.log('-- exhanging list id with actual list model from server for ' + o.name);
+                  results1.push($scope.expandedlist[i] = o);
                 } else {
                   results1.push(void 0);
                 }
@@ -356,33 +442,52 @@
             }, failure);
           }
           $scope.onSubscribedObject = function(o) {
-            var i, k, l, len1, model, ref1, v;
-            console.log('onSubscribedObject called ++++++++++++++++++++++++');
+            var added, i, k, l, len1, mid, model, ref1, v;
             console.dir(o);
+            added = false;
             ref1 = $scope.list;
             for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
-              model = ref1[i];
-              if (model.id === o.id) {
+              mid = ref1[i];
+              if (mid === o.id) {
                 console.log('found match in update for object ' + o.id + ' name ' + o.name);
+                model = $scope.expandedlist[i];
                 for (k in o) {
                   v = o[k];
+                  added = true;
                   model[k] = v;
                 }
               }
             }
+            if (!added) {
+              $scope.expandedlist.push(o);
+            }
             return $scope.$apply();
           };
-          return $scope.list.forEach(function(id) {
+          $scope.list.forEach(function(id) {
             if (id) {
               return client.registerObjectSubscriber({
                 id: id,
                 type: $scope.listmodel,
                 cb: $scope.onSubscribedObject
               }).then(function(listenerid) {
-                return $scope.subscriptions.push(listenerid);
+                return $scope.subscriptions.push({
+                  sid: listenerid,
+                  o: {
+                    type: $scope.listmodel,
+                    id: id
+                  }
+                });
               });
             }
           });
+          return $scope.$on('$destroy', (function(_this) {
+            return function() {
+              console.log('spinlist captured $destroy event');
+              return $scope.subscriptions.forEach(function(s) {
+                return client.deRegisterObjectSubscriber(s.sid, s.o);
+              });
+            };
+          })(this));
         }
       };
     }

@@ -3,10 +3,14 @@
         <md-subheader class="md-no-sticky">
             <md-icon md-svg-src="bower_components/material-design-icons/navigation/svg/design/ic_apps_24px.svg" ></md-icon>
                 SpinCycle List of {{listmodel}}s</md-subheader>
-        <md-list-item ng-repeat="item in list" >
-            <div class="md-list-item-text" ng-click="selectItem(item)" layout="row">
-                <span flex ></md-icon> {{ item.name }} </span>
-                <span flex class="md-secondary"> {{item.id}}</span>
+        <md-list-item ng-repeat="item in expandedlist" >
+            <div class="md-list-item-text" layout="row">
+                <span flex >
+                    <md-button ng-if="!edit" aria-label="delete" class="md-icon-button">
+                        <md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon>
+                    </md-button> <md-button  ng-click="selectItem(item)">{{ item.name }}</md-button>
+                </span>
+                <!-- <span flex class="md-secondary"> {{item.id}}</span> -->
             </div>
         </md-list-item>
     </md-list>
