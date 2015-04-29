@@ -387,6 +387,9 @@
         controller: function($scope) {
           $scope.selectedmodel = $scope.model;
           $scope.breadcrumbs = [$scope.model];
+          $scope.$watch('model', function(newval, oldval) {
+            return $scope.selectedmodel = newval;
+          });
           $scope.crumbClicked = function(model) {
             var crumb, i, idx, _i, _len, _ref;
             $scope.selectedmodel = model;

@@ -281,6 +281,9 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       $scope.selectedmodel = $scope.model
       $scope.breadcrumbs = [$scope.model]
 
+      $scope.$watch 'model', (newval, oldval) ->
+        $scope.selectedmodel = newval
+
       $scope.crumbClicked = (model) ->
         $scope.selectedmodel = model
         idx = -1

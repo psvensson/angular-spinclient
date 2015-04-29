@@ -9,7 +9,9 @@
         <div flex>
             <spinlist ng-if="results && results.length > 0" list="results" listmodel="'SampleGame'" edit="'true'" onselect="onitemselect"></spinlist>
             <md-divider></md-divider>
-            <spinwalker ng-if="itemselected" model="itemselected" edit="'true'"></spinwalker>
+            <div ng-if="itemselected">
+                <spinwalker model="itemselected" edit="'true'"></spinwalker>
+            </div>
         </div>
     </div>
 </div>
