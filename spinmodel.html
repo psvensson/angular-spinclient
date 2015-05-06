@@ -5,18 +5,25 @@
             SpinCycle Model {{model.type}}</md-subheader>
         <md-list-item ng-repeat="prop in listprops" >
             <div class="md-list-item-text" layout="row">
-                <div flex style="background-color:#eee;margin-bottom:2px"> {{ prop.name }} </div>
-                <div ng-if="!isarray(prop.value)" flex class="md-secondary">
+                <div flex style="background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
+                <span flex ng-if="prop.type && prop.value && !prop.hashtable">
+                    <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
+                </span>
+                <div ng-if="!prop.array && !prop.type" flex class="md-secondary">
                     <span ng-if="edit && prop.name != 'id'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
                     <span ng-if="!edit || prop.name == 'id'">{{prop.value}}</span>
                 </div>
-                <div flex style="" ng-if="edit && isarray(prop.value)">
+                <div flex ng-if="edit && prop.array">
                     <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
                     <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect" ondelete="ondelete"></spinlist>
                 </div>
-                <span flex ng-if="!edit && isarray(prop.value)">
+                <span flex ng-if="!edit && prop.array">
                     <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value" onselect="onselect"></spinlist>
                 </span>
+                <div flex ng-if="prop.hashtable">
+                    <div ng-if="edit"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                    <spinhash flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+                </div>
             </div>
         </md-list-item>
     </md-list>

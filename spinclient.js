@@ -7,7 +7,7 @@
       objsubscribers: [],
       outstandingMessages: [],
       modelcache: [],
-      io: io('ws://localhost:3003'),
+      io: io('ws://quantifiedplanet.org:1009'),
       registerListener: function(detail) {
         var subscribers;
         subscribers = service.subscribers[detail.message] || [];
@@ -188,7 +188,7 @@
             console.log('failure' + reply);
             return $scope.status = reply.status + ' - ' + reply.info;
           };
-          return $scope.callTarget = function(t) {
+          $scope.callTarget = function(t) {
             var callobj, i, values;
             $scope.status = "";
             console.log('calltarget called with ' + t.name);
@@ -204,6 +204,11 @@
             }
             return client.emitMessage(callobj).then(success, failure);
           };
+          return client.emitMessage({
+            target: 'listTypes'
+          }).then(function(types) {
+            return $scope.modeltypes = types;
+          });
         }
       };
     }
@@ -302,37 +307,33 @@
           $scope.renderModel = (function(_this) {
             return function() {
               console.log('spinmodel::renderModel called for ' + $scope.model.name);
+              console.dir($scope.model);
               $scope.listprops = [];
               return client.getModelFor($scope.model.type).then(function(md) {
-                var i, modeldef, prop, _i, _j, _len, _len1, _ref, _ref1, _results;
+                var foo, i, modeldef, prop, _i, _len, _results;
                 modeldef = {};
                 md.forEach(function(modelprop) {
                   return modeldef[modelprop.name] = modelprop;
                 });
                 if ($scope.model) {
+                  console.log('making listprops for model');
+                  console.dir(md);
                   $scope.listprops.push({
                     name: 'id',
                     value: $scope.model.id
                   });
+                  _results = [];
                   for (i = _i = 0, _len = md.length; _i < _len; i = ++_i) {
                     prop = md[i];
-                    if (prop.name !== 'id' && angular.isArray($scope.model[prop.name]) === false) {
-                      $scope.listprops.push({
+                    if (prop.name !== 'id') {
+                      foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",
-                        type: (_ref = modeldef[prop.name]) != null ? _ref.type : void 0
-                      });
-                    }
-                  }
-                  _results = [];
-                  for (i = _j = 0, _len1 = md.length; _j < _len1; i = ++_j) {
-                    prop = md[i];
-                    if (prop.name !== 'id' && angular.isArray($scope.model[prop.name]) === true) {
-                      _results.push($scope.listprops.push({
-                        name: prop.name,
-                        value: $scope.model[prop.name],
-                        type: (_ref1 = modeldef[prop.name]) != null ? _ref1.type : void 0
-                      }));
+                        type: modeldef[prop.name].type,
+                        array: modeldef[prop.name].array,
+                        hashtable: modeldef[prop.name].hashtable
+                      };
+                      _results.push($scope.listprops.push(foo));
                     } else {
                       _results.push(void 0);
                     }
@@ -340,6 +341,23 @@
                   return _results;
                 }
               });
+            };
+          })(this);
+          $scope.enterDirectReference = (function(_this) {
+            return function(prop) {
+              console.log('enterDirectReference called for ');
+              console.dir(prop);
+              return client.emitMessage({
+                target: '_get' + prop.type,
+                obj: {
+                  id: $scope.model[prop.name],
+                  type: prop.type
+                }
+              }).then(function(o) {
+                console.log('enterDirectReference got back ');
+                console.dir(o);
+                return $scope.onselect(o);
+              }, failure);
             };
           })(this);
           $scope.addModel = function(type, propname) {
@@ -406,11 +424,17 @@
               return $scope.breadcrumbs.splice(idx, 1);
             }
           };
-          return $scope.onselect = function(listmodel) {
-            console.log('spinwalker onselect for model ' + listmodel.name);
-            $scope.selectedmodel = listmodel;
-            return $scope.breadcrumbs.push(listmodel);
+          $scope.onselect = function(model) {
+            console.log('spinwalker onselect for model ' + model.name);
+            console.log(model);
+            $scope.selectedmodel = model;
+            return $scope.breadcrumbs.push(model);
           };
+          return $scope.crumbPresentation = (function(_this) {
+            return function(crumb) {
+              return crumb.name || crumb.type;
+            };
+          })(this);
         }
       };
     }
@@ -431,8 +455,8 @@
           return scope.ondelete = scope.ondelete();
         },
         controller: function($scope) {
-          var failure, modelid, success, _i, _len, _ref;
-          console.log('spinlist created. list is ' + $scope.list + ' type is ' + $scope.listmodel);
+          var failure, model, success, _i, _len, _ref;
+          console.log('spinlist created. list is ' + $scope.list.length + ' items, type is ' + $scope.listmodel);
           $scope.subscriptions = [];
           $scope.objects = [];
           $scope.expandedlist = [];
@@ -443,7 +467,8 @@
           })(this);
           failure = (function(_this) {
             return function(err) {
-              return console.log('error: ' + err);
+              console.log('error: ' + err);
+              return console.dir(err);
             };
           })(this);
           $scope.selectItem = (function(_this) {
@@ -460,20 +485,20 @@
           };
           _ref = $scope.list;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            modelid = _ref[_i];
+            model = _ref[_i];
             client.emitMessage({
               target: '_get' + $scope.listmodel,
               obj: {
-                id: modelid,
+                id: model.id,
                 type: $scope.listmodel
               }
             }).then(function(o) {
-              var i, mid, _j, _len1, _ref1, _results;
+              var i, mod, _j, _len1, _ref1, _results;
               _ref1 = $scope.list;
               _results = [];
               for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
-                mid = _ref1[i];
-                if (mid === o.id) {
+                mod = _ref1[i];
+                if (mod.id === o.id) {
                   _results.push($scope.expandedlist[i] = o);
                 } else {
                   _results.push(void 0);
@@ -483,19 +508,20 @@
             }, failure);
           }
           $scope.onSubscribedObject = function(o) {
-            var added, i, k, mid, model, v, _j, _len1, _ref1;
+            var added, i, k, mod, v, _j, _len1, _ref1;
+            console.log('onSubscribedObject called ++++++++++++++++++++++++');
             console.dir(o);
             added = false;
             _ref1 = $scope.list;
             for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
-              mid = _ref1[i];
-              if (mid === o.id) {
+              model = _ref1[i];
+              if (model.id === o.id) {
                 console.log('found match in update for object ' + o.id + ' name ' + o.name);
-                model = $scope.expandedlist[i];
+                mod = $scope.expandedlist[i];
                 for (k in o) {
                   v = o[k];
                   added = true;
-                  model[k] = v;
+                  mod[k] = v;
                 }
               }
             }
@@ -504,10 +530,10 @@
             }
             return $scope.$apply();
           };
-          $scope.list.forEach(function(id) {
-            if (id) {
+          $scope.list.forEach(function(model) {
+            if (model.id) {
               return client.registerObjectSubscriber({
-                id: id,
+                id: model.id,
                 type: $scope.listmodel,
                 cb: $scope.onSubscribedObject
               }).then(function(listenerid) {
@@ -515,7 +541,7 @@
                   sid: listenerid,
                   o: {
                     type: $scope.listmodel,
-                    id: id
+                    id: model.id
                   }
                 });
               });
@@ -529,6 +555,67 @@
               });
             };
           })(this));
+        }
+      };
+    }
+  ]).directive('spinhash', [
+    'ngSpinClient', function(client) {
+      return {
+        restrict: 'AE',
+        replace: true,
+        templateUrl: 'spinhash.html',
+        scope: {
+          list: '=list',
+          listmodel: '=listmodel',
+          onselect: '&',
+          ondelete: '&'
+        },
+        link: function(scope, elem, attrs) {
+          return scope.onselect = scope.onselect();
+        },
+        controller: function($scope) {
+          var failure, mid, _i, _len, _ref;
+          console.log('spinhash list for model ' + $scope.listmodel + ' is');
+          console.dir($scope.list);
+          $scope.expandedlist = [];
+          failure = (function(_this) {
+            return function(err) {
+              console.log('error: ' + err);
+              return console.dir(err);
+            };
+          })(this);
+          _ref = $scope.list;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            mid = _ref[_i];
+            client.emitMessage({
+              target: '_get' + $scope.listmodel,
+              obj: {
+                id: mid,
+                type: $scope.listmodel
+              }
+            }).then(function(o) {
+              var i, modid, _j, _len1, _ref1, _results;
+              _ref1 = $scope.list;
+              _results = [];
+              for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+                modid = _ref1[i];
+                if (modid === o.id) {
+                  console.log('adding hashtable element ' + o.name);
+                  _results.push($scope.expandedlist[i] = o);
+                } else {
+                  _results.push(void 0);
+                }
+              }
+              return _results;
+            }, failure);
+          }
+          return $scope.selectItem = (function(_this) {
+            return function(item) {
+              if ($scope.onselect) {
+                return $scope.onselect(item);
+              }
+            };
+          })(this);
         }
       };
     }

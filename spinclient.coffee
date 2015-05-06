@@ -7,7 +7,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     outstandingMessages : []
     modelcache          : []
     #io                  : $websocket('ws://localhost:3003')
-    io                  : io('ws://localhost:3003')
+    #io                  : io('ws://localhost:3003')
+    io                  : io('ws://quantifiedplanet.org:1009')
 
     registerListener: (detail) ->
       subscribers = service.subscribers[detail.message] or []
@@ -164,6 +165,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
             callobj[arg] = values[i++]
         client.emitMessage(callobj).then(success,failure)
 
+      client.emitMessage({target:'listTypes'}).then (types)-> $scope.modeltypes = types
+
     }
   ]
 .directive 'spinmodel', [
@@ -233,19 +236,29 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
 
       $scope.renderModel = () =>
         console.log 'spinmodel::renderModel called for '+$scope.model.name
+        console.dir $scope.model
         $scope.listprops = []
         client.getModelFor($scope.model.type).then (md) ->
           modeldef = {}
           md.forEach (modelprop) -> modeldef[modelprop.name] = modelprop
           if $scope.model
+            console.log 'making listprops for model'
+            console.dir md
             $scope.listprops.push {name: 'id', value: $scope.model.id}
             #delete $scope.model.id
             for prop,i in md
-              if(prop.name != 'id' and angular.isArray($scope.model[prop.name]) == no)
-                $scope.listprops.push {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name]?.type}
-            for prop,i in md
-              if(prop.name != 'id' and  angular.isArray($scope.model[prop.name]) == yes)
-                $scope.listprops.push {name: prop.name, value: $scope.model[prop.name], type: modeldef[prop.name]?.type}
+              if(prop.name != 'id')
+                foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
+                $scope.listprops.push foo
+
+      $scope.enterDirectReference = (prop) =>
+        console.log 'enterDirectReference called for '
+        console.dir prop
+        client.emitMessage({ target:'_get'+prop.type, obj: {id: $scope.model[prop.name], type: prop.type }}).then( (o)->
+          console.log 'enterDirectReference got back '
+          console.dir o
+          $scope.onselect(o)
+        , failure)
 
       $scope.addModel = (type, propname) ->
         console.log 'addModel called for type '+type
@@ -293,10 +306,14 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         if idx > -1 and $scope.breadcrumbs.length > 1
           $scope.breadcrumbs.splice idx,1
 
-      $scope.onselect = (listmodel) ->
-        console.log 'spinwalker onselect for model '+listmodel.name
-        $scope.selectedmodel = listmodel
-        $scope.breadcrumbs.push listmodel
+      $scope.onselect = (model) ->
+        console.log 'spinwalker onselect for model '+model.name
+        console.log model
+        $scope.selectedmodel = model
+        $scope.breadcrumbs.push model
+
+      $scope.crumbPresentation = (crumb) =>
+        crumb.name || crumb.type
 
     }
   ]
@@ -318,7 +335,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
       scope.ondelete = scope.ondelete()
 
     controller:  ($scope) ->
-      console.log 'spinlist created. list is '+$scope.list+' type is '+$scope.listmodel
+      console.log 'spinlist created. list is '+$scope.list.length+' items, type is '+$scope.listmodel
       $scope.subscriptions = []
       $scope.objects = []
       $scope.expandedlist = []
@@ -328,6 +345,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
 
       failure = (err) =>
         console.log 'error: '+err
+        console.dir err
 
       $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'
@@ -338,38 +356,38 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         $scope.ondelete(item) if $scope.ondelete
 
 
-      for modelid in $scope.list
-        client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
-          for mid,i in $scope.list
-            if mid == o.id
+      for model in $scope.list
+        client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: model.id, type: $scope.listmodel }}).then( (o)->
+          for mod,i in $scope.list
+            if mod.id == o.id
               #console.log '-- exhanging list id with actual list model from server for '+o.name
               $scope.expandedlist[i] = o
         , failure)
 
       $scope.onSubscribedObject = (o) ->
-        #console.log 'onSubscribedObject called ++++++++++++++++++++++++'
+        console.log 'onSubscribedObject called ++++++++++++++++++++++++'
         console.dir(o)
         added = false
-        for mid,i in $scope.list
-          if mid == o.id
+        for model,i in $scope.list
+          if model.id == o.id
             console.log 'found match in update for object '+o.id+' name '+o.name
-            model = $scope.expandedlist[i]
+            mod = $scope.expandedlist[i]
             for k,v of o
               added = true
-              model[k] = v
+              mod[k] = v
         if not added
           $scope.expandedlist.push(o)
         $scope.$apply()
 
       #console.log 'subscribing to list ids..'
-      $scope.list.forEach (id) ->
-        if id
+      $scope.list.forEach (model) ->
+        if model.id
           client.registerObjectSubscriber(
-            id: id
+            id: model.id
             type: $scope.listmodel
             cb: $scope.onSubscribedObject
           ).then (listenerid) ->
-            $scope.subscriptions.push {sid: listenerid, o: {type:$scope.listmodel, id: id}}
+            $scope.subscriptions.push {sid: listenerid, o: {type:$scope.listmodel, id: model.id}}
 
       $scope.$on '$destroy', () =>
         console.log 'spinlist captured $destroy event'
@@ -377,4 +395,44 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
           client.deRegisterObjectSubscriber(s.sid,s.o)
     }
   ]
+.directive 'spinhash', [
+  'ngSpinClient'
+  (client) ->
+    {
+    restrict:    'AE'
+    replace:     true
+    templateUrl: 'spinhash.html'
+    scope:
+      list: '=list'
+      listmodel:   '=listmodel'
+      onselect:    '&'
+      ondelete:    '&'
 
+    link: (scope, elem, attrs) ->
+      scope.onselect = scope.onselect()
+      #scope.ondelete = scope.ondelete()
+
+    controller: ($scope) ->
+      console.log 'spinhash list for model '+$scope.listmodel+' is'
+      console.dir $scope.list
+
+      $scope.expandedlist = []
+
+      failure = (err) =>
+        console.log 'error: '+err
+        console.dir err
+
+      for mid in $scope.list
+        client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: mid, type: $scope.listmodel }}).then( (o)->
+          for modid,i in $scope.list
+            if modid == o.id
+              console.log 'adding hashtable element '+o.name
+              $scope.expandedlist[i] = o
+        , failure)
+
+      $scope.selectItem = (item) =>
+        #console.log 'item '+item.name+' selected'
+        $scope.onselect(item) if $scope.onselect
+
+    }
+  ]

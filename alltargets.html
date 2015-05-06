@@ -1,5 +1,8 @@
 <div>
     <h2>Status: {{status}}</h2>
+    Return Type:<md-select ng-model="currentmodeltype" placeholder="Select a return type for calls">
+        <md-option ng-value="opt" ng-repeat="opt in modeltypes">{{ opt }}</md-option>
+    </md-select>
     <div layout="row">
         <div flex>
             <div ng-repeat="target in targets">
@@ -7,7 +10,7 @@
             </div>
         </div>
         <div flex>
-            <spinlist ng-if="results && results.length > 0" list="results" listmodel="'SampleGame'" edit="'true'" onselect="onitemselect"></spinlist>
+            <spinlist ng-if="results && results.length > 0" list="results" listmodel="currentmodeltype" edit="'true'" onselect="onitemselect" style="height:300px;overflow:auto"></spinlist>
             <md-divider></md-divider>
             <div ng-if="itemselected">
                 <spinwalker model="itemselected" edit="'true'"></spinwalker>
