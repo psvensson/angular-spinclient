@@ -406,6 +406,7 @@
           $scope.selectedmodel = $scope.model;
           $scope.breadcrumbs = [$scope.model];
           $scope.$watch('model', function(newval, oldval) {
+            $scope.breadcrumbs = [$scope.model];
             return $scope.selectedmodel = newval;
           });
           $scope.crumbClicked = function(model) {
