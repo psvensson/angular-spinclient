@@ -307,9 +307,10 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         if idx > -1 and $scope.breadcrumbs.length > 1
           $scope.breadcrumbs.splice idx,1
 
-      $scope.onselect = (model) ->
+      $scope.onselect = (model, replace) ->
         console.log 'spinwalker onselect for model '+model.name
         console.log model
+        $scope.breadcrumbs = [] if replace
         $scope.selectedmodel = model
         $scope.breadcrumbs.push model
 
@@ -348,9 +349,9 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
         console.log 'error: '+err
         console.dir err
 
-      $scope.selectItem = (item) =>
+      $scope.selectItem = (item, replace) =>
         #console.log 'item '+item.name+' selected'
-        $scope.onselect(item) if $scope.onselect
+        $scope.onselect(item, replace) if $scope.onselect
 
       $scope.deleteItem = (item) ->
         #console.log 'list delete'
@@ -431,9 +432,9 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
               $scope.expandedlist[i] = o
         , failure)
 
-      $scope.selectItem = (item) =>
+      $scope.selectItem = (item, replace) =>
         #console.log 'item '+item.name+' selected'
-        $scope.onselect(item) if $scope.onselect
+        $scope.onselect(item, replace) if $scope.onselect
 
     }
   ]

@@ -425,9 +425,12 @@
               return $scope.breadcrumbs.splice(idx, 1);
             }
           };
-          $scope.onselect = function(model) {
+          $scope.onselect = function(model, replace) {
             console.log('spinwalker onselect for model ' + model.name);
             console.log(model);
+            if (replace) {
+              $scope.breadcrumbs = [];
+            }
             $scope.selectedmodel = model;
             return $scope.breadcrumbs.push(model);
           };
@@ -473,9 +476,9 @@
             };
           })(this);
           $scope.selectItem = (function(_this) {
-            return function(item) {
+            return function(item, replace) {
               if ($scope.onselect) {
-                return $scope.onselect(item);
+                return $scope.onselect(item, replace);
               }
             };
           })(this);
@@ -611,9 +614,9 @@
             }, failure);
           }
           return $scope.selectItem = (function(_this) {
-            return function(item) {
+            return function(item, replace) {
               if ($scope.onselect) {
-                return $scope.onselect(item);
+                return $scope.onselect(item, replace);
               }
             };
           })(this);
