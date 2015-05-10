@@ -6,7 +6,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinCli
     objsubscribers      : []
     outstandingMessages : []
     modelcache          : []
-    
+
     #io                  : io('ws://localhost:3003')
     io                  : io('ws://quantifiedplanet.org:1009')
 
@@ -71,6 +71,8 @@ angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinCli
           rv[k] = v
       return rv
   }
+
+  module.exports.ngSpinCycle = service
 
   service.subscribers['OBJECT_UPDATE'] = [ (obj) ->
     console.log '+++++++++++ obj update message router got obj'
