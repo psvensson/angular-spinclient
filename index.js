@@ -1,2 +1,2 @@
 require('./spinclicent.js');
-module.exports = 'ngSpinClient';
+module.exports = 'ngSpinclient';

@@ -1,4 +1,4 @@
-module.exports = angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinClient', (uuid4, $q) ->
+module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (uuid4, $q) ->
   #public methods & properties
   service = {
 
@@ -127,7 +127,7 @@ module.exports = angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).f
   #---------------------------------------------------------------------------------
 
 .directive 'alltargets', [
-  'ngSpinClient'
+  'ngSpinclient'
   (client) ->
     {
     restrict: 'AE'
@@ -172,7 +172,7 @@ module.exports = angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).f
     }
   ]
 .directive 'spinmodel', [
-  'ngSpinClient'
+  'ngSpinclient'
   (client) ->
     {
     restrict:    'AE'
@@ -280,7 +280,7 @@ module.exports = angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).f
     }
   ]
 .directive 'spinwalker', [
-  'ngSpinClient'
+  'ngSpinclient'
   (client) ->
     {
     restrict: 'AE'
@@ -322,7 +322,7 @@ module.exports = angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).f
     }
   ]
 .directive 'spinlist', [
-  'ngSpinClient'
+  'ngSpinclient'
   (client) ->
     {
     restrict:    'AE'
@@ -400,7 +400,7 @@ module.exports = angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).f
     }
   ]
 .directive 'spinhash', [
-  'ngSpinClient'
+  'ngSpinclient'
   (client) ->
     {
     restrict:    'AE'
