@@ -1,4 +1,4 @@
-angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinClient', (uuid4, $q) ->
+module.exports = angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinClient', (uuid4, $q) ->
   #public methods & properties
   service = {
 
@@ -72,7 +72,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinCli
       return rv
   }
 
-  #module.exports.ngSpinCycle = service
+
 
   service.subscribers['OBJECT_UPDATE'] = [ (obj) ->
     console.log '+++++++++++ obj update message router got obj'
@@ -440,3 +440,4 @@ angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinCli
 
     }
   ]
+module.exports.name = 'ngSpincCycle'
