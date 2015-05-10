@@ -99,7 +99,6 @@
         return rv;
       }
     };
-    module.exports.ngSpinCycle = service;
     service.subscribers['OBJECT_UPDATE'] = [
       function(obj) {
         var k, subscribers, v, _results;

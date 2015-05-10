@@ -5,7 +5,7 @@
 
 'use strict';
 
-require('angular-spinclient');
+
 
 angular.module('myApp', [
 'ngRoute', 'ngSanitize', 'ngTouch',	'ngLocale', 'ngWebSocket', 'ngMaterial',
