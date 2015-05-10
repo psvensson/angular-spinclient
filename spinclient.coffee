@@ -1,4 +1,4 @@
-angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).factory 'ngSpinClient', (uuid4, $websocket, $q) ->
+angular.module('angular-spinclient', ['uuid4', 'ngMaterial']).factory 'ngSpinClient', (uuid4, $q) ->
   #public methods & properties
   service = {
 
@@ -6,7 +6,7 @@ angular.module('angular-spinclient', ['uuid4', 'ngWebSocket', 'ngMaterial']).fac
     objsubscribers      : []
     outstandingMessages : []
     modelcache          : []
-    #io                  : $websocket('ws://localhost:3003')
+    
     #io                  : io('ws://localhost:3003')
     io                  : io('ws://quantifiedplanet.org:1009')
 
