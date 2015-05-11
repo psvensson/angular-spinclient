@@ -1,4 +1,4 @@
-module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (uuid4, $q) ->
+angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (uuid4, $q) ->
   #public methods & properties
   service = {
 
@@ -127,12 +127,32 @@ module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory
   #---------------------------------------------------------------------------------
 
 .directive 'alltargets', [
-  'ngSpinclient'
+  'spinclient'
   (client) ->
     {
     restrict: 'AE'
     replace: true
-    templateUrl: 'alltargets.html'
+    #templateUrl: 'alltargets.html'
+    template:'<div>
+    <h2>Status: {{status}}</h2>
+    Return Type:<md-select ng-model="currentmodeltype" placeholder="Select a return type for calls">
+        <md-option ng-value="opt" ng-repeat="opt in modeltypes">{{ opt }}</md-option>
+    </md-select>
+    <div layout="row">
+        <div flex>
+            <div ng-repeat="target in targets">
+                <button ng-click="callTarget(target)">{{target.name}}</button> - <span ng-if="target.args==\'<none>\'">{{target.args}}</span><span ng-if="target.args!=\'<none>\'"><input type="text" ng-model="target.args"></span>
+            </div>
+        </div>
+        <div flex>
+            <spinlist ng-if="results && results.length > 0" list="results" listmodel="currentmodeltype" edit="\'true\'" onselect="onitemselect" style="height:300px;overflow:auto"></spinlist>
+            <md-divider></md-divider>
+            <div ng-if="itemselected">
+                <spinwalker model="itemselected" edit="\'true\'"></spinwalker>
+            </div>
+        </div>
+    </div>
+</div>'
     link: (scope, elem, attrs) ->
 
     controller: ($scope) ->
@@ -172,12 +192,42 @@ module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory
     }
   ]
 .directive 'spinmodel', [
-  'ngSpinclient'
+  'spinclient'
   (client) ->
     {
     restrict:    'AE'
     replace:     true
-    templateUrl: 'spinmodel.html'
+    #templateUrl: 'spinmodel.html'
+    template:'<div>
+    <md-list >
+        <md-subheader class="md-no-sticky" style="background-color:#ddd">
+            <md-icon md-svg-src="images/ic_folder_shared_24px.svg" ></md-icon>
+            SpinCycle Model {{model.type}}</md-subheader>
+        <md-list-item ng-repeat="prop in listprops" >
+            <div class="md-list-item-text" layout="row">
+                <div flex style="background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
+                <span flex ng-if="prop.type && prop.value && !prop.hashtable">
+                    <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
+                </span>
+                <div ng-if="!prop.array && !prop.type" flex class="md-secondary">
+                    <span ng-if="edit && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
+                    <span ng-if="!edit || prop.name == \'id\'">{{prop.value}}</span>
+    </div>
+                <div flex ng-if="edit && prop.array">
+                    <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                    <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect" ondelete="ondelete"></spinlist>
+    </div>
+                <span flex ng-if="!edit && prop.array">
+                    <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value" onselect="onselect"></spinlist>
+    </span>
+                <div flex ng-if="prop.hashtable">
+                    <div ng-if="edit"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                    <spinhash flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+    </div>
+            </div>
+    </md-list-item>
+    </md-list>
+</div>'
     scope:
       model: '=model'
       edit: '=edit'
@@ -280,12 +330,19 @@ module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory
     }
   ]
 .directive 'spinwalker', [
-  'ngSpinclient'
+  'spinclient'
   (client) ->
     {
     restrict: 'AE'
     replace: true
-    templateUrl: 'spinwalker.html'
+    #templateUrl: 'spinwalker.html
+    template:'<div>
+    <span ng-repeat="crumb in breadcrumbs">
+       <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> >
+    </span>
+    <md-divider></md-divider>
+    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" style="height:400px;overflow:auto"></spinmodel>
+</div>'
     scope:
       model: '=model'
       edit: '=edit'
@@ -322,12 +379,29 @@ module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory
     }
   ]
 .directive 'spinlist', [
-  'ngSpinclient'
+  'spinclient'
   (client) ->
     {
     restrict:    'AE'
     replace:     true
-    templateUrl: 'spinlist.html'
+    #templateUrl: 'spinlist.html'
+    template:'<div>
+    <md-list >
+        <md-subheader class="md-no-sticky" style="background-color:#ddd">
+            <md-icon md-svg-src="images/ic_apps_24px.svg" ></md-icon>
+                SpinCycle List of {{listmodel}}s</md-subheader>
+        <md-list-item ng-repeat="item in expandedlist" >
+            <div class="md-list-item-text" layout="row">
+                <span flex >
+                    <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
+                        <md-icon md-svg-src="images/ic_delete_24px.svg"></md-icon>
+                    </md-button> <md-button  ng-click="selectItem(item, true)">{{ item.name }}</md-button>
+                </span>
+                <!-- <span flex class="md-secondary"> {{item.id}}</span> -->
+            </div>
+        </md-list-item>
+    </md-list>
+</div>'
     scope:
       list: '=list'
       listmodel: '=listmodel'
@@ -400,7 +474,7 @@ module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory
     }
   ]
 .directive 'spinhash', [
-  'ngSpinclient'
+  'spinclient'
   (client) ->
     {
     restrict:    'AE'
@@ -440,4 +514,3 @@ module.exports = angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory
 
     }
   ]
-module.exports.name = 'ngSpincCycle'

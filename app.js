@@ -8,8 +8,7 @@
 
 
 angular.module('myApp', [
-'ngRoute', 'ngSanitize', 'ngTouch',	'ngLocale', 'ngWebSocket', 'ngMaterial',
-'angular-spinclient'
+'ngRoute', 'ngSanitize', 'ngTouch',	'ngLocale', 'ngWebSocket', 'ngMaterial', 'ngSpinclient'
 ]).
 config(['$routeProvider', '$locationProvider', '$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
 	/**

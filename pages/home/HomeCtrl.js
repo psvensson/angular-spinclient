@@ -3,7 +3,7 @@
 
 'use strict';
 
-angular.module('myApp').controller('HomeCtrl', ['$scope', 'ngSpinClient', function($scope, ngSpinClient) {
+angular.module('myApp').controller('HomeCtrl', ['$scope', 'spinclient', function($scope, ngSpinclient) {
 
   /*
   var d = ngSpinClient.listTargets().then(function(targets) {
