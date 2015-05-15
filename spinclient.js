@@ -7,7 +7,7 @@
       objsubscribers: [],
       outstandingMessages: [],
       modelcache: [],
-      io: io('ws://quantifiedplanet.org:1009'),
+      io: io('ws://evothings.com:1009'),
       registerListener: function(detail) {
         var subscribers;
         subscribers = service.subscribers[detail.message] || [];

@@ -8,7 +8,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     modelcache          : []
 
     #io                  : io('ws://localhost:3003')
-    io                  : io('ws://quantifiedplanet.org:1009')
+    io                  : io('ws://evothings.com:1009')
 
     registerListener: (detail) ->
       subscribers = service.subscribers[detail.message] or []
