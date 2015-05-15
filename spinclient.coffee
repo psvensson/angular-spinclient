@@ -479,7 +479,17 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     {
     restrict:    'AE'
     replace:     true
-    templateUrl: 'spinhash.html'
+    #templateUrl: 'spinhash.html'
+    template: '<div>
+    <md-list>
+        <md-list-item ng-repeat="item in expandedlist" >
+            <div class="md-list-item-text" layout="row">
+                <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
+                    <md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon>
+                </md-button> <md-button  ng-click="selectItem(item)">{{ item.name }}</md-button>
+            </div>
+    </md-list>
+</div>'
     scope:
       list: '=list'
       listmodel:   '=listmodel'
