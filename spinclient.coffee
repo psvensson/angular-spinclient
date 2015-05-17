@@ -12,6 +12,38 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     setWebSocketInstance: (io) =>
       service.io = io
+      service.io.on 'message', (reply) ->
+      status = reply.status
+      message = reply.payload
+      info = reply.info
+      #console.log 'got reply id ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message
+      #console.dir reply
+      index = -1
+      if reply.messageId
+        i = 0
+        while i < service.outstandingMessages.length
+          detail = service.outstandingMessages[i]
+          if detail.messageId == reply.messageId
+            if reply.status == 'FAILURE'
+              detail.d.reject reply
+            else
+              detail.d.resolve message
+              index = i
+              break
+          i++
+        if index > 0
+          service.outstandingMessages.splice index, 1
+      else
+        subscribers = service.subscribers[info]
+        if subscribers
+          subscribers.forEach (listener) ->
+    #console.log("sending reply to listener");
+            listener message
+            return
+        else
+          console.log 'no subscribers for message ' + message
+          console.dir reply
+      return
 
     registerListener: (detail) ->
       subscribers = service.subscribers[detail.message] or []
@@ -92,39 +124,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       v obj
   ]
 
-  #service.io.onMessage (reply) ->
-  service.io.on 'message', (reply) ->
-    status = reply.status
-    message = reply.payload
-    info = reply.info
-    #console.log 'got reply id ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message
-    #console.dir reply
-    index = -1
-    if reply.messageId
-      i = 0
-      while i < service.outstandingMessages.length
-        detail = service.outstandingMessages[i]
-        if detail.messageId == reply.messageId
-          if reply.status == 'FAILURE'
-            detail.d.reject reply
-          else
-            detail.d.resolve message
-            index = i
-            break
-        i++
-      if index > 0
-        service.outstandingMessages.splice index, 1
-    else
-      subscribers = service.subscribers[info]
-      if subscribers
-        subscribers.forEach (listener) ->
-          #console.log("sending reply to listener");
-          listener message
-          return
-      else
-        console.log 'no subscribers for message ' + message
-        console.dir reply
-    return
   return service
 
   #---------------------------------------------------------------------------------
