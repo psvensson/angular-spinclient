@@ -4,6 +4,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     subscribers         : []
     objsubscribers      : []
+    objectsSubscribedTo : []
+
     outstandingMessages : []
     modelcache          : []
 
@@ -43,11 +45,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             subscribers.forEach (listener) ->
               #console.log("sending reply to listener");
               listener message
-              return
           else
             console.log 'no subscribers for message ' + message
             console.dir reply
-        return
 
     registerListener: (detail) ->
       subscribers = service.subscribers[detail.message] or []
@@ -55,6 +55,23 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       service.subscribers[detail.message] = subscribers
 
     registerObjectSubscriber: (detail) ->
+      d = $q.defer()
+      sid = uuid4()
+      localsubs = service.objectsSubscribedTo[detail.id]
+      if not localsubs
+        localsubs = []
+        # actually set up subscription, once for each object
+        service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
+          for k,v in localsubs
+            v.cb updatedobj
+        }).then (remotesid) ->
+          localsubs['remotesid'] = remotesid
+      localsubs[sid] = detail
+      service.objectsSubscribedTo[detail.id] = localsubs
+      d.resolve(sid)
+      return d.promise
+
+    _registerObjectSubscriber: (detail) ->
       d = $q.defer()
       #.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
@@ -68,6 +85,16 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       return d.promise
 
     deRegisterObjectSubscriber: (sid, o) =>
+      localsubs = service.objectsSubscribedTo[o.id] or []
+      if localsubs[sid]
+        delete localsubs[sid]
+        count = 0
+        for k,v in localsubs
+          count++
+        if count == 1 # only remotesid property left
+          service._deRegisterObjectSubscriber('remotesid', o)
+
+    _deRegisterObjectSubscriber: (sid, o) =>
       subscribers = service.objsubscribers[o.id] or []
       if subscribers and subscribers[sid]
         delete subscribers[sid]
@@ -448,6 +475,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
 
       for model in $scope.list
+        console.log 'spinlist expanding list reference for model id '+model.id+' of type '+$scope.listmodel
         client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: model.id, type: $scope.listmodel }}).then( (o)->
           for mod,i in $scope.list
             if mod.id == o.id

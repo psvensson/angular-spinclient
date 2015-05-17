@@ -7,6 +7,7 @@
     service = {
       subscribers: [],
       objsubscribers: [],
+      objectsSubscribedTo: [],
       outstandingMessages: [],
       modelcache: [],
       io: null,
@@ -39,17 +40,17 @@
                 i++;
               }
               if (index > 0) {
-                service.outstandingMessages.splice(index, 1);
+                return service.outstandingMessages.splice(index, 1);
               }
             } else {
               subscribers = service.subscribers[info];
               if (subscribers) {
-                subscribers.forEach(function(listener) {
-                  listener(message);
+                return subscribers.forEach(function(listener) {
+                  return listener(message);
                 });
               } else {
                 console.log('no subscribers for message ' + message);
-                console.dir(reply);
+                return console.dir(reply);
               }
             }
           });
@@ -62,6 +63,34 @@
         return service.subscribers[detail.message] = subscribers;
       },
       registerObjectSubscriber: function(detail) {
+        var d, localsubs, sid;
+        d = $q.defer();
+        sid = uuid4();
+        localsubs = service.objectsSubscribedTo[detail.id];
+        if (!localsubs) {
+          localsubs = [];
+          service._registerObjectSubscriber({
+            id: detail.id,
+            type: detail.type,
+            cb: function(updatedobj) {
+              var k, v, _i, _len, _results;
+              _results = [];
+              for (v = _i = 0, _len = localsubs.length; _i < _len; v = ++_i) {
+                k = localsubs[v];
+                _results.push(v.cb(updatedobj));
+              }
+              return _results;
+            }
+          }).then(function(remotesid) {
+            return localsubs['remotesid'] = remotesid;
+          });
+        }
+        localsubs[sid] = detail;
+        service.objectsSubscribedTo[detail.id] = localsubs;
+        d.resolve(sid);
+        return d.promise;
+      },
+      _registerObjectSubscriber: function(detail) {
         var d, subscribers;
         d = $q.defer();
         subscribers = service.objsubscribers[detail.id] || [];
@@ -80,6 +109,23 @@
         return d.promise;
       },
       deRegisterObjectSubscriber: (function(_this) {
+        return function(sid, o) {
+          var count, k, localsubs, v, _i, _len;
+          localsubs = service.objectsSubscribedTo[o.id] || [];
+          if (localsubs[sid]) {
+            delete localsubs[sid];
+            count = 0;
+            for (v = _i = 0, _len = localsubs.length; _i < _len; v = ++_i) {
+              k = localsubs[v];
+              count++;
+            }
+            if (count === 1) {
+              return service._deRegisterObjectSubscriber('remotesid', o);
+            }
+          }
+        };
+      })(this),
+      _deRegisterObjectSubscriber: (function(_this) {
         return function(sid, o) {
           var subscribers;
           subscribers = service.objsubscribers[o.id] || [];
@@ -515,6 +561,7 @@
           _ref = $scope.list;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             model = _ref[_i];
+            console.log('spinlist expanding list reference for model id ' + model.id + ' of type ' + $scope.listmodel);
             client.emitMessage({
               target: '_get' + $scope.listmodel,
               obj: {
