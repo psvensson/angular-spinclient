@@ -385,7 +385,7 @@
               console.dir($scope.model);
               $scope.listprops = [];
               return client.getModelFor($scope.model.type).then(function(md) {
-                var foo, i, modeldef, prop, _i, _len, _results;
+                var foo, i, modeldef, prop, _i, _len, _ref, _results;
                 modeldef = {};
                 md.forEach(function(modelprop) {
                   return modeldef[modelprop.name] = modelprop;
@@ -400,7 +400,7 @@
                   _results = [];
                   for (i = _i = 0, _len = md.length; _i < _len; i = ++_i) {
                     prop = md[i];
-                    if (prop.name !== 'id' || __indexOf.call($scope.hideproperties, propname) >= 0) {
+                    if (prop.name !== 'id' || (_ref = !prop.name, __indexOf.call($scope.hideproperties, _ref) >= 0)) {
                       foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",

@@ -340,7 +340,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             $scope.listprops.push {name: 'id', value: $scope.model.id}
             #delete $scope.model.id
             for prop,i in md
-              if(prop.name != 'id' or propname in $scope.hideproperties)
+              if(prop.name != 'id' or not prop.name in $scope.hideproperties)
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
