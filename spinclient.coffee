@@ -9,6 +9,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     #io                  : io('ws://localhost:3003')
     io                  : null
+    sessionId           : null
+
+    setSessionId: (id) ->
+      service.sessionId = id
 
     setWebSocketInstance: (io) =>
       service.io = io
@@ -75,6 +79,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       #console.dir detail
       d = $q.defer()
       detail.messageId = uuid4.generate()
+      detail.sessionId = service.sessionId
       service.outstandingMessages.push detail
       service.io.emit 'message', JSON.stringify(detail)
       detail.d = d
@@ -106,8 +111,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           rv[k] = v
       return rv
   }
-
-
 
   service.subscribers['OBJECT_UPDATE'] = [ (obj) ->
     console.log '+++++++++ obj update message router got obj'
@@ -204,30 +207,30 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-list >
         <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="images/ic_folder_shared_24px.svg" ></md-icon>
-            SpinCycle Model {{model.type}}</md-subheader>
-        <md-list-item ng-repeat="prop in listprops" >
-            <div class="md-list-item-text" layout="row">
-                <div flex style="background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
-                <span flex ng-if="prop.type && prop.value && !prop.hashtable">
-                    <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
-                </span>
-                <div ng-if="!prop.array && !prop.type" flex class="md-secondary">
-                    <span ng-if="edit && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
-                    <span ng-if="!edit || prop.name == \'id\'">{{prop.value}}</span>
-    </div>
-                <div flex ng-if="edit && prop.array">
-                    <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
-                    <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect" ondelete="ondelete"></spinlist>
-    </div>
-                <span flex ng-if="!edit && prop.array">
-                    <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value" onselect="onselect"></spinlist>
-    </span>
-                <div flex ng-if="prop.hashtable">
-                    <div ng-if="edit"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
-                    <spinhash flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
-    </div>
-            </div>
-    </md-list-item>
+            {{model.type}} {{model.name}}</md-subheader>
+            <md-list-item ng-repeat="prop in listprops" >
+                <div class="md-list-item-text" layout="row">
+                    <div flex style="background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
+                    <span flex ng-if="prop.type && prop.value && !prop.hashtable">
+                        <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
+                    </span>
+                    <div ng-if="!prop.array && !prop.type" flex class="md-secondary">
+                        <span ng-if="isEditable(prop.name) && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
+                        <span ng-if="!isEditable(prop.name) || prop.name == \'id\'">{{prop.value}}</span>
+                    </div>
+                    <div flex ng-if="isEditable(prop.name) && prop.array">
+                        <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                        <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect" ondelete="ondelete"></spinlist>
+                    </div>
+                    <span flex ng-if="!isEditable(prop.name) && prop.array">
+                        <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value" onselect="onselect"></spinlist>
+                    </span>
+                    <div flex ng-if="prop.hashtable">
+                        <div ng-if="isEditable(prop.name)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                        <spinhash flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+                    </div>
+                </div>
+        </md-list-item>
     </md-list>
 </div>'
     scope:
@@ -245,9 +248,15 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.isarray = angular.isArray
       $scope.subscriptions = []
+      $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
 
       $scope.onSubscribedObject = (o) ->
         $scope.model = o
+
+      $scope.isEditable = (propname) =>
+        rv = $scope.edit
+        if propname in $scope.nonEditable then rv = false
+        return rv
 
       if($scope.model)
         client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
