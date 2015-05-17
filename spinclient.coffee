@@ -56,7 +56,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     registerObjectSubscriber: (detail) ->
       d = $q.defer()
-      sid = uuid4()
+      sid = uuid4.generate()
       localsubs = service.objectsSubscribedTo[detail.id]
       if not localsubs
         localsubs = []

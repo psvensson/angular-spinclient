@@ -65,7 +65,7 @@
       registerObjectSubscriber: function(detail) {
         var d, localsubs, sid;
         d = $q.defer();
-        sid = uuid4();
+        sid = uuid4.generate();
         localsubs = service.objectsSubscribedTo[detail.id];
         if (!localsubs) {
           localsubs = [];
