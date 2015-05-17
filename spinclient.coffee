@@ -8,7 +8,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     modelcache          : []
 
     #io                  : io('ws://localhost:3003')
-    io                  : io('ws://evothings.com:3003')
+    io                  : null
+
+
+    setWebSocketInstance: (io) =>
+      service.io = io
 
     registerListener: (detail) ->
       subscribers = service.subscribers[detail.message] or []
@@ -232,6 +236,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       model: '=model'
       edit: '=edit'
       onselect: '&'
+      hideproperties: '='
 
     link:        (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
@@ -299,7 +304,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             $scope.listprops.push {name: 'id', value: $scope.model.id}
             #delete $scope.model.id
             for prop,i in md
-              if(prop.name != 'id')
+              if(prop.name != 'id' or propname in $scope.hideproperties)
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
@@ -341,11 +346,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
        <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> >
     </span>
     <md-divider></md-divider>
-    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" style="height:400px;overflow:auto"></spinmodel>
+    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
 </div>'
     scope:
       model: '=model'
       edit: '=edit'
+      hideproperties: '='
 
     link: (scope, elem, attrs) ->
 
