@@ -320,7 +320,7 @@
           }
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
-            if ($scope.mode) {
+            if ($scope.model) {
               return $scope.renderModel();
             }
           });

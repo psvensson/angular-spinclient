@@ -294,7 +294,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
-        if $scope.mode then $scope.renderModel()
+        if $scope.model then $scope.renderModel()
 
       success = (result) =>
         console.log 'success: '+result
