@@ -10,7 +10,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     #io                  : io('ws://localhost:3003')
     io                  : null
 
-
     setWebSocketInstance: (io) =>
       service.io = io
 
@@ -79,7 +78,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
 
   service.subscribers['OBJECT_UPDATE'] = [ (obj) ->
-    console.log '+++++++++++ obj update message router got obj'
+    console.log '+++++++++ obj update message router got obj'
     #console.dir(obj);
     subscribers = service.objsubscribers[obj.id] or []
     #if subscribers.length == 0

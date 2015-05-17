@@ -109,7 +109,7 @@
     service.subscribers['OBJECT_UPDATE'] = [
       function(obj) {
         var k, subscribers, v, _results;
-        console.log('+++++++++++ obj update message router got obj');
+        console.log('+++++++++ obj update message router got obj');
         subscribers = service.objsubscribers[obj.id] || [];
         _results = [];
         for (k in subscribers) {
