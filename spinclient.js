@@ -12,42 +12,43 @@
       io: null,
       setWebSocketInstance: (function(_this) {
         return function(io) {
-          var detail, i, index, info, message, status, subscribers;
           service.io = io;
-          service.io.on('message', function(reply) {});
-          status = reply.status;
-          message = reply.payload;
-          info = reply.info;
-          index = -1;
-          if (reply.messageId) {
-            i = 0;
-            while (i < service.outstandingMessages.length) {
-              detail = service.outstandingMessages[i];
-              if (detail.messageId === reply.messageId) {
-                if (reply.status === 'FAILURE') {
-                  detail.d.reject(reply);
-                } else {
-                  detail.d.resolve(message);
-                  index = i;
-                  break;
+          return service.io.on('message', function(reply) {
+            var detail, i, index, info, message, status, subscribers;
+            status = reply.status;
+            message = reply.payload;
+            info = reply.info;
+            index = -1;
+            if (reply.messageId) {
+              i = 0;
+              while (i < service.outstandingMessages.length) {
+                detail = service.outstandingMessages[i];
+                if (detail.messageId === reply.messageId) {
+                  if (reply.status === 'FAILURE') {
+                    detail.d.reject(reply);
+                  } else {
+                    detail.d.resolve(message);
+                    index = i;
+                    break;
+                  }
                 }
+                i++;
               }
-              i++;
-            }
-            if (index > 0) {
-              service.outstandingMessages.splice(index, 1);
-            }
-          } else {
-            subscribers = service.subscribers[info];
-            if (subscribers) {
-              subscribers.forEach(function(listener) {
-                listener(message);
-              });
+              if (index > 0) {
+                service.outstandingMessages.splice(index, 1);
+              }
             } else {
-              console.log('no subscribers for message ' + message);
-              console.dir(reply);
+              subscribers = service.subscribers[info];
+              if (subscribers) {
+                subscribers.forEach(function(listener) {
+                  listener(message);
+                });
+              } else {
+                console.log('no subscribers for message ' + message);
+                console.dir(reply);
+              }
             }
-          }
+          });
         };
       })(this),
       registerListener: function(detail) {
