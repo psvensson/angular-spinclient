@@ -287,6 +287,7 @@
         },
         controller: function($scope) {
           var failure, success;
+          $scope.hideproperties = $scope.hideproperties || [];
           console.log('spinmodel got model ' + $scope.model + ' hideproperties are ' + $scope.hideproperties);
           console.dir($scope.hideproperties);
           $scope.isarray = angular.isArray;
@@ -318,8 +319,10 @@
             });
           }
           $scope.$watch('model', function(newval, oldval) {
-            console.log('spinmodel watch fired for ' + newval.name);
-            return $scope.renderModel();
+            console.log('spinmodel watch fired for ' + newval);
+            if ($scope.mode) {
+              return $scope.renderModel();
+            }
           });
           success = (function(_this) {
             return function(result) {

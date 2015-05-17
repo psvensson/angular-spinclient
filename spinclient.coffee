@@ -270,6 +270,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       scope.onselect = scope.onselect()
 
     controller:  ($scope) ->
+      $scope.hideproperties = $scope.hideproperties or []
       console.log 'spinmodel got model '+$scope.model+' hideproperties are '+$scope.hideproperties
       console.dir $scope.hideproperties
       #console.dir $scope.model
@@ -291,9 +292,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           $scope.subscriptions.push {sid: listenerid, o: $scope.model}
 
       $scope.$watch 'model', (newval, oldval) ->
-        console.log 'spinmodel watch fired for '+newval.name
+        console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
-        $scope.renderModel()
+        if $scope.mode then $scope.renderModel()
 
       success = (result) =>
         console.log 'success: '+result
