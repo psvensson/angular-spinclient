@@ -262,9 +262,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 </div>'
     scope:
       model: '=model'
-      edit: '=edit'
+      edit: '=?edit'
       onselect: '&'
-      hideproperties: '='
+      hideproperties: '=?hideproperties'
 
     link:        (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
