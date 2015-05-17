@@ -233,7 +233,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     template:'<div>
     <md-list >
         <md-subheader class="md-no-sticky" style="background-color:#ddd">
-            <md-icon md-svg-src="images/ic_folder_shared_24px.svg" ></md-icon>
+            <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon>
             {{model.type}} {{model.name}}</md-subheader>
             <md-list-item ng-repeat="prop in listprops" >
                 <div class="md-list-item-text" layout="row">
@@ -428,13 +428,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     template:'<div>
     <md-list >
         <md-subheader class="md-no-sticky" style="background-color:#ddd">
-            <md-icon md-svg-src="images/ic_apps_24px.svg" ></md-icon>
+            <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                 SpinCycle List of {{listmodel}}s</md-subheader>
         <md-list-item ng-repeat="item in expandedlist" >
             <div class="md-list-item-text" layout="row">
                 <span flex >
                     <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
-                        <md-icon md-svg-src="images/ic_delete_24px.svg"></md-icon>
+                        <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
                     </md-button> <md-button  ng-click="selectItem(item, true)">{{ item.name }}</md-button>
                 </span>
                 <!-- <span flex class="md-secondary"> {{item.id}}</span> -->
@@ -474,11 +474,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.ondelete(item) if $scope.ondelete
 
 
-      for model in $scope.list
-        console.log 'spinlist expanding list reference for model id '+model.id+' of type '+$scope.listmodel
-        client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: model.id, type: $scope.listmodel }}).then( (o)->
-          for mod,i in $scope.list
-            if mod.id == o.id
+      for modelid in $scope.list
+        console.log 'spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+        client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
+          for modid,i in $scope.list
+            if modid == o.id
               #console.log '-- exhanging list id with actual list model from server for '+o.name
               $scope.expandedlist[i] = o
         , failure)
