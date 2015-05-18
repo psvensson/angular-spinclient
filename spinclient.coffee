@@ -140,8 +140,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   }
 
   service.subscribers['OBJECT_UPDATE'] = [ (obj) ->
-    console.log '+++++++++ obj update message router got obj'
-    #console.dir(obj);
+    console.log 'spinclient +++++++++ obj update message router got obj'
+    console.dir(obj);
     subscribers = service.objsubscribers[obj.id] or []
     #if subscribers.length == 0
     #  console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
@@ -280,6 +280,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
 
       $scope.onSubscribedObject = (o) ->
+        console.log 'spinmodel onSubscribedModel called'
+        console.dir o
         $scope.model = o
 
       $scope.isEditable = (propname) =>
@@ -303,7 +305,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'error: '+err
 
       $scope.onChange = (model,prop) =>
-        console.log 'onChange called for'
+        console.log 'spinmodel onChange called for'
         console.dir model
         #console.dir prop
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
@@ -323,7 +325,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.log 'updating parent model to list with spliced list'
           client.emitMessage({target:'updateObject', obj: $scope.model}).then( ()->
             # actually delete the model formerly in the list
-            client.emitMessage( {target:'_delete'+item.type, obj: {id:mid, type:item.type}}).then (o)=>
+            client.emitMessage( {target:'_delete'+item.type, obj: {id:m.id, type:item.type}}).then (o)=>
               console.log 'deleted '+item.type+' on server'
           , failure)
 
@@ -340,7 +342,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             $scope.listprops.push {name: 'id', value: $scope.model.id}
             #delete $scope.model.id
             for prop,i in md
-              if(prop.name != 'id' or not prop.name in $scope.hideproperties)
+              if(prop.name != 'id' and not prop.name in $scope.hideproperties)
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
