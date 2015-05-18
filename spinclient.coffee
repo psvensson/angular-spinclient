@@ -78,7 +78,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     _registerObjectSubscriber: (detail) ->
       d = $q.defer()
-      log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
+      console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
       service.emitMessage(
         target: 'registerForUpdatesOn'

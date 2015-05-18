@@ -98,7 +98,7 @@
       _registerObjectSubscriber: function(detail) {
         var d, subscribers;
         d = $q.defer();
-        log('message-router registering subscriber for object ' + detail.id + ' type ' + detail.type);
+        console.log('message-router registering subscriber for object ' + detail.id + ' type ' + detail.type);
         subscribers = service.objsubscribers[detail.id] || [];
         service.emitMessage({
           target: 'registerForUpdatesOn',
