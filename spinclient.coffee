@@ -243,7 +243,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                     </span>
                     <div ng-if="!prop.array && !prop.type" flex class="md-secondary">
                         <span ng-if="isEditable(prop.name) && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
-                        <span ng-if="!isEditable(prop.name) || prop.name == \'id\'">{{prop.value}}</span>
+                        <span ng-if="!isEditable(prop.name) || prop.name == \'id\'"><input type="text" ng-model="model[prop.name]" disabled="true"></span>
                     </div>
                     <div flex ng-if="isEditable(prop.name) && prop.array">
                         <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
