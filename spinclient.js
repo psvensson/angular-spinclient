@@ -108,8 +108,11 @@
             type: detail.type
           }
         }).then(function(reply) {
+          console.log('server subscription id for id ' + detail.id + ' is ' + reply);
           subscribers[reply] = detail.cb;
           service.objsubscribers[detail.id] = subscribers;
+          console.log('objsubscibers are now...');
+          console.dir(service.objsubscribers);
           return d.resolve(reply);
         });
         return d.promise;

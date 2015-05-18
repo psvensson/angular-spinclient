@@ -84,8 +84,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         target: 'registerForUpdatesOn'
         messageId: uuid4.generate()
         obj: {id: detail.id, type: detail.type}).then (reply) ->
+          console.log 'server subscription id for id '+detail.id+' is '+reply
           subscribers[reply] = detail.cb
           service.objsubscribers[detail.id] = subscribers
+          console.log 'objsubscibers are now...'
+          console.dir service.objsubscribers
           d.resolve(reply)
       return d.promise
 
