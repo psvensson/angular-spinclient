@@ -67,13 +67,18 @@
         d = $q.defer();
         sid = uuid4.generate();
         localsubs = service.objectsSubscribedTo[detail.id];
+        console.log('registerObjectSubscriber localsubs is');
+        console.dir(localsubs);
         if (!localsubs) {
           localsubs = [];
+          console.log('no local subs, so get the original server-side subscription for id ' + detail.id);
           service._registerObjectSubscriber({
             id: detail.id,
             type: detail.type,
             cb: function(updatedobj) {
               var j, k, len, results1, v;
+              console.log('registerObjectSubscriber getting obj update callback for');
+              console.dir(updatedobj);
               results1 = [];
               for (v = j = 0, len = localsubs.length; j < len; v = ++j) {
                 k = localsubs[v];
@@ -93,6 +98,7 @@
       _registerObjectSubscriber: function(detail) {
         var d, subscribers;
         d = $q.defer();
+        log('message-router registering subscriber for object ' + detail.id + ' type ' + detail.type);
         subscribers = service.objsubscribers[detail.id] || [];
         service.emitMessage({
           target: 'registerForUpdatesOn',
@@ -317,8 +323,6 @@
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
               $scope.renderModel();
-            }
-            if ($scope.model) {
               return client.registerObjectSubscriber({
                 id: $scope.model.id,
                 type: $scope.model.type,
@@ -398,8 +402,6 @@
                   return modeldef[modelprop.name] = modelprop;
                 });
                 if ($scope.model) {
-                  console.log('making listprops for model');
-                  console.dir(md);
                   $scope.listprops.push({
                     name: 'id',
                     value: $scope.model.id

@@ -58,10 +58,15 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       d = $q.defer()
       sid = uuid4.generate()
       localsubs = service.objectsSubscribedTo[detail.id]
+      console.log 'registerObjectSubscriber localsubs is'
+      console.dir localsubs
       if not localsubs
         localsubs = []
+        console.log 'no local subs, so get the original server-side subscription for id '+detail.id
         # actually set up subscription, once for each object
         service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
+          console.log 'registerObjectSubscriber getting obj update callback for'
+          console.dir updatedobj
           for k,v in localsubs
             v.cb updatedobj
         }).then (remotesid) ->
@@ -73,7 +78,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     _registerObjectSubscriber: (detail) ->
       d = $q.defer()
-      #.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
+      log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
       service.emitMessage(
         target: 'registerForUpdatesOn'
@@ -292,8 +297,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
-        if $scope.model then $scope.renderModel()
-        if($scope.model)
+        if $scope.model
+          $scope.renderModel()
           client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
             $scope.subscriptions.push {sid: listenerid, o: $scope.model}
 
@@ -336,8 +341,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           modeldef = {}
           md.forEach (modelprop) -> modeldef[modelprop.name] = modelprop
           if $scope.model
-            console.log 'making listprops for model'
-            console.dir md
             $scope.listprops.push {name: 'id', value: $scope.model.id}
             #delete $scope.model.id
             for prop,i in md
