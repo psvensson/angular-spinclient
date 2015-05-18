@@ -388,7 +388,7 @@
               console.dir($scope.model);
               $scope.listprops = [];
               return client.getModelFor($scope.model.type).then(function(md) {
-                var foo, i, j, len, modeldef, prop, ref, results1;
+                var foo, i, j, len, modeldef, notshow, prop, ref, results1;
                 modeldef = {};
                 md.forEach(function(modelprop) {
                   return modeldef[modelprop.name] = modelprop;
@@ -403,7 +403,9 @@
                   results1 = [];
                   for (i = j = 0, len = md.length; j < len; i = ++j) {
                     prop = md[i];
-                    if (prop.name !== 'id' && (ref = !prop.name, indexOf.call($scope.hideproperties, ref) >= 0)) {
+                    notshow = (ref = prop.name, indexOf.call($scope.hideproperties, ref) >= 0);
+                    console.log('spinmodel::renderModel ' + prop.name + ' -> ' + $scope.model[prop.name] + ' notshow = ' + notshow);
+                    if (prop.name !== 'id' && !notshow) {
                       foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",
