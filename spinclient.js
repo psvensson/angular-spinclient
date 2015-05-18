@@ -199,6 +199,10 @@
         console.log('spinclient +++++++++ obj update message router got obj');
         console.dir(obj);
         subscribers = service.objsubscribers[obj.id] || [];
+        if (subscribers.length === 0) {
+          console.log('* OH NOES! * No subscribers for object update on object ' + obj.id);
+        }
+        console.dir(service.objsubscribers);
         results1 = [];
         for (k in subscribers) {
           v = subscribers[k];

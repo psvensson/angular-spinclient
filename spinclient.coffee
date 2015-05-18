@@ -143,9 +143,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     console.log 'spinclient +++++++++ obj update message router got obj'
     console.dir(obj);
     subscribers = service.objsubscribers[obj.id] or []
-    #if subscribers.length == 0
-    #  console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
-    #  console.dir service.objsubscribers
+    if subscribers.length == 0
+      console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
+    console.dir service.objsubscribers
     #else
     #  subscribers.forEach (subscriber) ->
     #    subscriber obj
