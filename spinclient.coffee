@@ -289,14 +289,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         if propname in $scope.nonEditable then rv = false
         return rv
 
-      if($scope.model)
-        client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
-          $scope.subscriptions.push {sid: listenerid, o: $scope.model}
-
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
         if $scope.model then $scope.renderModel()
+        if($scope.model)
+          client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
+            $scope.subscriptions.push {sid: listenerid, o: $scope.model}
 
       success = (result) =>
         console.log 'success: '+result

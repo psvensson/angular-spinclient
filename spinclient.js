@@ -313,22 +313,22 @@
               return rv;
             };
           })(this);
-          if ($scope.model) {
-            client.registerObjectSubscriber({
-              id: $scope.model.id,
-              type: $scope.model.type,
-              cb: $scope.onSubscribedObject
-            }).then(function(listenerid) {
-              return $scope.subscriptions.push({
-                sid: listenerid,
-                o: $scope.model
-              });
-            });
-          }
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
-              return $scope.renderModel();
+              $scope.renderModel();
+            }
+            if ($scope.model) {
+              return client.registerObjectSubscriber({
+                id: $scope.model.id,
+                type: $scope.model.type,
+                cb: $scope.onSubscribedObject
+              }).then(function(listenerid) {
+                return $scope.subscriptions.push({
+                  sid: listenerid,
+                  o: $scope.model
+                });
+              });
             }
           });
           success = (function(_this) {
