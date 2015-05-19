@@ -22,7 +22,7 @@ module.exports = function(config) {
         'bower_components/angular-mocks/angular-mocks.js',
         'bower_components/angular-uuid4/angular-uuid4.js',
       './*.js',
-      './test/*-spec.js'
+      './test/*.js'
     ],
 
 
