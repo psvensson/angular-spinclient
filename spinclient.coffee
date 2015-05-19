@@ -18,11 +18,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     setWebSocketInstance: (io) =>
       service.io = io
+
       service.io.on 'message', (reply) ->
         status = reply.status
         message = reply.payload
         info = reply.info
-        console.log 'got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + 'outstandingMessages = '+service.outstandingMessages.length
+        console.log 'got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + ' outstandingMessages = '+service.outstandingMessages.length
         #console.dir reply
         index = -1
         if reply.messageId
@@ -33,11 +34,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               if reply.status == 'FAILURE'
                 detail.d.reject reply
               else
-                detail.d.resolve message
+                console.log 'delivering message '+message+' reply to '+detail.target+' to '+reply.messageId
+                detail.d.resolve(message)
                 index = i
                 break
             i++
-          if index > 0
+          if index > -1
+            #console.log 'removing outstanding reply'
             service.outstandingMessages.splice index, 1
         else
           subscribers = service.subscribers[info]
@@ -50,6 +53,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             console.dir reply
 
     registerListener: (detail) ->
+      console.log 'spinclient::registerListener called for '+detail.message
       subscribers = service.subscribers[detail.message] or []
       subscribers.push detail.callback
       service.subscribers[detail.message] = subscribers
@@ -66,7 +70,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         # actually set up subscription, once for each object
         service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
           console.log 'registerObjectSubscriber getting obj update callback for'
-          console.dir updatedobj
           for k,v in localsubs
             v.cb updatedobj
         }).then (remotesid) ->
@@ -74,22 +77,18 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           localsubs[sid] = detail
           service.objectsSubscribedTo[detail.id] = localsubs
           d.resolve(sid)
-          return d.promise
+      return d.promise
 
     _registerObjectSubscriber: (detail) ->
       d = $q.defer()
       console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
-      service.emitMessage(
-        target: 'registerForUpdatesOn'
-        messageId: uuid4.generate()
-        obj: {id: detail.id, type: detail.type}).then (reply) ->
+      service.emitMessage({target: 'registerForUpdatesOn', obj: {id: detail.id, type: detail.type} }).then((reply)->
           console.log 'server subscription id for id '+detail.id+' is '+reply
           subscribers[reply] = detail.cb
           service.objsubscribers[detail.id] = subscribers
-          console.log 'objsubscibers are now...'
-          console.dir service.objsubscribers
           d.resolve(reply)
+      )
       return d.promise
 
     deRegisterObjectSubscriber: (sid, o) =>
@@ -107,7 +106,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       if subscribers and subscribers[sid]
         delete subscribers[sid]
         service.objsubscribers[o.id] = subscribers
-        service.emitMessage( { target: 'deRegisterForUpdatesOn', id:o.id, type: o.type, listenerid: sid } ).then (reply) ->
+        service.emitMessage({target: 'deRegisterForUpdatesOn', id:o.id, type: o.type, listenerid: sid } ).then (reply)->
 
     emitMessage : (detail) ->
       #console.log 'emitMessage called'
@@ -117,7 +116,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       detail.sessionId = service.sessionId
       detail.d = d
       service.outstandingMessages.push detail
-      console.log 'saving outstanding reply to messageId '+detail.messageId
+      #console.log 'saving outstanding reply to messageId '+detail.messageId
       service.io.emit 'message', JSON.stringify(detail)
 
       return d.promise

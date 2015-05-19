@@ -23,7 +23,7 @@
             status = reply.status;
             message = reply.payload;
             info = reply.info;
-            console.log('got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + 'outstandingMessages = ' + service.outstandingMessages.length);
+            console.log('got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + ' outstandingMessages = ' + service.outstandingMessages.length);
             index = -1;
             if (reply.messageId) {
               i = 0;
@@ -33,6 +33,7 @@
                   if (reply.status === 'FAILURE') {
                     detail.d.reject(reply);
                   } else {
+                    console.log('delivering message ' + message + ' reply to ' + detail.target + ' to ' + reply.messageId);
                     detail.d.resolve(message);
                     index = i;
                     break;
@@ -40,7 +41,7 @@
                 }
                 i++;
               }
-              if (index > 0) {
+              if (index > -1) {
                 return service.outstandingMessages.splice(index, 1);
               }
             } else {
@@ -59,6 +60,7 @@
       })(this),
       registerListener: function(detail) {
         var subscribers;
+        console.log('spinclient::registerListener called for ' + detail.message);
         subscribers = service.subscribers[detail.message] || [];
         subscribers.push(detail.callback);
         return service.subscribers[detail.message] = subscribers;
@@ -73,13 +75,12 @@
         if (!localsubs) {
           localsubs = [];
           console.log('no local subs, so get the original server-side subscription for id ' + detail.id);
-          return service._registerObjectSubscriber({
+          service._registerObjectSubscriber({
             id: detail.id,
             type: detail.type,
             cb: function(updatedobj) {
               var k, v, _i, _len, _results;
               console.log('registerObjectSubscriber getting obj update callback for');
-              console.dir(updatedobj);
               _results = [];
               for (v = _i = 0, _len = localsubs.length; _i < _len; v = ++_i) {
                 k = localsubs[v];
@@ -91,10 +92,10 @@
             localsubs['remotesid'] = remotesid;
             localsubs[sid] = detail;
             service.objectsSubscribedTo[detail.id] = localsubs;
-            d.resolve(sid);
-            return d.promise;
+            return d.resolve(sid);
           });
         }
+        return d.promise;
       },
       _registerObjectSubscriber: function(detail) {
         var d, subscribers;
@@ -103,7 +104,6 @@
         subscribers = service.objsubscribers[detail.id] || [];
         service.emitMessage({
           target: 'registerForUpdatesOn',
-          messageId: uuid4.generate(),
           obj: {
             id: detail.id,
             type: detail.type
@@ -112,8 +112,6 @@
           console.log('server subscription id for id ' + detail.id + ' is ' + reply);
           subscribers[reply] = detail.cb;
           service.objsubscribers[detail.id] = subscribers;
-          console.log('objsubscibers are now...');
-          console.dir(service.objsubscribers);
           return d.resolve(reply);
         });
         return d.promise;
@@ -158,7 +156,6 @@
         detail.sessionId = service.sessionId;
         detail.d = d;
         service.outstandingMessages.push(detail);
-        console.log('saving outstanding reply to messageId ' + detail.messageId);
         service.io.emit('message', JSON.stringify(detail));
         return d.promise;
       },
