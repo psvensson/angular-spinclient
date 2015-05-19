@@ -23,6 +23,7 @@
             status = reply.status;
             message = reply.payload;
             info = reply.info;
+            console.log('got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + 'outstandingMessages = ' + service.outstandingMessages.length);
             index = -1;
             if (reply.messageId) {
               i = 0;
@@ -72,7 +73,7 @@
         if (!localsubs) {
           localsubs = [];
           console.log('no local subs, so get the original server-side subscription for id ' + detail.id);
-          service._registerObjectSubscriber({
+          return service._registerObjectSubscriber({
             id: detail.id,
             type: detail.type,
             cb: function(updatedobj) {
@@ -87,13 +88,13 @@
               return _results;
             }
           }).then(function(remotesid) {
-            return localsubs['remotesid'] = remotesid;
+            localsubs['remotesid'] = remotesid;
+            localsubs[sid] = detail;
+            service.objectsSubscribedTo[detail.id] = localsubs;
+            d.resolve(sid);
+            return d.promise;
           });
         }
-        localsubs[sid] = detail;
-        service.objectsSubscribedTo[detail.id] = localsubs;
-        d.resolve(sid);
-        return d.promise;
       },
       _registerObjectSubscriber: function(detail) {
         var d, subscribers;
@@ -155,9 +156,10 @@
         d = $q.defer();
         detail.messageId = uuid4.generate();
         detail.sessionId = service.sessionId;
-        service.outstandingMessages.push(detail);
-        service.io.emit('message', JSON.stringify(detail));
         detail.d = d;
+        service.outstandingMessages.push(detail);
+        console.log('saving outstanding reply to messageId ' + detail.messageId);
+        service.io.emit('message', JSON.stringify(detail));
         return d.promise;
       },
       getModelFor: function(type) {

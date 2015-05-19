@@ -2,25 +2,28 @@ do (angular) ->
   'use strict'
 
   angular.module('MockServer', []).factory 'mockserver', ->
+
     service =
     {
       callbacks: [],
       clientReplyFunc: undefined,
       blacklist: ['id', 'createdAt', 'modifiedAt'],
       subscribers: [],
-      listenerid:0,
+      listenerid:1,
       objects: { 1: {id:1, name:'Foo 1', type:'Foo', createdAt: Date.now(), modifiedAt: undefined }, 2: {id:2, name: 'Bar 1', type:'Bar', createdAt: Date.now(), modifiedAt: undefined } },
 
       'on': (channel, callback) ->
         console.log 'mockserver on called for channel "'+channel+'"'
-        console.dir
+
         service.callbacks[channel] = callback
         service.clientReplyFunc = callback
 
-      'emit': (channel, message) ->
-        console.log 'mockserver emit called for channel "'+channel+'"'
-        console.dir message
-        switch message.target
+      'emit': (channel, messagestr) ->
+        message = JSON.parse(messagestr)
+
+        console.log 'mockserver emit called for channel "'+channel+'" '+message.target
+
+        switch message['target']
           when 'getModelFor'            then service.getModelFor(message)
           when 'registerForUpdatesOn'   then service.registerForUpdatesOn(message)
           when 'deRegisterForUpdatesOn' then service.deRegisterForUpdatesOn(message)
@@ -37,14 +40,17 @@ do (angular) ->
           when 'Bar_list'               then service.listBar(msg)
 
 
-      getModelFor: (msg) ->
+      getModelFor: (msgstr) ->
+        msg = JSON.pars(msgstr)
         service.clientReplyFunc({messageId: msg.messageId, status: 'SUCCESS', info:'get model', payload:[ { name: 'name', public: true, value: 'name' }, { name: 'createdAt',    public: true,   value: 'createdAt'}, { name: 'modifiedAt',   public: true,   value: 'modifiedAt' }] })
 
       registerForUpdatesOn: (msg) ->
+        console.log 'registerForUpdatesOn called for '+msg.obj.id
         subs = service.subscribers[msg.obj.id] or []
-        subs[service.listenerid++] = (o) ->
-          service.clientReplyFunc({status: e.general.SUCCESS, info: e.gamemanager.OBJECT_UPDATE, payload: o })
+        subs[service.listenerid] = (o) ->
+          service.clientReplyFunc({status: 'SUCCESS', info: 'OBJECT_UPDATE', payload: o })
         service.subscribers[msg.obj.id] = subs
+        service.clientReplyFunc({messageId: msg.messageId, status: 'SUCCESS', info: 'REGISTER_UPDATES', payload: service.listenerid++ })
 
       deRegisterForUpdatesOn: (msg) ->
         subs = service.subscribers[msg.id] or []

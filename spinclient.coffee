@@ -22,7 +22,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         status = reply.status
         message = reply.payload
         info = reply.info
-        #console.log 'got reply id ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message
+        console.log 'got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + 'outstandingMessages = '+service.outstandingMessages.length
         #console.dir reply
         index = -1
         if reply.messageId
@@ -71,10 +71,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             v.cb updatedobj
         }).then (remotesid) ->
           localsubs['remotesid'] = remotesid
-      localsubs[sid] = detail
-      service.objectsSubscribedTo[detail.id] = localsubs
-      d.resolve(sid)
-      return d.promise
+          localsubs[sid] = detail
+          service.objectsSubscribedTo[detail.id] = localsubs
+          d.resolve(sid)
+          return d.promise
 
     _registerObjectSubscriber: (detail) ->
       d = $q.defer()
@@ -115,9 +115,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       d = $q.defer()
       detail.messageId = uuid4.generate()
       detail.sessionId = service.sessionId
-      service.outstandingMessages.push detail
-      service.io.emit 'message', JSON.stringify(detail)
       detail.d = d
+      service.outstandingMessages.push detail
+      console.log 'saving outstanding reply to messageId '+detail.messageId
+      service.io.emit 'message', JSON.stringify(detail)
+
       return d.promise
 
     # ------------------------------------------------------------------------------------------------------------------
