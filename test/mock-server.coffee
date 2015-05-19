@@ -12,10 +12,14 @@ do (angular) ->
       objects: { 1: {id:1, name:'Foo 1', type:'Foo', createdAt: Date.now(), modifiedAt: undefined }, 2: {id:2, name: 'Bar 1', type:'Bar', createdAt: Date.now(), modifiedAt: undefined } },
 
       'on': (channel, callback) ->
+        console.log 'mockserver on called for channel "'+channel+'"'
+        console.dir
         service.callbacks[channel] = callback
         service.clientReplyFunc = callback
 
       'emit': (channel, message) ->
+        console.log 'mockserver emit called for channel "'+channel+'"'
+        console.dir message
         switch message.target
           when 'getModelFor'            then service.getModelFor(message)
           when 'registerForUpdatesOn'   then service.registerForUpdatesOn(message)

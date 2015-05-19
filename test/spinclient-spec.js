@@ -15,7 +15,15 @@
       it('should work', function() {
         return expect(server.emit).to.be.a('function');
       });
-      return it('should be able to set websocket instance', function() {
+      return it('should be able to register an object subscriber', function() {
+        spinclient.registerObjectSubscriber({
+          id: 1,
+          type: 'Foo',
+          cb: function(obj) {
+            console.log('object update');
+            return console.dir(obj);
+          }
+        });
         return expect(server.emit).to.be.a('function');
       });
     });

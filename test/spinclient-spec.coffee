@@ -15,5 +15,9 @@ describe 'Spinclient', ->
     it 'should work', ->
       expect(server.emit).to.be.a('function')
 
-    it 'should be able to set websocket instance', ->
+    it 'should be able to register an object subscriber', ->
+      spinclient.registerObjectSubscriber({id:1, type: 'Foo', cb: (obj) ->
+        console.log 'object update'
+        console.dir obj
+      })
       expect(server.emit).to.be.a('function')
