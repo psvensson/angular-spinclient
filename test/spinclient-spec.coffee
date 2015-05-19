@@ -1,7 +1,11 @@
-expect = require('chai').expect
-SuperModel = require('../spinclient')
-console.log 'xyzzy'
+describe 'Spinclient', ->
+  console.log 'testing started'
 
-describe 'Spinclient Tests', ->
-  it 'should foo', ()->
-    expect(true).to.equal(true)
+  spinclient = undefined
+  beforeEach module('ngSpinclient')
+  beforeEach inject((_spinclient_) ->
+    spinclient = _spinclient_
+  )
+  describe 'Constructor', ->
+    it 'should work', ->
+      expect({foo:'bar'}).to.have.property 'foo', 'bar'
