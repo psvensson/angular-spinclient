@@ -32,6 +32,7 @@
                 if (detail.messageId === reply.messageId) {
                   if (reply.status === 'FAILURE') {
                     detail.d.reject(reply);
+                    break;
                   } else {
                     console.log('delivering message ' + message + ' reply to ' + detail.target + ' to ' + reply.messageId);
                     detail.d.resolve(message);

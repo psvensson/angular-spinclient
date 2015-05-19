@@ -33,6 +33,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             if detail.messageId == reply.messageId
               if reply.status == 'FAILURE'
                 detail.d.reject reply
+                break
               else
                 console.log 'delivering message '+message+' reply to '+detail.target+' to '+reply.messageId
                 detail.d.resolve(message)
@@ -83,6 +84,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       d = $q.defer()
       console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
+      
+      #
+      #--- The below .then NEVER gets called, even when matching 'on' message is received. ARGH
+      #
       service.emitMessage({target: 'registerForUpdatesOn', obj: {id: detail.id, type: detail.type} }).then((reply)->
           console.log 'server subscription id for id '+detail.id+' is '+reply
           subscribers[reply] = detail.cb
