@@ -23,7 +23,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       console.log '-------------------------------- '+service.outstandingMessages.length+' outstanding messages ---------------------------------'
       service.outstandingMessages.forEach (os)->
         console.log os.messageId+' -> '+os.target+' - '+os.d
-      console.log '-----------------------------------------------------------------------------------------'
+      #console.log '-----------------------------------------------------------------------------------------'
 
     setWebSocketInstance: (io) =>
       service.io = io
@@ -83,7 +83,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
           console.log '-- registerObjectSubscriber getting obj update callback for '+detail.id
           lsubs = service.objectsSubscribedTo[detail.id]
-          console.dir(lsubs)
+          #console.dir(lsubs)
           for k,v of lsubs
             if (v.cb)
               console.log '--*****--*****-- calling back object update to local sid --****--*****-- '+k
@@ -115,6 +115,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     deRegisterObjectSubscriber: (sid, o) =>
       localsubs = service.objectsSubscribedTo[o.id] or []
       if localsubs[sid]
+        console.log 'deregistering local updates for object '+o.id
         delete localsubs[sid]
         count = 0
         for k,v in localsubs
@@ -128,6 +129,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         delete subscribers[sid]
         service.objsubscribers[o.id] = subscribers
         service.emitMessage({target: 'deRegisterForUpdatesOn', id:o.id, type: o.type, listenerid: sid } ).then (reply)->
+          console.log 'deregistering server updates for object '+o.id
 
     emitMessage : (detail) ->
       #console.log 'emitMessage called'
@@ -310,7 +312,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
 
       $scope.onSubscribedObject = (o) ->
-        console.log 'spinmodel onSubscribedModel called for '+o.id+' updating model..'
+        console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
         #console.dir o
         $scope.model = o
 

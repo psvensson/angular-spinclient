@@ -20,10 +20,9 @@
       },
       dumpOutstanding: function() {
         console.log('-------------------------------- ' + service.outstandingMessages.length + ' outstanding messages ---------------------------------');
-        service.outstandingMessages.forEach(function(os) {
+        return service.outstandingMessages.forEach(function(os) {
           return console.log(os.messageId + ' -> ' + os.target + ' - ' + os.d);
         });
-        return console.log('-----------------------------------------------------------------------------------------');
       },
       setWebSocketInstance: (function(_this) {
         return function(io) {
@@ -93,7 +92,6 @@
               var k, lsubs, results1, v;
               console.log('-- registerObjectSubscriber getting obj update callback for ' + detail.id);
               lsubs = service.objectsSubscribedTo[detail.id];
-              console.dir(lsubs);
               results1 = [];
               for (k in lsubs) {
                 v = lsubs[k];
@@ -142,6 +140,7 @@
           var count, j, k, len, localsubs, v;
           localsubs = service.objectsSubscribedTo[o.id] || [];
           if (localsubs[sid]) {
+            console.log('deregistering local updates for object ' + o.id);
             delete localsubs[sid];
             count = 0;
             for (v = j = 0, len = localsubs.length; j < len; v = ++j) {
@@ -166,7 +165,9 @@
               id: o.id,
               type: o.type,
               listenerid: sid
-            }).then(function(reply) {});
+            }).then(function(reply) {
+              return console.log('deregistering server updates for object ' + o.id);
+            });
           }
         };
       })(this),
@@ -320,7 +321,7 @@
           $scope.subscription = void 0;
           $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];
           $scope.onSubscribedObject = function(o) {
-            console.log('spinmodel onSubscribedModel called for ' + o.id + ' updating model..');
+            console.log('==== spinmodel onSubscribedModel called for ' + o.id + ' updating model..');
             return $scope.model = o;
           };
           $scope.isEditable = (function(_this) {
