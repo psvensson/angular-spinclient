@@ -317,7 +317,7 @@
           var failure, success;
           $scope.hideproperties = $scope.hideproperties || [];
           $scope.isarray = angular.isArray;
-          $scope.subscriptions = [];
+          $scope.subscription = void 0;
           $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];
           $scope.onSubscribedObject = function(o) {
             console.log('spinmodel onSubscribedModel called for ' + o.id + ' updating model..');
@@ -337,16 +337,18 @@
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
               $scope.renderModel();
-              return client.registerObjectSubscriber({
-                id: $scope.model.id,
-                type: $scope.model.type,
-                cb: $scope.onSubscribedObject
-              }).then(function(listenerid) {
-                return $scope.subscriptions.push({
-                  sid: listenerid,
-                  o: $scope.model
+              if (!$scope.subscription) {
+                return client.registerObjectSubscriber({
+                  id: $scope.model.id,
+                  type: $scope.model.type,
+                  cb: $scope.onSubscribedObject
+                }).then(function(listenerid) {
+                  return $scope.subscription = {
+                    sid: listenerid,
+                    o: $scope.model
+                  };
                 });
-              });
+              }
             }
           });
           success = (function(_this) {
@@ -479,10 +481,10 @@
           };
           return $scope.$on('$destroy', (function(_this) {
             return function() {
+              var s;
               console.log('spinmodel captured $destroy event');
-              return $scope.subscriptions.forEach(function(s) {
-                return client.deRegisterObjectSubscriber(s.sid, s.o);
-              });
+              s = $scope.subscription;
+              return client.deRegisterObjectSubscriber(s.sid, s.o);
             };
           })(this));
         }

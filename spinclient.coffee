@@ -306,7 +306,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       #console.dir $scope.model
 
       $scope.isarray = angular.isArray
-      $scope.subscriptions = []
+      $scope.subscription = undefined
       $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
 
       $scope.onSubscribedObject = (o) ->
@@ -324,8 +324,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         #console.log 'edit is '+$scope.edit
         if $scope.model
           $scope.renderModel()
-          client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
-            $scope.subscriptions.push {sid: listenerid, o: $scope.model}
+          if not $scope.subscription
+            client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
+              $scope.subscription = {sid: listenerid, o: $scope.model}
 
       success = (result) =>
         console.log 'success: '+result
@@ -396,8 +397,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.$on '$destroy', () =>
         console.log 'spinmodel captured $destroy event'
-        $scope.subscriptions.forEach (s) =>
-          client.deRegisterObjectSubscriber(s.sid, s.o)
+        s = $scope.subscription
+        client.deRegisterObjectSubscriber(s.sid, s.o)
 
     }
   ]
