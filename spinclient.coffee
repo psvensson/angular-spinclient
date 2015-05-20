@@ -84,11 +84,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         # actually set up subscription, once for each object
         service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
           console.log '-- registerObjectSubscriber getting obj update callback for '+detail.id
-          console.dir(service.objectsSubscribedTo)
           lsubs = service.objectsSubscribedTo[detail.id]
+          console.dir(lsubs)
           for k,v in lsubs
-            console.log '-- calling back object update to local sid '+k
-            v.cb updatedobj
+            if (v.cb)
+              console.log '-- calling back object update to local sid '+k
+              v.cb updatedobj
         }).then (remotesid) ->
           localsubs['remotesid'] = remotesid
           localsubs[sid] = detail

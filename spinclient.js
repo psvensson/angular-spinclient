@@ -95,13 +95,17 @@
             cb: function(updatedobj) {
               var j, k, len, lsubs, results1, v;
               console.log('-- registerObjectSubscriber getting obj update callback for ' + detail.id);
-              console.dir(service.objectsSubscribedTo);
               lsubs = service.objectsSubscribedTo[detail.id];
+              console.dir(lsubs);
               results1 = [];
               for (v = j = 0, len = lsubs.length; j < len; v = ++j) {
                 k = lsubs[v];
-                console.log('-- calling back object update to local sid ' + k);
-                results1.push(v.cb(updatedobj));
+                if (v.cb) {
+                  console.log('-- calling back object update to local sid ' + k);
+                  results1.push(v.cb(updatedobj));
+                } else {
+                  results1.push(void 0);
+                }
               }
               return results1;
             }
