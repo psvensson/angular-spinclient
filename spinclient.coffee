@@ -175,7 +175,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     subscribers = service.objsubscribers[obj.id] or []
     #if subscribers.length == 0
     #  console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
-    console.dir service.objsubscribers
+    #console.dir service.objsubscribers
     #else
     #  subscribers.forEach (subscriber) ->
     #    subscriber obj
@@ -310,8 +310,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
 
       $scope.onSubscribedObject = (o) ->
-        console.log 'spinmodel onSubscribedModel called'
-        console.dir o
+        console.log 'spinmodel onSubscribedModel called for '+o.id+' updating model..'
+        #console.dir o
         $scope.model = o
 
       $scope.isEditable = (propname) =>

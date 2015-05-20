@@ -226,7 +226,6 @@
       function(obj) {
         var k, results1, subscribers, v;
         subscribers = service.objsubscribers[obj.id] || [];
-        console.dir(service.objsubscribers);
         results1 = [];
         for (k in subscribers) {
           v = subscribers[k];
@@ -323,8 +322,7 @@
           $scope.subscriptions = [];
           $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];
           $scope.onSubscribedObject = function(o) {
-            console.log('spinmodel onSubscribedModel called');
-            console.dir(o);
+            console.log('spinmodel onSubscribedModel called for ' + o.id + ' updating model..');
             return $scope.model = o;
           };
           $scope.isEditable = (function(_this) {
