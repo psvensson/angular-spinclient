@@ -93,7 +93,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           localsubs[sid] = detail
           console.log '-- adding local callback listener to object updates for '+detail.id+' local sid = '+sid+' remotesid = '+remotesid
           service.objectsSubscribedTo[detail.id] = localsubs
-          console.dir(service.objectsSubscribedTo)
           d.resolve(sid)
       return d.promise
 
@@ -360,8 +359,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           , failure)
 
       $scope.renderModel = () =>
-        console.log 'spinmodel::renderModel called for '+$scope.model.name
-        console.dir $scope.model
+        #console.log 'spinmodel::renderModel called for '+$scope.model.name
+        #console.dir $scope.model
         $scope.listprops = []
         client.getModelFor($scope.model.type).then (md) ->
           modeldef = {}
@@ -371,7 +370,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             #delete $scope.model.id
             for prop,i in md
               notshow = prop.name in $scope.hideproperties
-              console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
+              #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
               if(prop.name != 'id' and not notshow)
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo

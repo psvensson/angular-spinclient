@@ -111,7 +111,6 @@
             localsubs[sid] = detail;
             console.log('-- adding local callback listener to object updates for ' + detail.id + ' local sid = ' + sid + ' remotesid = ' + remotesid);
             service.objectsSubscribedTo[detail.id] = localsubs;
-            console.dir(service.objectsSubscribedTo);
             return d.resolve(sid);
           });
         }
@@ -411,8 +410,6 @@
           };
           $scope.renderModel = (function(_this) {
             return function() {
-              console.log('spinmodel::renderModel called for ' + $scope.model.name);
-              console.dir($scope.model);
               $scope.listprops = [];
               return client.getModelFor($scope.model.type).then(function(md) {
                 var foo, i, j, len, modeldef, notshow, prop, ref, results1;
@@ -429,7 +426,6 @@
                   for (i = j = 0, len = md.length; j < len; i = ++j) {
                     prop = md[i];
                     notshow = (ref = prop.name, indexOf.call($scope.hideproperties, ref) >= 0);
-                    console.log('spinmodel::renderModel ' + prop.name + ' -> ' + $scope.model[prop.name] + ' notshow = ' + notshow);
                     if (prop.name !== 'id' && !notshow) {
                       foo = {
                         name: prop.name,
