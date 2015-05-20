@@ -321,8 +321,14 @@
           $scope.subscription = void 0;
           $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];
           $scope.onSubscribedObject = function(o) {
+            var k, results1, v;
             console.log('==== spinmodel onSubscribedModel called for ' + o.id + ' updating model..');
-            return $scope.model = o;
+            results1 = [];
+            for (k in o) {
+              v = o[k];
+              results1.push($scope.model[k] = o[k]);
+            }
+            return results1;
           };
           $scope.isEditable = (function(_this) {
             return function(propname) {

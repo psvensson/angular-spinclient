@@ -314,7 +314,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.onSubscribedObject = (o) ->
         console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
         #console.dir o
-        $scope.model = o
+        for k,v of o
+          $scope.model[k] = o[k]
 
       $scope.isEditable = (propname) =>
         rv = $scope.edit
