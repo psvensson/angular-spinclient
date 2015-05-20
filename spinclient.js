@@ -316,8 +316,6 @@
         controller: function($scope) {
           var failure, success;
           $scope.hideproperties = $scope.hideproperties || [];
-          console.log('spinmodel got model ' + $scope.model + ' hideproperties are ' + $scope.hideproperties);
-          console.dir($scope.hideproperties);
           $scope.isarray = angular.isArray;
           $scope.subscriptions = [];
           $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];

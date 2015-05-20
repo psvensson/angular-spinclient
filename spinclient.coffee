@@ -301,8 +301,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     controller:  ($scope) ->
       $scope.hideproperties = $scope.hideproperties or []
-      console.log 'spinmodel got model '+$scope.model+' hideproperties are '+$scope.hideproperties
-      console.dir $scope.hideproperties
+      #console.log 'spinmodel got model '+$scope.model+' hideproperties are '+$scope.hideproperties
+      #console.dir $scope.hideproperties
       #console.dir $scope.model
 
       $scope.isarray = angular.isArray
