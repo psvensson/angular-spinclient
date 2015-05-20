@@ -336,7 +336,7 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
-              $scope.renderModel();
+              $scope.updateModel();
               if (!$scope.subscription) {
                 return client.registerObjectSubscriber({
                   id: $scope.model.id,
@@ -405,6 +405,20 @@
                 })(this));
               }, failure);
             });
+          };
+          $scope.updateModel = function() {
+            var k, ref, results1, v;
+            ref = $scope.model;
+            results1 = [];
+            for (k in ref) {
+              v = ref[k];
+              results1.push($scope.listprops.forEach(function(lp) {
+                if (lp.name === k) {
+                  return lp.value = v;
+                }
+              }));
+            }
+            return results1;
           };
           $scope.renderModel = (function(_this) {
             return function() {

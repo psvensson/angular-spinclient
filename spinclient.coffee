@@ -323,7 +323,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
         if $scope.model
-          $scope.renderModel()
+          $scope.updateModel()
           if not $scope.subscription
             client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
               $scope.subscription = {sid: listenerid, o: $scope.model}
@@ -358,6 +358,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             client.emitMessage( {target:'_delete'+item.type, obj: {id:m.id, type:item.type}}).then (o)=>
               console.log 'deleted '+item.type+' on server'
           , failure)
+
+      $scope.updateModel = () ->
+        for k,v of $scope.model
+          $scope.listprops.forEach (lp) ->
+            if lp.name == k then lp.value = v
 
       $scope.renderModel = () =>
         #console.log 'spinmodel::renderModel called for '+$scope.model.name
