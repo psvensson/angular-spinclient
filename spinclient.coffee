@@ -322,7 +322,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
-        if $scope.model
+        if $scope.model and $scope.listprops
           $scope.updateModel()
           if not $scope.subscription
             client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->

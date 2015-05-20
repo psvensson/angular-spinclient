@@ -335,7 +335,7 @@
           })(this);
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
-            if ($scope.model) {
+            if ($scope.model && $scope.listprops) {
               $scope.updateModel();
               if (!$scope.subscription) {
                 return client.registerObjectSubscriber({
