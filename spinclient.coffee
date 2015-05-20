@@ -32,7 +32,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         status = reply.status
         message = reply.payload
         info = reply.info
-        console.log 'got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + ' outstandingMessages = '+service.outstandingMessages.length
+        #console.log 'got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + ' outstandingMessages = '+service.outstandingMessages.length
         service.dumpOutstanding()
         #console.dir reply
         index = -1
@@ -46,10 +46,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 detail.d.reject reply
                 break
               else
-                console.log 'delivering message '+message+' reply to '+detail.target+' to '+reply.messageId
-                console.dir(detail.d)
+                #console.log 'delivering message '+message+' reply to '+detail.target+' to '+reply.messageId
                 detail.d.resolve(message)
-
                 index = i
                 break
             i++
@@ -88,7 +86,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.dir(lsubs)
           for k,v of lsubs
             if (v.cb)
-              console.log '-- calling back object update to local sid '+k
+              console.log '--*****--*****-- calling back object update to local sid --****--*****-- '+k
               v.cb updatedobj
         }).then (remotesid) ->
           localsubs['remotesid'] = remotesid
@@ -173,8 +171,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   }
 
   service.subscribers['OBJECT_UPDATE'] = [ (obj) ->
-    console.log 'spinclient +++++++++ obj update message router got obj'
-    console.dir(obj);
+    #console.log 'spinclient +++++++++ obj update message router got obj'
+    #console.dir(obj);
     subscribers = service.objsubscribers[obj.id] or []
     #if subscribers.length == 0
     #  console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
@@ -183,7 +181,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     #  subscribers.forEach (subscriber) ->
     #    subscriber obj
     for k,v of subscribers
-      console.log 'updating subscriber to object updates on id '+k
+      #console.log 'updating subscriber to object updates on id '+k
       v obj
   ]
 

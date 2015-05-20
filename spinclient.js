@@ -33,7 +33,6 @@
             status = reply.status;
             message = reply.payload;
             info = reply.info;
-            console.log('got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + ' outstandingMessages = ' + service.outstandingMessages.length);
             service.dumpOutstanding();
             index = -1;
             if (reply.messageId) {
@@ -46,8 +45,6 @@
                     detail.d.reject(reply);
                     break;
                   } else {
-                    console.log('delivering message ' + message + ' reply to ' + detail.target + ' to ' + reply.messageId);
-                    console.dir(detail.d);
                     detail.d.resolve(message);
                     index = i;
                     break;
@@ -101,7 +98,7 @@
               for (k in lsubs) {
                 v = lsubs[k];
                 if (v.cb) {
-                  console.log('-- calling back object update to local sid ' + k);
+                  console.log('--*****--*****-- calling back object update to local sid --****--*****-- ' + k);
                   results1.push(v.cb(updatedobj));
                 } else {
                   results1.push(void 0);
@@ -229,14 +226,11 @@
     service.subscribers['OBJECT_UPDATE'] = [
       function(obj) {
         var k, results1, subscribers, v;
-        console.log('spinclient +++++++++ obj update message router got obj');
-        console.dir(obj);
         subscribers = service.objsubscribers[obj.id] || [];
         console.dir(service.objsubscribers);
         results1 = [];
         for (k in subscribers) {
           v = subscribers[k];
-          console.log('updating subscriber to object updates on id ' + k);
           results1.push(v(obj));
         }
         return results1;
