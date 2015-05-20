@@ -94,12 +94,13 @@
             type: detail.type,
             cb: function(updatedobj) {
               var j, k, len, lsubs, results1, v;
-              console.log('registerObjectSubscriber getting obj update callback for ' + detail.id);
+              console.log('-- registerObjectSubscriber getting obj update callback for ' + detail.id);
+              console.dir(service.objectsSubscribedTo);
               lsubs = service.objectsSubscribedTo[detail.id];
               results1 = [];
               for (v = j = 0, len = lsubs.length; j < len; v = ++j) {
                 k = lsubs[v];
-                console.log('calling back object update to local sid ' + k);
+                console.log('-- calling back object update to local sid ' + k);
                 results1.push(v.cb(updatedobj));
               }
               return results1;
@@ -107,8 +108,9 @@
           }).then(function(remotesid) {
             localsubs['remotesid'] = remotesid;
             localsubs[sid] = detail;
-            console.log('adding local callback listener to object updates for ' + detail.id + ' local sid = ' + sid + ' remotesid = ' + remotesid);
+            console.log('-- adding local callback listener to object updates for ' + detail.id + ' local sid = ' + sid + ' remotesid = ' + remotesid);
             service.objectsSubscribedTo[detail.id] = localsubs;
+            console.dir(service.objectsSubscribedTo);
             return d.resolve(sid);
           });
         }
