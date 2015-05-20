@@ -83,12 +83,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'no local subs, so get the original server-side subscription for id '+detail.id
         # actually set up subscription, once for each object
         service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
-          console.log 'registerObjectSubscriber getting obj update callback for'
+          console.log 'registerObjectSubscriber getting obj update callback for '+detail.id
           for k,v in localsubs
+            console.log 'calling bacl object update to local sid '+k
             v.cb updatedobj
         }).then (remotesid) ->
           localsubs['remotesid'] = remotesid
           localsubs[sid] = detail
+          console.log 'adding callback listener to object updates for '+detail.id+' local sid = '+sid+' remotesid = '+remotesid
           service.objectsSubscribedTo[detail.id] = localsubs
           d.resolve(sid)
       return d.promise
@@ -98,9 +100,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
 
-      #
-      #--- The below .then NEVER gets called, even when matching 'on' message is received. ARGH
-      #
       service.emitMessage({target: 'registerForUpdatesOn', obj: {id: detail.id, type: detail.type} }).then(
         (reply)->
           console.log 'server subscription id for id '+detail.id+' is '+reply
@@ -173,14 +172,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     console.log 'spinclient +++++++++ obj update message router got obj'
     console.dir(obj);
     subscribers = service.objsubscribers[obj.id] or []
-    if subscribers.length == 0
-      console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
+    #if subscribers.length == 0
+    #  console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
     console.dir service.objsubscribers
     #else
     #  subscribers.forEach (subscriber) ->
     #    subscriber obj
     for k,v of subscribers
-      #console.log k+' -> '+v
+      console.log 'updating subscriber to object updates on id '+k
       v obj
   ]
 

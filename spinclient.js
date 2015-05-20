@@ -94,10 +94,11 @@
             type: detail.type,
             cb: function(updatedobj) {
               var j, k, len, results1, v;
-              console.log('registerObjectSubscriber getting obj update callback for');
+              console.log('registerObjectSubscriber getting obj update callback for ' + detail.id);
               results1 = [];
               for (v = j = 0, len = localsubs.length; j < len; v = ++j) {
                 k = localsubs[v];
+                console.log('calling bacl object update to local sid ' + k);
                 results1.push(v.cb(updatedobj));
               }
               return results1;
@@ -105,6 +106,7 @@
           }).then(function(remotesid) {
             localsubs['remotesid'] = remotesid;
             localsubs[sid] = detail;
+            console.log('adding callback listener to object updates for ' + detail.id + ' local sid = ' + sid + ' remotesid = ' + remotesid);
             service.objectsSubscribedTo[detail.id] = localsubs;
             return d.resolve(sid);
           });
@@ -223,13 +225,11 @@
         console.log('spinclient +++++++++ obj update message router got obj');
         console.dir(obj);
         subscribers = service.objsubscribers[obj.id] || [];
-        if (subscribers.length === 0) {
-          console.log('* OH NOES! * No subscribers for object update on object ' + obj.id);
-        }
         console.dir(service.objsubscribers);
         results1 = [];
         for (k in subscribers) {
           v = subscribers[k];
+          console.log('updating subscriber to object updates on id ' + k);
           results1.push(v(obj));
         }
         return results1;
