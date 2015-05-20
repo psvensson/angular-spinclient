@@ -20,7 +20,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       service.sessionId = id
 
     dumpOutstanding: ()->
-      console.log '-------------------------------- outstanding messages -----------------------------------'
+      console.log '-------------------------------- '+service.outstandingMessages.length+' outstanding messages ---------------------------------'
       service.outstandingMessages.forEach (os)->
         console.log os.messageId+' -> '+os.target+' - '+os.d
       console.log '-----------------------------------------------------------------------------------------'
@@ -84,13 +84,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         # actually set up subscription, once for each object
         service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
           console.log 'registerObjectSubscriber getting obj update callback for '+detail.id
-          for k,v in localsubs
-            console.log 'calling bacl object update to local sid '+k
+          lsubs = service.objectsSubscribedTo[detail.id]
+          for k,v in lsubs
+            console.log 'calling back object update to local sid '+k
             v.cb updatedobj
         }).then (remotesid) ->
           localsubs['remotesid'] = remotesid
           localsubs[sid] = detail
-          console.log 'adding callback listener to object updates for '+detail.id+' local sid = '+sid+' remotesid = '+remotesid
+          console.log 'adding local callback listener to object updates for '+detail.id+' local sid = '+sid+' remotesid = '+remotesid
           service.objectsSubscribedTo[detail.id] = localsubs
           d.resolve(sid)
       return d.promise

@@ -19,7 +19,7 @@
         return service.sessionId = id;
       },
       dumpOutstanding: function() {
-        console.log('-------------------------------- outstanding messages -----------------------------------');
+        console.log('-------------------------------- ' + service.outstandingMessages.length + ' outstanding messages ---------------------------------');
         service.outstandingMessages.forEach(function(os) {
           return console.log(os.messageId + ' -> ' + os.target + ' - ' + os.d);
         });
@@ -93,12 +93,13 @@
             id: detail.id,
             type: detail.type,
             cb: function(updatedobj) {
-              var j, k, len, results1, v;
+              var j, k, len, lsubs, results1, v;
               console.log('registerObjectSubscriber getting obj update callback for ' + detail.id);
+              lsubs = service.objectsSubscribedTo[detail.id];
               results1 = [];
-              for (v = j = 0, len = localsubs.length; j < len; v = ++j) {
-                k = localsubs[v];
-                console.log('calling bacl object update to local sid ' + k);
+              for (v = j = 0, len = lsubs.length; j < len; v = ++j) {
+                k = lsubs[v];
+                console.log('calling back object update to local sid ' + k);
                 results1.push(v.cb(updatedobj));
               }
               return results1;
@@ -106,7 +107,7 @@
           }).then(function(remotesid) {
             localsubs['remotesid'] = remotesid;
             localsubs[sid] = detail;
-            console.log('adding callback listener to object updates for ' + detail.id + ' local sid = ' + sid + ' remotesid = ' + remotesid);
+            console.log('adding local callback listener to object updates for ' + detail.id + ' local sid = ' + sid + ' remotesid = ' + remotesid);
             service.objectsSubscribedTo[detail.id] = localsubs;
             return d.resolve(sid);
           });
