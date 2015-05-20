@@ -93,19 +93,27 @@
             id: detail.id,
             type: detail.type,
             cb: function(updatedobj) {
-              var j, k, len, lsubs, results1, v;
+              var j, k, kk, len, lsubs, results1, v, vv;
               console.log('-- registerObjectSubscriber getting obj update callback for ' + detail.id);
               lsubs = service.objectsSubscribedTo[detail.id];
               console.dir(lsubs);
               results1 = [];
               for (v = j = 0, len = lsubs.length; j < len; v = ++j) {
                 k = lsubs[v];
-                if (v.cb) {
-                  console.log('-- calling back object update to local sid ' + k);
-                  results1.push(v.cb(updatedobj));
-                } else {
-                  results1.push(void 0);
-                }
+                results1.push((function() {
+                  var l, len1, results2;
+                  results2 = [];
+                  for (vv = l = 0, len1 = v.length; l < len1; vv = ++l) {
+                    kk = v[vv];
+                    if (vv.cb) {
+                      console.log('-- calling back object update to local sid ' + k);
+                      results2.push(vv.cb(updatedobj));
+                    } else {
+                      results2.push(void 0);
+                    }
+                  }
+                  return results2;
+                })());
               }
               return results1;
             }

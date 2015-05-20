@@ -87,9 +87,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           lsubs = service.objectsSubscribedTo[detail.id]
           console.dir(lsubs)
           for k,v in lsubs
-            if (v.cb)
-              console.log '-- calling back object update to local sid '+k
-              v.cb updatedobj
+            for kk,vv in v
+              if (vv.cb)
+                console.log '-- calling back object update to local sid '+k
+                vv.cb updatedobj
         }).then (remotesid) ->
           localsubs['remotesid'] = remotesid
           localsubs[sid] = detail
