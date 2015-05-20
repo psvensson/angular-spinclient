@@ -1,4 +1,4 @@
-angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (uuid4, $q) ->
+angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (uuid4, $q, $rootScope) ->
   #public methods & properties
   service = {
 
@@ -13,8 +13,17 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     io                  : null
     sessionId           : null
 
+    failed: (msg)->
+      console.log 'spinclient message failed!! '+msg
+
     setSessionId: (id) ->
       service.sessionId = id
+
+    dumpOutstanding: ()->
+      console.log '-------------------------------- outstanding messages -----------------------------------'
+      service.outstandingMessages.forEach (os)->
+        console.log os.messageId+' -> '+os.target+' - '+os.d
+      console.log '-----------------------------------------------------------------------------------------'
 
     setWebSocketInstance: (io) =>
       service.io = io
@@ -24,6 +33,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         message = reply.payload
         info = reply.info
         console.log 'got reply messageId ' + reply.messageId + ' status ' + status + ', info ' + info + ' data ' + message + ' outstandingMessages = '+service.outstandingMessages.length
+        service.dumpOutstanding()
         #console.dir reply
         index = -1
         if reply.messageId
@@ -32,11 +42,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             detail = service.outstandingMessages[i]
             if detail.messageId == reply.messageId
               if reply.status == 'FAILURE'
+                console.log 'spinclient message FAILURE'
                 detail.d.reject reply
                 break
               else
                 console.log 'delivering message '+message+' reply to '+detail.target+' to '+reply.messageId
+                console.dir(detail.d)
                 detail.d.resolve(message)
+
                 index = i
                 break
             i++
@@ -84,16 +97,19 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       d = $q.defer()
       console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
-      
+
       #
       #--- The below .then NEVER gets called, even when matching 'on' message is received. ARGH
       #
-      service.emitMessage({target: 'registerForUpdatesOn', obj: {id: detail.id, type: detail.type} }).then((reply)->
+      service.emitMessage({target: 'registerForUpdatesOn', obj: {id: detail.id, type: detail.type} }).then(
+        (reply)->
           console.log 'server subscription id for id '+detail.id+' is '+reply
           subscribers[reply] = detail.cb
           service.objsubscribers[detail.id] = subscribers
           d.resolve(reply)
-      )
+        ,(reply)->
+          service.failed(reply)
+        )
       return d.promise
 
     deRegisterObjectSubscriber: (sid, o) =>

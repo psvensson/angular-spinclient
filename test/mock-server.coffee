@@ -9,11 +9,11 @@ do (angular) ->
       clientReplyFunc: undefined,
       blacklist: ['id', 'createdAt', 'modifiedAt'],
       subscribers: [],
-      listenerid:1,
+      listenerid:101,
       objects: { 1: {id:1, name:'Foo 1', type:'Foo', createdAt: Date.now(), modifiedAt: undefined }, 2: {id:2, name: 'Bar 1', type:'Bar', createdAt: Date.now(), modifiedAt: undefined } },
 
       'on': (channel, callback) ->
-        console.log 'mockserver on called for channel "'+channel+'"'
+        console.log '+++ mockserver on called for channel "'+channel+'"'
 
         service.callbacks[channel] = callback
         service.clientReplyFunc = callback
@@ -21,7 +21,7 @@ do (angular) ->
       'emit': (channel, messagestr) ->
         message = JSON.parse(messagestr)
 
-        console.log 'mockserver emit called for channel "'+channel+'" '+message.target
+        console.log '+++ mockserver emit called for channel "'+channel+'" '+message.target
 
         switch message['target']
           when 'getModelFor'            then service.getModelFor(message)
@@ -45,7 +45,7 @@ do (angular) ->
         service.clientReplyFunc({messageId: msg.messageId, status: 'SUCCESS', info:'get model', payload:[ { name: 'name', public: true, value: 'name' }, { name: 'createdAt',    public: true,   value: 'createdAt'}, { name: 'modifiedAt',   public: true,   value: 'modifiedAt' }] })
 
       registerForUpdatesOn: (msg) ->
-        console.log 'registerForUpdatesOn called for '+msg.obj.id
+        console.log '+++ registerForUpdatesOn called for '+msg.obj.id
         subs = service.subscribers[msg.obj.id] or []
         subs[service.listenerid] = (o) ->
           service.clientReplyFunc({status: 'SUCCESS', info: 'OBJECT_UPDATE', payload: o })
