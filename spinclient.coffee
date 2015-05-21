@@ -283,7 +283,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                         <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                     </div>
                     <span flex ng-if="!isEditable(prop.name) && prop.array">
-                        <spinlist flex class="md-secondary" listmodel="prop.name" list="model[prop.name]" onselect="onselect"></spinlist>
+                        <spinlist flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
                     </span>
                     <div flex ng-if="prop.hashtable">
                         <div ng-if="isEditable(prop.name)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
