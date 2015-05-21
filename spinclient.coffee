@@ -479,7 +479,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         <md-list-item ng-repeat="item in expandedlist" >
             <div class="md-list-item-text" layout="row">
                 <span flex >
-                    <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
+                    <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                         <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
                     </md-button> <md-button  ng-click="selectItem(item, true)"><img ng-if="item-image" src="item.value"> {{ item.name }}</md-button>
                 </span>
@@ -491,6 +491,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     scope:
       list: '=list'
       listmodel: '=listmodel'
+      edit: '=edit'
       onselect: '&'
       ondelete: '&'
 
@@ -499,7 +500,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       scope.ondelete = scope.ondelete()
 
     controller:  ($scope) ->
-      console.log 'spinlist created. list is '+$scope.list.length+' items, type is '+$scope.listmodel
+      console.log '*** spinlist created. list is '+$scope.list.length+' items, type is '+$scope.listmodel
+      console.dir $scope.list
       $scope.subscriptions = []
       $scope.objects = []
       $scope.expandedlist = []
