@@ -271,7 +271,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <md-list-item ng-repeat="prop in listprops" >
                 <div class="md-list-item-text" layout="row">
                     <div flex style="background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
-                    <span flex ng-if="prop.type && prop.value && !prop.hashtable">
+                    <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
                         <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
                     </span>
                     <div ng-if="!prop.array && !prop.type" flex class="md-secondary">
@@ -280,10 +280,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                     </div>
                     <div flex ng-if="isEditable(prop.name) && prop.array">
                         <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
-                        <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="prop.value" onselect="onselect" ondelete="ondelete"></spinlist>
+                        <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                     </div>
                     <span flex ng-if="!isEditable(prop.name) && prop.array">
-                        <spinlist flex class="md-secondary" listmodel="prop.name" list="prop.value" onselect="onselect"></spinlist>
+                        <spinlist flex class="md-secondary" listmodel="prop.name" list="model[prop.name]" onselect="onselect"></spinlist>
                     </span>
                     <div flex ng-if="prop.hashtable">
                         <div ng-if="isEditable(prop.name)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
