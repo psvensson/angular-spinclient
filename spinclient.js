@@ -587,7 +587,7 @@
           return scope.ondelete = scope.ondelete();
         },
         controller: function($scope) {
-          var failure, j, len, modelid, ref, success;
+          var failure, success;
           console.log('*** spinlist created. list is ' + $scope.list.length + ' items, type is ' + $scope.listmodel);
           console.dir($scope.list);
           $scope.subscriptions = [];
@@ -616,39 +616,48 @@
               return $scope.ondelete(item);
             }
           };
-          ref = $scope.list;
-          for (j = 0, len = ref.length; j < len; j++) {
-            modelid = ref[j];
-            console.log('spinlist expanding list reference for model id ' + modelid + ' of type ' + $scope.listmodel);
-            client.emitMessage({
-              target: '_get' + $scope.listmodel,
-              obj: {
-                id: modelid,
-                type: $scope.listmodel
-              }
-            }).then(function(o) {
-              var i, l, len1, modid, ref1, results1;
-              ref1 = $scope.list;
-              results1 = [];
-              for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
-                modid = ref1[i];
-                if (modid === o.id) {
-                  results1.push($scope.expandedlist[i] = o);
-                } else {
-                  results1.push(void 0);
+          $scope.$watch('list', function(newval, oldval) {
+            return $scope.renderList();
+          });
+          $scope.renderList = function() {
+            var j, len, modelid, ref, results1;
+            $scope.expandedlist = [];
+            ref = $scope.list;
+            results1 = [];
+            for (j = 0, len = ref.length; j < len; j++) {
+              modelid = ref[j];
+              console.log('**spinlist expanding list reference for model id ' + modelid + ' of type ' + $scope.listmodel);
+              results1.push(client.emitMessage({
+                target: '_get' + $scope.listmodel,
+                obj: {
+                  id: modelid,
+                  type: $scope.listmodel
                 }
-              }
-              return results1;
-            }, failure);
-          }
+              }).then(function(o) {
+                var i, l, len1, modid, ref1, results2;
+                ref1 = $scope.list;
+                results2 = [];
+                for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
+                  modid = ref1[i];
+                  if (modid === o.id) {
+                    results2.push($scope.expandedlist[i] = o);
+                  } else {
+                    results2.push(void 0);
+                  }
+                }
+                return results2;
+              }, failure));
+            }
+            return results1;
+          };
           $scope.onSubscribedObject = function(o) {
-            var added, i, k, l, len1, mod, model, ref1, v;
+            var added, i, j, k, len, mod, model, ref, v;
             console.log('onSubscribedObject called ++++++++++++++++++++++++');
             console.dir(o);
             added = false;
-            ref1 = $scope.list;
-            for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
-              model = ref1[i];
+            ref = $scope.list;
+            for (i = j = 0, len = ref.length; j < len; i = ++j) {
+              model = ref[i];
               if (model.id === o.id) {
                 console.log('found match in update for object ' + o.id + ' name ' + o.name);
                 mod = $scope.expandedlist[i];
