@@ -43,6 +43,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             if detail.messageId == reply.messageId
               if reply.status == 'FAILURE'
                 console.log 'spinclient message FAILURE'
+                console.dir reply
                 detail.d.reject reply
                 break
               else
