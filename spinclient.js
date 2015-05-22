@@ -650,11 +650,14 @@
                 }
               }).then(function(o) {
                 var i, l, len1, modid, ref1, results2;
+                console.log('spinlist _get got back object ' + o);
+                console.dir(o);
                 ref1 = $scope.list;
                 results2 = [];
                 for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
                   modid = ref1[i];
                   if (modid === o.id) {
+                    console.log('-- exchanging list id with actual list model from server for ' + o.name);
                     results2.push($scope.expandedlist[i] = o);
                   } else {
                     results2.push(void 0);

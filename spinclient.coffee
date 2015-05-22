@@ -541,9 +541,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         for modelid in $scope.list
           console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
           client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
+            console.log 'spinlist _get got back object '+o
+            console.dir o
             for modid,i in $scope.list
               if modid == o.id
-                #console.log '-- exhanging list id with actual list model from server for '+o.name
+                console.log '-- exchanging list id with actual list model from server for '+o.name
                 $scope.expandedlist[i] = o
           , failure)
 
