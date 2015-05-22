@@ -12,6 +12,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     #io                  : io('ws://localhost:3003')
     io                  : null
     sessionId           : null
+    objects             : []
 
     failed: (msg)->
       console.log 'spinclient message failed!! '+msg
@@ -184,6 +185,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     #    subscriber obj
     for k,v of subscribers
       #console.log 'updating subscriber to object updates on id '+k
+      if not service.objects[obj.id]
+        service.objects[obj.id] = obj
+      else
+        o = service.objects[obj.id]
+        for prop, val of obj
+          o[prop] = val
       v obj
   ]
 
@@ -267,7 +274,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-list >
         <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon>
-            {{model.type}} {{model.name}}</md-subheader>
+            {{model.type}} {{objects[model.id].name}}</md-subheader>
             <md-list-item ng-repeat="prop in listprops" >
                 <div class="md-list-item-text" layout="row">
                     <div flex style="background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
@@ -311,6 +318,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.isarray = angular.isArray
       $scope.subscription = undefined
       $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
+      $scope.activeField = undefined
+      $scope.objects = spinclient.objects
 
       $scope.onSubscribedObject = (o) ->
         console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
@@ -341,9 +350,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       failure = (err) =>
         console.log 'error: '+err
 
-      $scope.onChange = (model,prop) =>
+      $scope.onChange = (model, prop) =>
         console.log 'spinmodel onChange called for'
         console.dir model
+        $scope.activeField = model.type
         #console.dir prop
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
 
@@ -384,7 +394,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             for prop,i in md
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
-              if(prop.name != 'id' and not notshow)
+              if(prop.name != 'id' and not notshow and prop.name != $scope.activeField)
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
@@ -482,7 +492,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 <span flex >
                     <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                         <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
-                    </md-button> <md-button  ng-click="selectItem(item, true)"><img ng-if="item-image" src="item.value"> {{ item.name }}</md-button>
+                    </md-button> <md-button  ng-click="selectItem(item, true)"><img ng-if="item-image" src="item.value"> {{ objects[item.id].name }}</md-button>
                 </span>
                 <!-- <span flex class="md-secondary"> {{item.id}}</span> -->
             </div>
@@ -506,6 +516,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.subscriptions = []
       $scope.objects = []
       $scope.expandedlist = []
+      $scope.objects = spinclient.objects
 
       success = (result) =>
         console.log 'success: '+result
@@ -580,7 +591,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <div class="md-list-item-text" layout="row">
                 <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                     <md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon>
-                </md-button> <md-button  ng-click="selectItem(item)">{{ item.name }}</md-button>
+                </md-button> <md-button  ng-click="selectItem(item)">{{ objects[item.id].name }}</md-button>
             </div>
     </md-list>
 </div>'
@@ -597,6 +608,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     controller: ($scope) ->
       console.log 'spinhash list for model '+$scope.listmodel+' is'
       console.dir $scope.list
+      $scope.objects = spinclient.objects
 
       $scope.expandedlist = []
 
