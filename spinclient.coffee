@@ -516,7 +516,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.subscriptions = []
       $scope.objects = []
       $scope.expandedlist = []
-      $scope.objects = spinclient.objects
+      $scope.objects = client.objects
 
       success = (result) =>
         console.log 'success: '+result
@@ -608,7 +608,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     controller: ($scope) ->
       console.log 'spinhash list for model '+$scope.listmodel+' is'
       console.dir $scope.list
-      $scope.objects = spinclient.objects
+      $scope.objects = client.objects
 
       $scope.expandedlist = []
 

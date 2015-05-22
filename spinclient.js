@@ -607,7 +607,7 @@
           $scope.subscriptions = [];
           $scope.objects = [];
           $scope.expandedlist = [];
-          $scope.objects = spinclient.objects;
+          $scope.objects = client.objects;
           success = (function(_this) {
             return function(result) {
               return console.log('success: ' + result);
@@ -735,7 +735,7 @@
           var failure, j, len, mid, ref;
           console.log('spinhash list for model ' + $scope.listmodel + ' is');
           console.dir($scope.list);
-          $scope.objects = spinclient.objects;
+          $scope.objects = client.objects;
           $scope.expandedlist = [];
           failure = (function(_this) {
             return function(err) {
