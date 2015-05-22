@@ -332,7 +332,7 @@
           $scope.subscription = void 0;
           $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];
           $scope.activeField = void 0;
-          $scope.objects = spinclient.objects;
+          $scope.objects = client.objects;
           $scope.onSubscribedObject = function(o) {
             var k, results1, v;
             console.log('==== spinmodel onSubscribedModel called for ' + o.id + ' updating model..');

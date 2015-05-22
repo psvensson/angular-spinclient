@@ -319,7 +319,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.subscription = undefined
       $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
       $scope.activeField = undefined
-      $scope.objects = spinclient.objects
+      $scope.objects = client.objects
 
       $scope.onSubscribedObject = (o) ->
         console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
