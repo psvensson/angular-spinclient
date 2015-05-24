@@ -652,6 +652,7 @@
                 var i, l, len1, modid, ref1, results2;
                 console.log('spinlist _get got back object ' + o);
                 console.dir(o);
+                client.objects[o.id] = o;
                 ref1 = $scope.list;
                 results2 = [];
                 for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {

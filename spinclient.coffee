@@ -543,6 +543,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
             console.log 'spinlist _get got back object '+o
             console.dir o
+            client.objects[o.id] = o
             for modid,i in $scope.list
               if modid == o.id
                 console.log '-- exchanging list id with actual list model from server for '+o.name
