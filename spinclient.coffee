@@ -538,17 +538,18 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.renderList = () ->
         $scope.expandedlist = []
-        for modelid in $scope.list
-          console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
-          client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
-            console.log 'spinlist _get got back object '+o
-            console.dir o
-            client.objects[o.id] = o
-            for modid,i in $scope.list
-              if modid == o.id
-                console.log '-- exchanging list id with actual list model from server for '+o.name
-                $scope.expandedlist[i] = o
-          , failure)
+        if $scope.list
+          for modelid in $scope.list
+            console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+            client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
+              console.log 'spinlist _get got back object '+o
+              console.dir o
+              client.objects[o.id] = o
+              for modid,i in $scope.list
+                if modid == o.id
+                  console.log '-- exchanging list id with actual list model from server for '+o.name
+                  $scope.expandedlist[i] = o
+            , failure)
 
       $scope.onSubscribedObject = (o) ->
         console.log 'onSubscribedObject called ++++++++++++++++++++++++'

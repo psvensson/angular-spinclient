@@ -637,37 +637,39 @@
           $scope.renderList = function() {
             var j, len, modelid, ref, results1;
             $scope.expandedlist = [];
-            ref = $scope.list;
-            results1 = [];
-            for (j = 0, len = ref.length; j < len; j++) {
-              modelid = ref[j];
-              console.log('**spinlist expanding list reference for model id ' + modelid + ' of type ' + $scope.listmodel);
-              results1.push(client.emitMessage({
-                target: '_get' + $scope.listmodel,
-                obj: {
-                  id: modelid,
-                  type: $scope.listmodel
-                }
-              }).then(function(o) {
-                var i, l, len1, modid, ref1, results2;
-                console.log('spinlist _get got back object ' + o);
-                console.dir(o);
-                client.objects[o.id] = o;
-                ref1 = $scope.list;
-                results2 = [];
-                for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
-                  modid = ref1[i];
-                  if (modid === o.id) {
-                    console.log('-- exchanging list id with actual list model from server for ' + o.name);
-                    results2.push($scope.expandedlist[i] = o);
-                  } else {
-                    results2.push(void 0);
+            if ($scope.list) {
+              ref = $scope.list;
+              results1 = [];
+              for (j = 0, len = ref.length; j < len; j++) {
+                modelid = ref[j];
+                console.log('**spinlist expanding list reference for model id ' + modelid + ' of type ' + $scope.listmodel);
+                results1.push(client.emitMessage({
+                  target: '_get' + $scope.listmodel,
+                  obj: {
+                    id: modelid,
+                    type: $scope.listmodel
                   }
-                }
-                return results2;
-              }, failure));
+                }).then(function(o) {
+                  var i, l, len1, modid, ref1, results2;
+                  console.log('spinlist _get got back object ' + o);
+                  console.dir(o);
+                  client.objects[o.id] = o;
+                  ref1 = $scope.list;
+                  results2 = [];
+                  for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
+                    modid = ref1[i];
+                    if (modid === o.id) {
+                      console.log('-- exchanging list id with actual list model from server for ' + o.name);
+                      results2.push($scope.expandedlist[i] = o);
+                    } else {
+                      results2.push(void 0);
+                    }
+                  }
+                  return results2;
+                }, failure));
+              }
+              return results1;
             }
-            return results1;
           };
           $scope.onSubscribedObject = function(o) {
             var added, i, j, k, len, mod, model, ref, v;
