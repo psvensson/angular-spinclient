@@ -511,7 +511,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       scope.ondelete = scope.ondelete()
 
     controller:  ($scope) ->
-      console.log '*** spinlist created. list is '+$scope.list.length+' items, type is '+$scope.listmodel
+      console.log '*** spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel
       console.dir $scope.list
       $scope.subscriptions = []
       $scope.objects = []
