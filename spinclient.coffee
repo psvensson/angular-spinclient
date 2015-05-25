@@ -456,7 +456,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinwalker model = '+$scope.model
         if($scope.model)
           console.dir $scope.model
-          $scope.breadcrumbs = [$scope.model]
+          $scope.breadcrumbs = [$scope.model] if not $scope.breadcrumbs
           $scope.selectedmodel = $scope.model
 
       $scope.crumbClicked = (model) ->
