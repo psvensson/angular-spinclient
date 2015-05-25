@@ -551,10 +551,10 @@
           $scope.selectedmodel = $scope.model;
           $scope.breadcrumbs = [$scope.model];
           $scope.$watch('model', function(newval, oldval) {
-            console.log('spinwalker model = ' + model);
-            if (model) {
+            console.log('spinwalker model = ' + $scope.model);
+            if ($scope.model) {
               $scope.breadcrumbs = [$scope.model];
-              return $scope.selectedmodel = newval;
+              return $scope.selectedmodel = $scope.model;
             }
           });
           $scope.crumbClicked = function(model) {

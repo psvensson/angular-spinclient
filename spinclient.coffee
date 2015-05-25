@@ -453,10 +453,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.breadcrumbs = [$scope.model]
 
       $scope.$watch 'model', (newval, oldval) ->
-        console.log 'spinwalker model = '+model
-        if(model)
+        console.log 'spinwalker model = '+$scope.model
+        if($scope.model)
           $scope.breadcrumbs = [$scope.model]
-          $scope.selectedmodel = newval
+          $scope.selectedmodel = $scope.model
 
       $scope.crumbClicked = (model) ->
         console.log 'crumbClicked selected model '+model.is+' '+model.type
