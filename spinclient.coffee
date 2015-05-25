@@ -438,7 +438,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
        <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> >
     </span>
     <md-divider></md-divider>
-    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
+    <spinmodel model="objects[selectedmodel.id]" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
 </div>'
     scope:
       model: '=model'
@@ -456,10 +456,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.selectedmodel = newval
 
       $scope.crumbClicked = (model) ->
+        console.log 'crumbClicked selected model '+model.is+' '+model.type
         $scope.selectedmodel = model
         idx = -1
         for crumb, i  in $scope.breadcrumbs
-          idx = i if crumb.id = model.id
+          idx = i if crumb.id == model.id
         console.log 'crumbClicked crumbs length = '+$scope.breadcrumbs.length
         if idx > -1 and $scope.breadcrumbs.length > 1
           $scope.breadcrumbs.splice idx,1
