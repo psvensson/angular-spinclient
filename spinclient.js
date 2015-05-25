@@ -360,7 +360,7 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
-              if ($scope.listprops) {
+              if ($scope.listprops && newval.id === oldval.id) {
                 $scope.updateModel();
               } else {
                 $scope.renderModel();

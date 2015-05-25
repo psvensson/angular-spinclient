@@ -338,7 +338,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
         if $scope.model
-          if $scope.listprops
+          if $scope.listprops and newval.id == oldval.id
             $scope.updateModel()
           else
             $scope.renderModel()
