@@ -540,7 +540,7 @@
       return {
         restrict: 'AE',
         replace: true,
-        template: '<div> <span ng-repeat="crumb in breadcrumbs"> <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> > </span> <md-divider></md-divider> <spinmodel model="objects[selectedmodel.id]" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel> </div>',
+        template: '<div> <span ng-repeat="crumb in breadcrumbs"> <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> > </span> <md-divider></md-divider> <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel> </div>',
         scope: {
           model: '=model',
           edit: '=edit',

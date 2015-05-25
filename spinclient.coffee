@@ -439,7 +439,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
        <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> >
     </span>
     <md-divider></md-divider>
-    <spinmodel model="objects[selectedmodel.id]" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
+    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
 </div>'
     scope:
       model: '=model'
