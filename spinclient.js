@@ -553,6 +553,7 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinwalker model = ' + $scope.model);
             if ($scope.model) {
+              console.dir($scope.model);
               $scope.breadcrumbs = [$scope.model];
               return $scope.selectedmodel = $scope.model;
             }

@@ -455,6 +455,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinwalker model = '+$scope.model
         if($scope.model)
+          console.dir $scope.model
           $scope.breadcrumbs = [$scope.model]
           $scope.selectedmodel = $scope.model
 
