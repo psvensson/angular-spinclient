@@ -17,8 +17,10 @@
         return console.log('spinclient message failed!! ' + msg);
       },
       setSessionId: function(id) {
-        console.log('++++++++++++++++++++++++++++++++++++++ spinclient setting session id to ' + id);
-        return service.sessionId = id;
+        if (id) {
+          console.log('++++++++++++++++++++++++++++++++++++++ spinclient setting session id to ' + id);
+          return service.sessionId = id;
+        }
       },
       dumpOutstanding: function() {
         console.log('-------------------------------- ' + service.outstandingMessages.length + ' outstanding messages ---------------------------------');
@@ -549,8 +551,11 @@
           $scope.selectedmodel = $scope.model;
           $scope.breadcrumbs = [$scope.model];
           $scope.$watch('model', function(newval, oldval) {
-            $scope.breadcrumbs = [$scope.model];
-            return $scope.selectedmodel = newval;
+            console.log('spinwalker model = ' + model);
+            if (model) {
+              $scope.breadcrumbs = [$scope.model];
+              return $scope.selectedmodel = newval;
+            }
           });
           $scope.crumbClicked = function(model) {
             var crumb, i, idx, j, len, ref;

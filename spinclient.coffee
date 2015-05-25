@@ -18,8 +18,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       console.log 'spinclient message failed!! '+msg
 
     setSessionId: (id) ->
-      console.log '++++++++++++++++++++++++++++++++++++++ spinclient setting session id to '+id
-      service.sessionId = id
+      if(id)
+        console.log '++++++++++++++++++++++++++++++++++++++ spinclient setting session id to '+id
+        service.sessionId = id
 
     dumpOutstanding: ()->
       console.log '-------------------------------- '+service.outstandingMessages.length+' outstanding messages ---------------------------------'
@@ -452,8 +453,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.breadcrumbs = [$scope.model]
 
       $scope.$watch 'model', (newval, oldval) ->
-        $scope.breadcrumbs = [$scope.model]
-        $scope.selectedmodel = newval
+        console.log 'spinwalker model = '+model
+        if(model)
+          $scope.breadcrumbs = [$scope.model]
+          $scope.selectedmodel = newval
 
       $scope.crumbClicked = (model) ->
         console.log 'crumbClicked selected model '+model.is+' '+model.type
