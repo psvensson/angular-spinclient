@@ -555,6 +555,7 @@
             if ($scope.model) {
               console.dir($scope.model);
               if (!$scope.breadcrumbs) {
+                console.log('************************************************* creating new breadcrumbs..');
                 $scope.breadcrumbs = [$scope.model];
               }
               return $scope.selectedmodel = $scope.model;
@@ -562,7 +563,7 @@
           });
           $scope.crumbClicked = function(model) {
             var crumb, i, idx, j, len, ref;
-            console.log('crumbClicked selected model ' + model.is + ' ' + model.type);
+            console.log('************************************************* crumbClicked selected model ' + model.is + ' ' + model.type);
             $scope.selectedmodel = model;
             idx = -1;
             ref = $scope.breadcrumbs;
@@ -572,13 +573,13 @@
                 idx = i;
               }
             }
-            console.log('crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
+            console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
             if (idx > -1 && $scope.breadcrumbs.length > 1) {
               return $scope.breadcrumbs.splice(idx, 1);
             }
           };
           $scope.onselect = function(model, replace) {
-            console.log('spinwalker onselect for model ' + model.name);
+            console.log('************************************************* spinwalker onselect for model ' + model.name);
             console.log(model);
             if (replace) {
               $scope.breadcrumbs = [];
