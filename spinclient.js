@@ -17,6 +17,7 @@
         return console.log('spinclient message failed!! ' + msg);
       },
       setSessionId: function(id) {
+        console.log('++++++++++++++++++++++++++++++++++++++ spinclient setting session id to ' + id);
         return service.sessionId = id;
       },
       dumpOutstanding: function() {
@@ -180,6 +181,7 @@
         detail.sessionId = service.sessionId;
         detail.d = d;
         service.outstandingMessages.push(detail);
+        console.log('saving outstanding reply to messageId ' + detail.messageId + ' and sessionId ' + detail.sessionId);
         service.io.emit('message', JSON.stringify(detail));
         return d.promise;
       },

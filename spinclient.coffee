@@ -18,6 +18,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       console.log 'spinclient message failed!! '+msg
 
     setSessionId: (id) ->
+      console.log '++++++++++++++++++++++++++++++++++++++ spinclient setting session id to '+id
       service.sessionId = id
 
     dumpOutstanding: ()->
@@ -141,7 +142,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       detail.sessionId = service.sessionId
       detail.d = d
       service.outstandingMessages.push detail
-      #console.log 'saving outstanding reply to messageId '+detail.messageId
+      console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
       service.io.emit 'message', JSON.stringify(detail)
 
       return d.promise
