@@ -278,7 +278,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon>
             {{model.type}} {{objects[model.id].name}}</md-subheader>
             <md-list-item ng-repeat="prop in listprops" >
-                <div class="md-list-item-text" layout="row">
+                <div class="md-list-item-text" style="line-height:2em;padding-left:5px;" layout="row">
                     <div flex style="background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
                     <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
                         <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
@@ -496,7 +496,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                 List of {{listmodel}}s</md-subheader>
         <md-list-item ng-repeat="item in expandedlist" >
-            <div class="md-list-item-text" layout="row">
+            <div class="md-list-item-text" style="line-height:2em;padding-left:5px;" layout="row">
                 <span flex >
                     <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                         <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
