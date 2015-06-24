@@ -27,7 +27,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       #service.outstandingMessages.forEach (os)->
       #  console.log os.messageId+' -> '+os.target+' - '+os.d
       #console.log '-----------------------------------------------------------------------------------------'
-      
 
     setWebSocketInstance: (io) =>
       service.io = io
@@ -458,7 +457,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         if($scope.model)
           console.dir $scope.model
           if not $scope.breadcrumbs
-            console.log '************************************************* creating new breadcrumbs..'
+            console.log '************************************************* creating new breadcrumbs...'
             $scope.breadcrumbs = [$scope.model]
           $scope.selectedmodel = $scope.model
 

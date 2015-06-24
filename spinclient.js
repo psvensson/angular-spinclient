@@ -549,7 +549,7 @@
             if ($scope.model) {
               console.dir($scope.model);
               if (!$scope.breadcrumbs) {
-                console.log('************************************************* creating new breadcrumbs..');
+                console.log('************************************************* creating new breadcrumbs...');
                 $scope.breadcrumbs = [$scope.model];
               }
               return $scope.selectedmodel = $scope.model;
