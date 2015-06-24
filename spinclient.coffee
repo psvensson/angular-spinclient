@@ -27,6 +27,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       #service.outstandingMessages.forEach (os)->
       #  console.log os.messageId+' -> '+os.target+' - '+os.d
       #console.log '-----------------------------------------------------------------------------------------'
+      
 
     setWebSocketInstance: (io) =>
       service.io = io
