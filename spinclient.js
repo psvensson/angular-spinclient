@@ -573,13 +573,15 @@
             }
           };
           $scope.onselect = function(model, replace) {
-            console.log('************************************************* spinwalker onselect for model ' + model.name);
+            console.log('************************************************* spinwalker onselect for model ' + model.name + ' replace = ' + replace);
             console.log(model);
             if (replace) {
               $scope.breadcrumbs = [];
             }
             $scope.selectedmodel = model;
-            return $scope.breadcrumbs.push(model);
+            $scope.breadcrumbs.push(model);
+            console.log('breadcrumbs are now');
+            return console.dir($scope.breadcrumbs);
           };
           return $scope.crumbPresentation = (function(_this) {
             return function(crumb) {
