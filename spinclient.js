@@ -22,12 +22,7 @@
           return service.sessionId = id;
         }
       },
-      dumpOutstanding: function() {
-        console.log('-------------------------------- ' + service.outstandingMessages.length + ' outstanding messages ---------------------------------');
-        return service.outstandingMessages.forEach(function(os) {
-          return console.log(os.messageId + ' -> ' + os.target + ' - ' + os.d);
-        });
-      },
+      dumpOutstanding: function() {},
       setWebSocketInstance: (function(_this) {
         return function(io) {
           service.io = io;
@@ -183,7 +178,6 @@
         detail.sessionId = service.sessionId;
         detail.d = d;
         service.outstandingMessages.push(detail);
-        console.log('saving outstanding reply to messageId ' + detail.messageId + ' and sessionId ' + detail.sessionId);
         service.io.emit('message', JSON.stringify(detail));
         return d.promise;
       },

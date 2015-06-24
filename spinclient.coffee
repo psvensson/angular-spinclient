@@ -23,9 +23,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         service.sessionId = id
 
     dumpOutstanding: ()->
-      console.log '-------------------------------- '+service.outstandingMessages.length+' outstanding messages ---------------------------------'
-      service.outstandingMessages.forEach (os)->
-        console.log os.messageId+' -> '+os.target+' - '+os.d
+      #console.log '-------------------------------- '+service.outstandingMessages.length+' outstanding messages ---------------------------------'
+      #service.outstandingMessages.forEach (os)->
+      #  console.log os.messageId+' -> '+os.target+' - '+os.d
       #console.log '-----------------------------------------------------------------------------------------'
 
     setWebSocketInstance: (io) =>
@@ -143,7 +143,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       detail.sessionId = service.sessionId
       detail.d = d
       service.outstandingMessages.push detail
-      console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
+      #console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
       service.io.emit 'message', JSON.stringify(detail)
 
       return d.promise
