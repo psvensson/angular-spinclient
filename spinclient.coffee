@@ -179,12 +179,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     #console.log 'spinclient +++++++++ obj update message router got obj'
     #console.dir(obj);
     subscribers = service.objsubscribers[obj.id] or []
-    #if subscribers.length == 0
-    #  console.log '* OH NOES! * No subscribers for object update on object ' + obj.id
-    #console.dir service.objsubscribers
-    #else
-    #  subscribers.forEach (subscriber) ->
-    #    subscriber obj
     for k,v of subscribers
       #console.log 'updating subscriber to object updates on id '+k
       if not service.objects[obj.id]
@@ -396,7 +390,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             for prop,i in md
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
-              if(prop.name != 'id' and not notshow and prop.name != $scope.activeField)
+              if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 

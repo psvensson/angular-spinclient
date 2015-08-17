@@ -461,7 +461,7 @@
                   for (i = j = 0, len = md.length; j < len; i = ++j) {
                     prop = md[i];
                     notshow = (ref = prop.name, indexOf.call($scope.hideproperties, ref) >= 0);
-                    if (prop.name !== 'id' && !notshow && prop.name !== $scope.activeField) {
+                    if (prop.name !== 'id' && !notshow && prop.name !== $scope.activeField && $scope.model[prop.name]) {
                       foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",
