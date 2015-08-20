@@ -496,7 +496,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 <span flex >
                     <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                         <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
-                    </md-button> <md-button  ng-click="selectItem(item, true)"><img ng-if="item-image" ng-src="item.value"> {{ objects[item.id].name }}</md-button>
+                    </md-button>
+                    <md-button  ng-click="selectItem(item, true)">
+                      <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }}
+                    </md-button>
                 </span>
                 <!-- <span flex class="md-secondary"> {{item.id}}</span> -->
             </div>
