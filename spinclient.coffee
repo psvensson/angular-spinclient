@@ -283,7 +283,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                     <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
                         <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
                     </span>
-                    <div ng-if="!prop.array && !prop.type" flex class="md-secondary">
+                    <div ng-if="!prop.array && !prop.type" flex class="md-secondary" style="position:relative">
                         <span ng-if="isEditable(prop.name) && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
                         <span ng-if="!isEditable(prop.name) || prop.name == \'id\'"><input type="text" ng-model="model[prop.name]" disabled="true"></span>
                     </div>
