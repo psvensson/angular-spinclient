@@ -10,6 +10,7 @@
       objectsSubscribedTo: [],
       outstandingMessages: [],
       modelcache: [],
+      rightscache: [],
       io: null,
       sessionId: null,
       objects: [],
@@ -197,6 +198,22 @@
         }
         return d.promise;
       },
+      getRightsFor: function(type) {
+        var d;
+        d = $q.defer();
+        if (service.rightscache[type]) {
+          d.resolve(service.rightscache[type]);
+        } else {
+          service.emitMessage({
+            target: 'getAccessTypesFor',
+            modelname: type
+          }).then(function(rights) {
+            service.rightscache[type] = rights;
+            return d.resolve(rights);
+          });
+        }
+        return d.promise;
+      },
       listTargets: function() {
         var d;
         d = $q.defer();
@@ -313,14 +330,14 @@
       return {
         restrict: 'AE',
         replace: true,
-        template: '<div> <md-list > <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list-item ng-repeat="prop in listprops" > <div class="md-list-item-text" style="" layout="row"> <div flex style="line-height:2em;padding-left:5px;background-color:#eee;margin-bottom:2px"> {{prop.name}} </div> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <div ng-if="!prop.array && !prop.type" flex class="md-secondary" style="line-height:2em;padding-left:5px;""> <span ng-if="isEditable(prop.name) && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span> <span ng-if="!isEditable(prop.name) || prop.name == \'id\'"><input type="text" ng-model="model[prop.name]" disabled="true"></span> </div> <div flex ng-if="isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;"> <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist> </div> <span flex ng-if="!isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;"> <spinlist flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist> </span> <div flex ng-if="prop.hashtable" style="line-height:2em;padding-left:5px;"> <div ng-if="isEditable(prop.name)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <spinhash flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash> </div> </div> </md-list-item> </md-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list > <md-list-item ng-repeat="prop in listprops" > <div class="md-list-item-text" style="" layout="row"> <div flex style="line-height:2em;padding-left:5px;background-color:#eee;margin-bottom:2px"> {{prop.name}} </div> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <div ng-if="!prop.array && !prop.type" flex class="md-secondary" style="position:relative"> <span ng-if="isEditable(prop.name) && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span> <span ng-if="!isEditable(prop.name) || prop.name == \'id\'"><input type="text" ng-model="model[prop.name]" disabled="true"></span> </div> <div flex ng-if="rights.create && isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;"> <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist> </div> <span flex ng-if="!isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;"> <spinlist flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist> </span> <div flex ng-if="prop.hashtable" style="line-height:2em;padding-left:5px;"> <div ng-if="isEditable(prop.name)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <spinhash flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash> </div> </div> </md-list-item> </md-list> </div>',
         scope: {
           model: '=model',
           edit: '=?edit',
           onselect: '&',
           hideproperties: '=?hideproperties'
         },
-        link: function(scope, elem, attrs) {
+        link: function(scope) {
           return scope.onselect = scope.onselect();
         },
         controller: function($scope) {
@@ -354,6 +371,9 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
+              client.getRightsFor(model.type).then(function(rights) {
+                return $scope.rights = rights;
+              });
               if ($scope.listprops && newval.id === oldval.id) {
                 $scope.updateModel();
               } else {
@@ -384,7 +404,7 @@
             };
           })(this);
           $scope.onChange = (function(_this) {
-            return function(model, prop) {
+            return function(model) {
               console.log('spinmodel onChange called for');
               console.dir(model);
               $scope.activeField = model.type;
@@ -423,7 +443,7 @@
                   }
                 }).then((function(_this) {
                   return function(o) {
-                    return console.log('deleted ' + item.type + ' on server');
+                    return console.log('deleted ' + o.type + ' on server');
                   };
                 })(this));
               }, failure);

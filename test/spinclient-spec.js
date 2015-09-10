@@ -23,8 +23,6 @@
             console.log('object update');
             return console.dir(obj);
           }
-        }).then(function(sid) {
-          return console.log('sid is ' + sid);
         });
         return expect(server.emit).to.be.a('function');
       });

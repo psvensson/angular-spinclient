@@ -8,6 +8,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     outstandingMessages : []
     modelcache          : []
+    rightscache          : []
 
     #io                  : io('ws://localhost:3003')
     io                  : null
@@ -160,6 +161,16 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           d.resolve(model))
       return d.promise
 
+    getRightsFor: (type) ->
+      d = $q.defer()
+      if service.rightscache[type]
+        d.resolve(service.rightscache[type])
+      else
+        service.emitMessage({target:'getAccessTypesFor', modelname: type}).then((rights)->
+          service.rightscache[type] = rights
+          d.resolve(rights))
+      return d.promise
+
     listTargets: () ->
       d = $q.defer()
       service.emitMessage({target:'listcommands'}).then((targets)-> d.resolve(targets))
@@ -267,21 +278,23 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     replace:     true
     #templateUrl: 'spinmodel.html'
     template:'<div>
-    <md-list >
-        <md-subheader class="md-no-sticky" style="background-color:#ddd">
+    <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon>
             {{model.type}} {{objects[model.id].name}}</md-subheader>
+    <md-list >
+
             <md-list-item ng-repeat="prop in listprops" >
                 <div class="md-list-item-text" style="" layout="row">
                     <div flex style="line-height:2em;padding-left:5px;background-color:#eee;margin-bottom:2px"> {{prop.name}} </div>
                     <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
                         <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
                     </span>
-                    <div ng-if="!prop.array && !prop.type" flex class="md-secondary" style="line-height:2em;padding-left:5px;"">
+
+                    <div ng-if="!prop.array && !prop.type" flex class="md-secondary" style="position:relative">
                         <span ng-if="isEditable(prop.name) && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
                         <span ng-if="!isEditable(prop.name) || prop.name == \'id\'"><input type="text" ng-model="model[prop.name]" disabled="true"></span>
                     </div>
-                    <div flex ng-if="isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;">
+                    <div flex ng-if="rights.create && isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;">
                         <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
                         <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                     </div>
@@ -302,7 +315,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       onselect: '&'
       hideproperties: '=?hideproperties'
 
-    link:        (scope, elem, attrs) ->
+    link:        (scope) ->
       scope.onselect = scope.onselect()
 
     controller:  ($scope) ->
@@ -332,6 +345,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
         if $scope.model
+          client.getRightsFor(model.type).then (rights) -> $scope.rights = rights
           if $scope.listprops and newval.id == oldval.id
             $scope.updateModel()
           else
@@ -346,7 +360,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       failure = (err) =>
         console.log 'error: '+err
 
-      $scope.onChange = (model, prop) =>
+      $scope.onChange = (model) =>
         console.log 'spinmodel onChange called for'
         console.dir model
         $scope.activeField = model.type
@@ -369,7 +383,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           client.emitMessage({target:'updateObject', obj: $scope.model}).then( ()->
             # actually delete the model formerly in the list
             client.emitMessage( {target:'_delete'+item.type, obj: {id:m.id, type:item.type}}).then (o)=>
-              console.log 'deleted '+item.type+' on server'
+              console.log 'deleted '+o.type+' on server'
           , failure)
 
       $scope.updateModel = () ->

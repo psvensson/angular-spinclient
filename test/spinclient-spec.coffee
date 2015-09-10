@@ -19,6 +19,5 @@ describe 'Spinclient', ->
       spinclient.registerObjectSubscriber({id:1, type: 'Foo', cb: (obj) ->
         console.log 'object update'
         console.dir obj
-      }).then (sid)->
-        console.log 'sid is '+sid
+      })
       expect(server.emit).to.be.a('function')

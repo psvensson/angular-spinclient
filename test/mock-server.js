@@ -11,7 +11,7 @@
         clientReplyFunc: void 0,
         blacklist: ['id', 'createdAt', 'modifiedAt'],
         subscribers: [],
-        listenerid: 101,
+        listenerid: 1,
         objects: {
           1: {
             id: 1,
@@ -29,14 +29,14 @@
           }
         },
         'on': function(channel, callback) {
-          console.log('+++ mockserver on called for channel "' + channel + '"');
+          console.log('mockserver on called for channel "' + channel + '"');
           service.callbacks[channel] = callback;
           return service.clientReplyFunc = callback;
         },
         'emit': function(channel, messagestr) {
           var message;
           message = JSON.parse(messagestr);
-          console.log('+++ mockserver emit called for channel "' + channel + '" ' + message.target);
+          console.log('mockserver emit called for channel "' + channel + '" ' + message.target);
           switch (message['target']) {
             case 'getModelFor':
               return service.getModelFor(message);
@@ -90,7 +90,7 @@
         },
         registerForUpdatesOn: function(msg) {
           var subs;
-          console.log('+++ registerForUpdatesOn called for ' + msg.obj.id);
+          console.log('registerForUpdatesOn called for ' + msg.obj.id);
           subs = service.subscribers[msg.obj.id] || [];
           subs[service.listenerid] = function(o) {
             return service.clientReplyFunc({
