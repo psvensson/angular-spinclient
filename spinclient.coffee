@@ -338,6 +338,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
         if $scope.model
+          client.getRightsFor($scope.model.type).then (rights) -> $scope.accessrights[$scope.model.type] = rights
           if $scope.listprops and newval.id == oldval.id
             $scope.updateModel()
           else
@@ -381,7 +382,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.updateModel = () ->
         for k,v of $scope.model
           $scope.listprops.forEach (lp) ->
-            console.log 'model.updateModel run for '+lp
+            #console.log 'model.updateModel run for '+lp
             client.getRightsFor(lp).then (rights) -> $scope.accessrights[lp] = rights
             if lp.name == k then lp.value = v
 
@@ -399,6 +400,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
               if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
+                client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 

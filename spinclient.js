@@ -372,6 +372,9 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
+              client.getRightsFor($scope.model.type).then(function(rights) {
+                return $scope.accessrights[$scope.model.type] = rights;
+              });
               if ($scope.listprops && newval.id === oldval.id) {
                 $scope.updateModel();
               } else {
@@ -454,7 +457,6 @@
             for (k in _ref) {
               v = _ref[k];
               _results.push($scope.listprops.forEach(function(lp) {
-                console.log('model.updateModel run for ' + lp);
                 client.getRightsFor(lp).then(function(rights) {
                   return $scope.accessrights[lp] = rights;
                 });
@@ -484,6 +486,9 @@
                     prop = md[i];
                     notshow = (_ref = prop.name, __indexOf.call($scope.hideproperties, _ref) >= 0);
                     if (prop.name !== 'id' && !notshow && prop.name !== $scope.activeField && $scope.model[prop.name]) {
+                      client.getRightsFor(prop.type).then(function(rights) {
+                        return $scope.accessrights[prop.type] = rights;
+                      });
                       foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",
