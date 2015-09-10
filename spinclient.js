@@ -330,7 +330,7 @@
       return {
         restrict: 'AE',
         replace: true,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list > <md-list-item ng-repeat="prop in listprops" layout-fill> <md-input-container layout="row"> <label> {{prop.name}} </label> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"> <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true"> <spinlist ng-if="isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist> <spinlist ng-if="!isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist> <spinhash ng-if="prop.hashtable" flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash> </md-input-container> </md-list-item> </md-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list > <md-list-item ng-repeat="prop in listprops" layout-fill> <md-input-container layout="row"> <label> {{prop.name}} </label> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"> <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true"> <div ng-if="rights.create && (props.array || props.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{model.type}}</md-button></div> <spinlist ng-if="isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist> <spinlist ng-if="!isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist> <spinhash ng-if="prop.hashtable" flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash> </md-input-container> </md-list-item> </md-list> </div>',
         scope: {
           model: '=model',
           edit: '=?edit',
@@ -371,6 +371,9 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
+              client.getRightsFor($scope.model.type).then(function(rights) {
+                return $scope.rights = rights;
+              });
               if ($scope.listprops && newval.id === oldval.id) {
                 $scope.updateModel();
               } else {
@@ -613,7 +616,7 @@
       return {
         restrict: 'AE',
         replace: true,
-        template: '<div> <md-list > <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <div ng-if="rights.create"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <md-list-item ng-repeat="item in expandedlist" > <div class="md-list-item-text" style="line-height:2em;padding-left:5px;" layout="row"> <span flex > <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item, true)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </span> <!-- <span flex class="md-secondary"> {{item.id}}</span> --> </div> </md-list-item> </md-list> </div>',
+        template: '<div> <md-list > <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <md-list-item ng-repeat="item in expandedlist" > <div class="md-list-item-text" style="line-height:2em;padding-left:5px;" layout="row"> <span flex > <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item, true)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </span> <!-- <span flex class="md-secondary"> {{item.id}}</span> --> </div> </md-list-item> </md-list> </div>',
         scope: {
           list: '=list',
           listmodel: '=listmodel',
@@ -633,9 +636,6 @@
           $scope.objects = [];
           $scope.expandedlist = [];
           $scope.objects = client.objects;
-          client.getRightsFor($scope.listmodel).then(function(rights) {
-            return $scope.rights = rights;
-          });
           success = (function(_this) {
             return function(result) {
               return console.log('success: ' + result);
@@ -755,7 +755,7 @@
       return {
         restrict: 'AE',
         replace: true,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Hash of {{listmodel}}s</md-subheader> <div ng-if="rights.create"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <md-list> <md-list-item ng-repeat="item in expandedlist" > <div class="md-list-item-text" layout="row"> <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)">{{ objects[item.id].name }}</md-button> </div> </md-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Hash of {{listmodel}}s</md-subheader> <md-list> <md-list-item ng-repeat="item in expandedlist" > <div class="md-list-item-text" layout="row"> <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)">{{ objects[item.id].name }}</md-button> </div> </md-list> </div>',
         scope: {
           list: '=list',
           listmodel: '=listmodel',
@@ -770,9 +770,6 @@
           console.log('spinhash list for model ' + $scope.listmodel + ' is');
           console.dir($scope.list);
           $scope.objects = client.objects;
-          client.getRightsFor($scope.listmodel).then(function(rights) {
-            return $scope.rights = rights;
-          });
           $scope.expandedlist = [];
           failure = (function(_this) {
             return function(err) {

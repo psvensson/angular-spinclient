@@ -291,6 +291,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                       </span>
                       <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
                       <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
+
+                      <div ng-if="rights.create && (props.array || props.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{model.type}}</md-button></div>
                       <spinlist ng-if="isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                       <spinlist ng-if="!isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
                       <spinhash ng-if="prop.hashtable" flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
@@ -334,7 +336,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
         if $scope.model
-
+          client.getRightsFor($scope.model.type).then (rights) -> $scope.rights = rights
           if $scope.listprops and newval.id == oldval.id
             $scope.updateModel()
           else
@@ -494,7 +496,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                 List of {{listmodel}}s</md-subheader>
-        <div ng-if="rights.create"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
         <md-list-item ng-repeat="item in expandedlist" >
             <div class="md-list-item-text" style="line-height:2em;padding-left:5px;" layout="row">
                 <span flex >
@@ -528,7 +529,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.objects = []
       $scope.expandedlist = []
       $scope.objects = client.objects
-      client.getRightsFor($scope.listmodel).then (rights) -> $scope.rights = rights
+
 
       success = (result) =>
         console.log 'success: '+result
@@ -605,7 +606,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                 Hash of {{listmodel}}s</md-subheader>
-    <div ng-if="rights.create"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
     <md-list>
         <md-list-item ng-repeat="item in expandedlist" >
             <div class="md-list-item-text" layout="row">
@@ -629,7 +629,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       console.log 'spinhash list for model '+$scope.listmodel+' is'
       console.dir $scope.list
       $scope.objects = client.objects
-      client.getRightsFor($scope.listmodel).then (rights) -> $scope.rights = rights
       $scope.expandedlist = []
 
       failure = (err) =>
