@@ -544,15 +544,19 @@
             })(this), failure);
           };
           $scope.selectModel = function(type, propname) {
-            return $mdDialog.show({
-              controller: function(scope) {
-                return scope.onselect = function(model) {
-                  console.log('* selectMode onselect callback');
-                  console.dir(model);
-                  return $mdDialog.hide();
-                };
-              },
-              template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+            return client.emitMessage({
+              target: '_list' + type
+            }).then(function(list) {
+              return $mdDialog.show({
+                controller: function(scope) {
+                  return scope.onselect = function(model) {
+                    console.log('* selectMode onselect callback');
+                    console.dir(model);
+                    return $mdDialog.hide();
+                  };
+                },
+                template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+              });
             });
           };
           return $scope.$on('$destroy', (function(_this) {

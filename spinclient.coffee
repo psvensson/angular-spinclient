@@ -424,13 +424,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         , failure)
 
       $scope.selectModel = (type, propname) ->
-        $mdDialog.show
-          controller: (scope) ->
-            scope.onselect = (model) ->
-              console.log '* selectMode onselect callback'
-              console.dir model
-              $mdDialog.hide()
-          template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+        client.emitMessage(target: '_list'+type).then (list) ->
+          $mdDialog.show
+            controller: (scope) ->
+              scope.onselect = (model) ->
+                console.log '* selectMode onselect callback'
+                console.dir model
+                $mdDialog.hide()
+            template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
 
       $scope.$on '$destroy', () =>
         s = $scope.subscription
