@@ -294,8 +294,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                         <span ng-if="isEditable(prop.name) && prop.name != \'id\'"><input type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"></span>
                         <span ng-if="!isEditable(prop.name) || prop.name == \'id\'"><input type="text" ng-model="model[prop.name]" disabled="true"></span>
                     </div>
-                    <div flex ng-if="rights.create && isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;">
-                        <div><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                    <div flex ng-if="isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;">
+                        <div ng-if="rights.create"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
                         <spinlist  flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                     </div>
                     <span flex ng-if="!isEditable(prop.name) && prop.array" style="line-height:2em;padding-left:5px;">
