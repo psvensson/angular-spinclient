@@ -371,7 +371,7 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
-              client.getRightsFor(model.type).then(function(rights) {
+              client.getRightsFor($scope.model.type).then(function(rights) {
                 return $scope.rights = rights;
               });
               if ($scope.listprops && newval.id === oldval.id) {
