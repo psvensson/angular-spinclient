@@ -285,17 +285,16 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
             <md-list-item ng-repeat="prop in listprops" layout-fill>
                     <md-input-container>
-                    <label> {{prop.name}} </label>
-                    <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
-                        <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
-                    </span>
-
-                    <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
-                    <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
-                    <spinlist ng-if="isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
-                    <spinlist ng-if="!isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
-                    <spinhash ng-if="prop.hashtable" flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
-
+                      <label> {{prop.name}} </label>
+                      <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
+                          <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
+                      </span>
+                      <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
+                      <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
+                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
+                      <spinlist ng-if="!isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
+                      <spinhash ng-if="prop.hashtable" flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+                    </md-input-container>
         </md-list-item>
     </md-list>
 </div>'
