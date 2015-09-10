@@ -283,8 +283,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             {{model.type}} {{objects[model.id].name}}</md-subheader>
     <md-list >
 
-            <md-list-item ng-repeat="prop in listprops" >
-                <div class="md-list-item-text" style="" layout="row">
+            <md-list-item ng-repeat="prop in listprops" layout-fill>
                     <md-input-container>
                     <label> {{prop.name}} </label>
                     <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
@@ -297,7 +296,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                     <spinlist ng-if="!isEditable(prop.name) && prop.array" flex class="md-secondary" listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
                     <spinhash ng-if="prop.hashtable" flex class="md-secondary" listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
 
-                </div>
         </md-list-item>
     </md-list>
 </div>'
