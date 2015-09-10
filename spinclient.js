@@ -330,7 +330,7 @@
       return {
         restrict: 'AE',
         replace: true,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list > <md-list-item ng-repeat="prop in listprops" layout-fill> <md-input-container layout="row"> <label> {{prop.name}} </label> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"> <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true"> <div ng-if="rights.create && (props.array || props.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{model.type}}</md-button></div> <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist> <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist> <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash> </md-input-container> </md-list-item> </md-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list > <md-list-item ng-repeat="prop in listprops" layout-fill> <md-input-container layout="row"> <label> {{prop.name}} </label> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"> <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true"> <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{model.type}}</md-button></div> <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{model.type}}</md-button></div> <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist> <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist> <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash> </md-input-container> </md-list-item> </md-list> </div>',
         scope: {
           model: '=model',
           edit: '=?edit',
@@ -348,6 +348,7 @@
           $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];
           $scope.activeField = void 0;
           $scope.objects = client.objects;
+          $scope.accessrights = [];
           $scope.onSubscribedObject = function(o) {
             var k, v, _results;
             console.log('==== spinmodel onSubscribedModel called for ' + o.id + ' updating model..');
@@ -371,9 +372,6 @@
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model) {
-              client.getRightsFor($scope.model.type).then(function(rights) {
-                return $scope.rights = rights;
-              });
               if ($scope.listprops && newval.id === oldval.id) {
                 $scope.updateModel();
               } else {
@@ -456,6 +454,9 @@
             for (k in _ref) {
               v = _ref[k];
               _results.push($scope.listprops.forEach(function(lp) {
+                client.getRightsFor(lp).then(function(rights) {
+                  return $scope.accessrights[lp] = rights;
+                });
                 if (lp.name === k) {
                   return lp.value = v;
                 }
@@ -535,6 +536,18 @@
                 }).then(success, failure);
               };
             })(this), failure);
+          };
+          $scope.selectModel = function(type, propname) {
+            return $mdDialog.show({
+              controller: function(scope) {
+                return scope.onselect = function(model) {
+                  console.log('* selectMode onselect callback');
+                  console.dir(model);
+                  return $mdDialog.hide();
+                };
+              },
+              template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+            });
           };
           return $scope.$on('$destroy', (function(_this) {
             return function() {

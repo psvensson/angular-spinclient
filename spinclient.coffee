@@ -292,7 +292,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                       <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
                       <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
 
-                      <div ng-if="rights.create && (props.array || props.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{model.type}}</md-button></div>
+                      <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{model.type}}</md-button></div>
+                      <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{model.type}}</md-button></div>
                       <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                       <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
                       <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
@@ -320,6 +321,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
       $scope.activeField = undefined
       $scope.objects = client.objects
+      $scope.accessrights = []
 
       $scope.onSubscribedObject = (o) ->
         console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
@@ -336,7 +338,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
         if $scope.model
-          client.getRightsFor($scope.model.type).then (rights) -> $scope.rights = rights
           if $scope.listprops and newval.id == oldval.id
             $scope.updateModel()
           else
@@ -380,6 +381,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.updateModel = () ->
         for k,v of $scope.model
           $scope.listprops.forEach (lp) ->
+            client.getRightsFor(lp).then (rights) -> $scope.accessrights[lp] = rights
             if lp.name == k then lp.value = v
 
       $scope.renderModel = () =>
@@ -417,6 +419,15 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.dir $scope.model
           client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
         , failure)
+
+      $scope.selectModel = (type, propname) ->
+        $mdDialog.show
+          controller: (scope) ->
+            scope.onselect = (model) ->
+              console.log '* selectMode onselect callback'
+              console.dir model
+              $mdDialog.hide()
+          template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
 
       $scope.$on '$destroy', () =>
         s = $scope.subscription
