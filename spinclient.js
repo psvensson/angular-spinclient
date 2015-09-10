@@ -454,6 +454,7 @@
             for (k in _ref) {
               v = _ref[k];
               _results.push($scope.listprops.forEach(function(lp) {
+                console.log('model.updateModel run for ' + lp);
                 client.getRightsFor(lp).then(function(rights) {
                   return $scope.accessrights[lp] = rights;
                 });

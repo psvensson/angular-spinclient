@@ -381,6 +381,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.updateModel = () ->
         for k,v of $scope.model
           $scope.listprops.forEach (lp) ->
+            console.log 'model.updateModel run for '+lp
             client.getRightsFor(lp).then (rights) -> $scope.accessrights[lp] = rights
             if lp.name == k then lp.value = v
 
