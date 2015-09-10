@@ -271,8 +271,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     }
   ]
 .directive 'spinmodel', [
-  'spinclient'
-  (client) ->
+  'spinclient', '$mdDialog'
+  (client, $mdDialog) ->
     {
     restrict:    'AE'
     replace:     true
@@ -292,8 +292,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                       <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
                       <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
 
-                      <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{model.type}}</md-button></div>
-                      <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{model.type}}</md-button></div>
+                      <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                      <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
                       <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                       <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
                       <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
