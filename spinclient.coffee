@@ -284,7 +284,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-list >
 
             <md-list-item ng-repeat="prop in listprops" layout-fill>
-                    <md-input-container>
+                    <md-input-container layout="row">
                       <label> {{prop.name}} </label>
                       <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
                           <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
