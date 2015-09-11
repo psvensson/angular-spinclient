@@ -556,9 +556,12 @@
                 controller: function(scope) {
                   console.log('++++++++++++++ selectModel controller type=' + type + ', propname=' + propname + ' list is...');
                   console.dir(list);
+                  scope.list = list;
+                  scope.type = type;
                   return scope.onselect = function(model) {
                     console.log('* selectMode onselect callback');
                     console.dir(model);
+                    $scope.model[propname].push(o.id);
                     return $mdDialog.hide();
                   };
                 },

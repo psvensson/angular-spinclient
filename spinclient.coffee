@@ -431,9 +431,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             controller: (scope) ->
               console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' list is...'
               console.dir list
+              scope.list = list
+              scope.type = type
               scope.onselect = (model) ->
                 console.log '* selectMode onselect callback'
                 console.dir model
+                $scope.model[propname].push(o.id)
                 $mdDialog.hide()
             template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
 
