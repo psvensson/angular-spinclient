@@ -551,11 +551,14 @@
           $scope.selectModel = function(type, propname) {
             return client.emitMessage({
               target: '_list' + type + 's'
-            }).then(function(list) {
+            }).then(function(objlist) {
               return $mdDialog.show({
                 controller: function(scope) {
                   console.log('++++++++++++++ selectModel controller type=' + type + ', propname=' + propname + ' list is...');
-                  console.dir(list);
+                  console.dir(objlist);
+                  objlist.forEach(function(obj) {
+                    return list.push(obj.id);
+                  });
                   scope.list = list;
                   scope.type = type;
                   return scope.onselect = function(model) {

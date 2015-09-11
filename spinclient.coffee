@@ -426,11 +426,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         , failure)
 
       $scope.selectModel = (type, propname) ->
-        client.emitMessage(target: '_list'+type+'s').then (list) ->
+        client.emitMessage(target: '_list'+type+'s').then (objlist) ->
           $mdDialog.show
             controller: (scope) ->
               console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' list is...'
-              console.dir list
+              console.dir objlist
+              objlist.forEach (obj)-> list.push obj.id
               scope.list = list
               scope.type = type
               scope.onselect = (model) ->
