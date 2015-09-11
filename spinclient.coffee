@@ -382,12 +382,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.updateModel = () ->
         for k,v of $scope.model
           $scope.listprops.forEach (lp) ->
-            #console.log 'model.updateModel run for '+lp
+            console.log 'model.updateModel run for '+lp
             client.getRightsFor(lp.type).then (rights) -> $scope.accessrights[lp.type] = rights
             if lp.name == k then lp.value = v
 
       $scope.renderModel = () =>
-        #console.log 'spinmodel::renderModel called for '+$scope.model.name
+        console.log 'spinmodel::renderModel called for '+$scope.model.name
         #console.dir $scope.model
         $scope.listprops = []
         client.getModelFor($scope.model.type).then (md) ->

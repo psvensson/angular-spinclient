@@ -457,6 +457,7 @@
             for (k in _ref) {
               v = _ref[k];
               _results.push($scope.listprops.forEach(function(lp) {
+                console.log('model.updateModel run for ' + lp);
                 client.getRightsFor(lp.type).then(function(rights) {
                   return $scope.accessrights[lp.type] = rights;
                 });
@@ -469,6 +470,7 @@
           };
           $scope.renderModel = (function(_this) {
             return function() {
+              console.log('spinmodel::renderModel called for ' + $scope.model.name);
               $scope.listprops = [];
               return client.getModelFor($scope.model.type).then(function(md) {
                 var foo, i, modeldef, notshow, prop, _i, _len, _ref, _results;
