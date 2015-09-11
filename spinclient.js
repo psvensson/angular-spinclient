@@ -458,9 +458,11 @@
               v = _ref[k];
               _results.push($scope.listprops.forEach(function(lp) {
                 console.log('model.updateModel run for ' + lp);
-                client.getRightsFor(lp.type).then(function(rights) {
-                  return $scope.accessrights[lp.type] = rights;
-                });
+                if (lp.type) {
+                  client.getRightsFor(lp.type).then(function(rights) {
+                    return $scope.accessrights[lp.type] = rights;
+                  });
+                }
                 if (lp.name === k) {
                   return lp.value = v;
                 }
@@ -470,7 +472,6 @@
           };
           $scope.renderModel = (function(_this) {
             return function() {
-              console.log('spinmodel::renderModel called for ' + $scope.model.name);
               $scope.listprops = [];
               return client.getModelFor($scope.model.type).then(function(md) {
                 var foo, i, modeldef, notshow, prop, _i, _len, _ref, _results;
@@ -488,9 +489,11 @@
                     prop = md[i];
                     notshow = (_ref = prop.name, __indexOf.call($scope.hideproperties, _ref) >= 0);
                     if (prop.name !== 'id' && !notshow && prop.name !== $scope.activeField && $scope.model[prop.name]) {
-                      client.getRightsFor(prop.type).then(function(rights) {
-                        return $scope.accessrights[prop.type] = rights;
-                      });
+                      if (prop.type) {
+                        client.getRightsFor(prop.type).then(function(rights) {
+                          return $scope.accessrights[prop.type] = rights;
+                        });
+                      }
                       foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",
