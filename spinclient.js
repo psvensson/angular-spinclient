@@ -629,6 +629,7 @@
             }
             console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
             if (idx > -1 && $scope.breadcrumbs.length > 1) {
+              console.log('splicing at index ' + idx);
               return $scope.breadcrumbs.splice(idx, 1);
             }
           };

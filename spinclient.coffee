@@ -494,6 +494,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           idx = i if crumb.id == model.id
         console.log '************************************************* crumbClicked crumbs length = '+$scope.breadcrumbs.length
         if idx > -1 and $scope.breadcrumbs.length > 1
+          console.log 'splicing at index '+idx
           $scope.breadcrumbs.splice idx,1
 
       $scope.onselect = (model, replace) ->
