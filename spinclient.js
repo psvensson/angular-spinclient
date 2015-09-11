@@ -628,13 +628,14 @@
                 idx = i;
               }
             }
+            idx++;
             console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
             console.dir($scope.breadcrumbs);
             console.log('clicked item is...');
             console.dir(model);
-            if (idx > -1 && $scope.breadcrumbs.length > 1) {
+            if (idx > -1 && $scope.breadcrumbs.length > idx + 1) {
               console.log('splicing at index ' + idx);
-              return $scope.breadcrumbs.splice(idx, 1);
+              return $scope.breadcrumbs = $scope.breadcrumbs.slice(0, idx);
             }
           };
           $scope.onselect = function(model, replace) {
