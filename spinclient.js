@@ -439,7 +439,7 @@
                 return client.emitMessage({
                   target: '_delete' + item.type,
                   obj: {
-                    id: m.id,
+                    id: item.id,
                     type: item.type
                   }
                 }).then((function(_this) {
