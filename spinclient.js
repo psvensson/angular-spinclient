@@ -593,7 +593,7 @@
     'spinclient', function(client) {
       return {
         restrict: 'AE',
-        replace: true,
+        replace: false,
         template: '<div> <span ng-repeat="crumb in breadcrumbs"> <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> > </span> <md-divider></md-divider> <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel> </div>',
         scope: {
           model: '=model',
@@ -655,8 +655,8 @@
     'spinclient', function(client) {
       return {
         restrict: 'AE',
-        replace: true,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <md-list > <md-list-item ng-repeat="item in expandedlist" layout="row"> <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item, true)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </md-list-item> </md-list> </div>',
+        replace: false,
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <md-list > <md-list-item ng-repeat="item in expandedlist" layout="row"> <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </md-list-item> </md-list> </div>',
         scope: {
           list: '=list',
           listmodel: '=listmodel',
@@ -688,9 +688,9 @@
             };
           })(this);
           $scope.selectItem = (function(_this) {
-            return function(item, replace) {
+            return function(item) {
               if ($scope.onselect) {
-                return $scope.onselect(item, replace);
+                return $scope.onselect(item, $scope.replace);
               }
             };
           })(this);
@@ -794,7 +794,7 @@
     'spinclient', function(client) {
       return {
         restrict: 'AE',
-        replace: true,
+        replace: false,
         template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Hash of {{listmodel}}s</md-subheader> <md-list> <md-list-item ng-repeat="item in expandedlist" layout="row"> <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)">{{ objects[item.id].name }}</md-button> </md-list> </div>',
         scope: {
           list: '=list',
@@ -843,9 +843,9 @@
             }, failure);
           }
           return $scope.selectItem = (function(_this) {
-            return function(item, replace) {
+            return function(item) {
               if ($scope.onselect) {
-                return $scope.onselect(item, replace);
+                return $scope.onselect(item, $scope.replace);
               }
             };
           })(this);

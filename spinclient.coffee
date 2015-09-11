@@ -457,7 +457,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict: 'AE'
-    replace: true
+    replace: false
     #templateUrl: 'spinwalker.html
     template:'<div>
     <span ng-repeat="crumb in breadcrumbs">
@@ -515,7 +515,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict:    'AE'
-    replace:     true
+    replace:     false
     #templateUrl: 'spinlist.html'
     template:'<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
@@ -526,7 +526,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                 <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
             </md-button>
-            <md-button  ng-click="selectItem(item, true)">
+            <md-button  ng-click="selectItem(item)">
               <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }}
             </md-button>
         </md-list-item>
@@ -559,9 +559,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'error: '+err
         console.dir err
 
-      $scope.selectItem = (item, replace) =>
+      $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'
-        $scope.onselect(item, replace) if $scope.onselect
+        $scope.onselect(item, $scope.replace) if $scope.onselect
 
       $scope.deleteItem = (item) ->
         #console.log 'list delete'
@@ -621,7 +621,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict:    'AE'
-    replace:     true
+    replace:     false
     #templateUrl: 'spinhash.html'
     template: '<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
@@ -662,9 +662,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               $scope.expandedlist[i] = o
         , failure)
 
-      $scope.selectItem = (item, replace) =>
+      $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'
-        $scope.onselect(item, replace) if $scope.onselect
+        $scope.onselect(item, $scope.replace) if $scope.onselect
 
     }
   ]
