@@ -431,6 +431,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             controller: (scope) ->
               console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' objlist is...'
               console.dir objlist
+              list = []
               objlist.forEach (obj)-> list.push obj.id
               scope.list = list
               scope.type = type
