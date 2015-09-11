@@ -550,7 +550,7 @@
           };
           $scope.selectModel = function(type, propname) {
             return client.emitMessage({
-              target: '_list' + type
+              target: '_list' + type + 's'
             }).then(function(list) {
               return $mdDialog.show({
                 controller: function(scope) {

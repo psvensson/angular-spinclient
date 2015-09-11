@@ -426,7 +426,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         , failure)
 
       $scope.selectModel = (type, propname) ->
-        client.emitMessage(target: '_list'+type).then (list) ->
+        client.emitMessage(target: '_list'+type+'s').then (list) ->
           $mdDialog.show
             controller: (scope) ->
               console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' list is...'
