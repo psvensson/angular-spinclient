@@ -561,6 +561,8 @@
                   });
                   scope.list = list;
                   scope.type = type;
+                  console.log('list is');
+                  console.dir(list);
                   return scope.onselect = function(model) {
                     console.log('* selectMode onselect callback');
                     console.dir(model);

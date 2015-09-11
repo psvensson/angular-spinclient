@@ -434,6 +434,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               objlist.forEach (obj)-> list.push obj.id
               scope.list = list
               scope.type = type
+              console.log 'list is'
+              console.dir list
               scope.onselect = (model) ->
                 console.log '* selectMode onselect callback'
                 console.dir model
