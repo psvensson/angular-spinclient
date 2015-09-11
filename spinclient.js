@@ -554,7 +554,7 @@
             }).then(function(objlist) {
               return $mdDialog.show({
                 controller: function(scope) {
-                  console.log('++++++++++++++ selectModel controller type=' + type + ', propname=' + propname + ' list is...');
+                  console.log('++++++++++++++ selectModel controller type=' + type + ', propname=' + propname + ' objlist is...');
                   console.dir(objlist);
                   objlist.forEach(function(obj) {
                     return list.push(obj.id);

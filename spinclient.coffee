@@ -429,7 +429,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         client.emitMessage(target: '_list'+type+'s').then (objlist) ->
           $mdDialog.show
             controller: (scope) ->
-              console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' list is...'
+              console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' objlist is...'
               console.dir objlist
               objlist.forEach (obj)-> list.push obj.id
               scope.list = list
