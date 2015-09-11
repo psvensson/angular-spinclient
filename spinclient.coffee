@@ -440,7 +440,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               scope.onselect = (model) ->
                 console.log '* selectMode onselect callback'
                 console.dir model
-                $scope.model[propname].push(o.id)
+                $scope.model[propname].push(model.id)
                 $mdDialog.hide()
             template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
 

@@ -568,7 +568,7 @@
                   return scope.onselect = function(model) {
                     console.log('* selectMode onselect callback');
                     console.dir(model);
-                    $scope.model[propname].push(o.id);
+                    $scope.model[propname].push(model.id);
                     return $mdDialog.hide();
                   };
                 },
