@@ -569,6 +569,10 @@
                     console.log('* selectMode onselect callback');
                     console.dir(model);
                     $scope.model[propname].push(model.id);
+                    client.emitMessage({
+                      target: 'updateObject',
+                      obj: $scope.model
+                    }).then(success, failure);
                     return $mdDialog.hide();
                   };
                 },
