@@ -623,6 +623,7 @@
             _ref = $scope.breadcrumbs;
             for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
               crumb = _ref[i];
+              console.log('--- ' + ' crumb ' + crumb.name + ', id ' + crumb.id);
               if (crumb.id === model.id) {
                 idx = i;
               }

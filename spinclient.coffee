@@ -491,7 +491,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.selectedmodel = model
         idx = -1
         for crumb, i  in $scope.breadcrumbs
-          idx = i if crumb.id == model.id
+          console.log '--- '+' crumb '+crumb.name+', id '+crumb.id
+          if crumb.id == model.id then idx = i
         console.log '************************************************* crumbClicked crumbs length = '+$scope.breadcrumbs.length
         console.dir $scope.breadcrumbs
         console.log 'clicked item is...'
