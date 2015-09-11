@@ -487,13 +487,13 @@
                   _results = [];
                   for (i = _i = 0, _len = md.length; _i < _len; i = ++_i) {
                     prop = md[i];
+                    if (prop.type) {
+                      client.getRightsFor(prop.type).then(function(rights) {
+                        return $scope.accessrights[prop.type] = rights;
+                      });
+                    }
                     notshow = (_ref = prop.name, __indexOf.call($scope.hideproperties, _ref) >= 0);
                     if (prop.name !== 'id' && !notshow && prop.name !== $scope.activeField && $scope.model[prop.name]) {
-                      if (prop.type) {
-                        client.getRightsFor(prop.type).then(function(rights) {
-                          return $scope.accessrights[prop.type] = rights;
-                        });
-                      }
                       foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",
@@ -617,7 +617,6 @@
           });
           $scope.crumbClicked = function(model) {
             var crumb, i, idx, _i, _len, _ref;
-            console.log('************************************************* crumbClicked selected model ' + model.is + ' ' + model.type);
             $scope.selectedmodel = model;
             idx = -1;
             _ref = $scope.breadcrumbs;
@@ -629,25 +628,16 @@
               }
             }
             idx++;
-            console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length + ' idx = ' + idx);
-            console.dir($scope.breadcrumbs);
-            console.log('clicked item is...');
-            console.dir(model);
             if (idx > -1 && $scope.breadcrumbs.length > idx) {
-              console.log('splicing at index ' + idx);
               return $scope.breadcrumbs = $scope.breadcrumbs.slice(0, idx);
             }
           };
           $scope.onselect = function(model, replace) {
-            console.log('************************************************* spinwalker onselect for model ' + model.name + ' replace = ' + replace);
-            console.log(model);
             if (replace) {
               $scope.breadcrumbs = [];
             }
             $scope.selectedmodel = model;
-            $scope.breadcrumbs.push(model);
-            console.log('breadcrumbs are now');
-            return console.dir($scope.breadcrumbs);
+            return $scope.breadcrumbs.push(model);
           };
           return $scope.crumbPresentation = (function(_this) {
             return function(crumb) {

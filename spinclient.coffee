@@ -398,11 +398,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             $scope.listprops.push {name: 'id', value: $scope.model.id}
             #delete $scope.model.id
             for prop,i in md
+              if prop.type
+                client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
               if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
-                if prop.type
-                  client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
                 foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
@@ -487,29 +487,29 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           $scope.selectedmodel = $scope.model
 
       $scope.crumbClicked = (model) ->
-        console.log '************************************************* crumbClicked selected model '+model.is+' '+model.type
+        #console.log '************************************************* crumbClicked selected model '+model.is+' '+model.type
         $scope.selectedmodel = model
         idx = -1
         for crumb, i  in $scope.breadcrumbs
           console.log '--- '+' crumb '+crumb.name+', id '+crumb.id
           if crumb.id == model.id then idx = i
         idx++ # take away all after that which we clicked
-        console.log '************************************************* crumbClicked crumbs length = '+$scope.breadcrumbs.length+' idx = '+idx
-        console.dir $scope.breadcrumbs
-        console.log 'clicked item is...'
-        console.dir model
+        #console.log '************************************************* crumbClicked crumbs length = '+$scope.breadcrumbs.length+' idx = '+idx
+        #console.dir $scope.breadcrumbs
+        #console.log 'clicked item is...'
+        #console.dir model
         if idx > -1 and $scope.breadcrumbs.length > idx
-          console.log 'splicing at index '+idx
+          #console.log 'splicing at index '+idx
           $scope.breadcrumbs = $scope.breadcrumbs.slice 0, idx
 
       $scope.onselect = (model, replace) ->
-        console.log '************************************************* spinwalker onselect for model '+model.name+' replace = '+replace
-        console.log model
+        #console.log '************************************************* spinwalker onselect for model '+model.name+' replace = '+replace
+        #console.log model
         if replace then $scope.breadcrumbs = []
         $scope.selectedmodel = model
         $scope.breadcrumbs.push model
-        console.log 'breadcrumbs are now'
-        console.dir $scope.breadcrumbs
+        #console.log 'breadcrumbs are now'
+        #console.dir $scope.breadcrumbs
 
       $scope.crumbPresentation = (crumb) =>
         crumb.name || crumb.type
