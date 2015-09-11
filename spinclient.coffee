@@ -494,11 +494,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.log '--- '+' crumb '+crumb.name+', id '+crumb.id
           if crumb.id == model.id then idx = i
         idx++ # take away all after that which we clicked
-        console.log '************************************************* crumbClicked crumbs length = '+$scope.breadcrumbs.length
+        console.log '************************************************* crumbClicked crumbs length = '+$scope.breadcrumbs.length+' idx = '+idx
         console.dir $scope.breadcrumbs
         console.log 'clicked item is...'
         console.dir model
-        if idx > -1 and $scope.breadcrumbs.length > idx+1
+        if idx > -1 and $scope.breadcrumbs.length > idx
           console.log 'splicing at index '+idx
           $scope.breadcrumbs = $scope.breadcrumbs.slice 0, idx
 

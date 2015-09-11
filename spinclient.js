@@ -629,11 +629,11 @@
               }
             }
             idx++;
-            console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
+            console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length + ' idx = ' + idx);
             console.dir($scope.breadcrumbs);
             console.log('clicked item is...');
             console.dir(model);
-            if (idx > -1 && $scope.breadcrumbs.length > idx + 1) {
+            if (idx > -1 && $scope.breadcrumbs.length > idx) {
               console.log('splicing at index ' + idx);
               return $scope.breadcrumbs = $scope.breadcrumbs.slice(0, idx);
             }
