@@ -383,7 +383,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         for k,v of $scope.model
           $scope.listprops.forEach (lp) ->
             #console.log 'model.updateModel run for '+lp
-            client.getRightsFor(lp).then (rights) -> $scope.accessrights[lp] = rights
+            client.getRightsFor(lp.type).then (rights) -> $scope.accessrights[lp.type] = rights
             if lp.name == k then lp.value = v
 
       $scope.renderModel = () =>
@@ -427,6 +427,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         client.emitMessage(target: '_list'+type).then (list) ->
           $mdDialog.show
             controller: (scope) ->
+              console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' list is...'
+              console.dir list
               scope.onselect = (model) ->
                 console.log '* selectMode onselect callback'
                 console.dir model

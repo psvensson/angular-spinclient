@@ -457,8 +457,8 @@
             for (k in _ref) {
               v = _ref[k];
               _results.push($scope.listprops.forEach(function(lp) {
-                client.getRightsFor(lp).then(function(rights) {
-                  return $scope.accessrights[lp] = rights;
+                client.getRightsFor(lp.type).then(function(rights) {
+                  return $scope.accessrights[lp.type] = rights;
                 });
                 if (lp.name === k) {
                   return lp.value = v;
@@ -549,6 +549,8 @@
             }).then(function(list) {
               return $mdDialog.show({
                 controller: function(scope) {
+                  console.log('++++++++++++++ selectModel controller type=' + type + ', propname=' + propname + ' list is...');
+                  console.dir(list);
                   return scope.onselect = function(model) {
                     console.log('* selectMode onselect callback');
                     console.dir(model);
