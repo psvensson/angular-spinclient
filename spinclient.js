@@ -628,6 +628,9 @@
               }
             }
             console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
+            console.dir($scope.breadcrumbs);
+            console.log('clicked item is...');
+            console.dir(model);
             if (idx > -1 && $scope.breadcrumbs.length > 1) {
               console.log('splicing at index ' + idx);
               return $scope.breadcrumbs.splice(idx, 1);
