@@ -528,13 +528,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
-    <div layout="row">
+    <div layout="row" style="height:55px">
       <md-input-container flex>
         <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)">
           <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option>
         </md-select>
       </md-input-container>
-      <md-input-container flex>
+      <md-input-container flex layout-align="center">
         <input aria-label="search value" type="text" ng-model="qvalue" required ng-change="onvaluechanged(qvalue)">
       </md-input-container>
     </div>
@@ -567,7 +567,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.expandedlist = []
       $scope.objects = client.objects
       $scope.objectmodel = undefined
-      $scope.qvalue = ''
+      $scope.qvalue = ' '
       $scope.qproperty = 'name'
 
       client.getModelFor($scope.listmodel).then (md) -> $scope.objectmodel = md

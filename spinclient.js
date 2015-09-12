@@ -656,7 +656,7 @@
       return {
         restrict: 'AE',
         replace: false,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <div layout="row"> <md-input-container flex> <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)"> <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option> </md-select> </md-input-container> <md-input-container flex> <input aria-label="search value" type="text" ng-model="qvalue" required ng-change="onvaluechanged(qvalue)"> </md-input-container> </div> <md-list > <md-list-item ng-repeat="item in expandedlist" layout="row"> <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </md-list-item> </md-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <div layout="row" style="height:55px"> <md-input-container flex> <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)"> <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option> </md-select> </md-input-container> <md-input-container flex layout-align="center"> <input aria-label="search value" type="text" ng-model="qvalue" required ng-change="onvaluechanged(qvalue)"> </md-input-container> </div> <md-list > <md-list-item ng-repeat="item in expandedlist" layout="row"> <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </md-list-item> </md-list> </div>',
         scope: {
           list: '=list',
           listmodel: '=listmodel',
@@ -676,7 +676,7 @@
           $scope.expandedlist = [];
           $scope.objects = client.objects;
           $scope.objectmodel = void 0;
-          $scope.qvalue = '';
+          $scope.qvalue = ' ';
           $scope.qproperty = 'name';
           client.getModelFor($scope.listmodel).then(function(md) {
             return $scope.objectmodel = md;
