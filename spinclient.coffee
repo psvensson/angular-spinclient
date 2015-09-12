@@ -589,7 +589,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log '---- query sent to server is..'
         console.dir q
         client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
-          $scope.list = newlist
+          $scope.list = []
+          newlist.forEach (item)-> $scope.list.push item.id
           $scope.renderList())
 
       $scope.selectItem = (item) =>

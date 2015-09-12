@@ -708,7 +708,10 @@
               target: '_list' + $scope.listmodel + 's',
               query: q
             }).then(function(newlist) {
-              $scope.list = newlist;
+              $scope.list = [];
+              newlist.forEach(function(item) {
+                return $scope.list.push(item.id);
+              });
               return $scope.renderList();
             });
           };
