@@ -284,7 +284,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-list >
 
             <md-list-item ng-repeat="prop in listprops" layout-fill>
-                    <md-input-container layout="row">
+                    <md-input-container layout="row" layout-fill>
                       <label> {{prop.name}} </label>
                       <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
                           <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
@@ -524,11 +524,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     restrict:    'AE'
     replace:     false
     #templateUrl: 'spinlist.html'
-    template:'<div style="background-color:#e87d0d">
+    template:'<div >
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
-    <div layout="row" style="height:55px">
+    <div layout="row" style="height:55px" style="background-color:#e87d0d">
       <md-input-container flex>
         <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)">
           <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option>
@@ -567,6 +567,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.expandedlist = []
       $scope.objects = client.objects
       $scope.objectmodel = undefined
+
       $scope.qvalue = ' '
       $scope.qproperty = 'name'
 
@@ -584,6 +585,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.onvaluechanged = (v)->
         console.log 'onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
+        client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: {property: $scope.qproperty, value: $scope.qvalue }}).then( (newlist) ->
+          $scope.list = newlist
+          $scope.renderList())
 
       $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'
