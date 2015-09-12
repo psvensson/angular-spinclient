@@ -292,7 +292,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                       <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
                       <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
 
-                      <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+                      <div ng-if="accessrights[prop.type].create"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
                       <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
                       <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                       <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
@@ -528,6 +528,16 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
+    <div layout="row">
+      <md-input-container>
+        <md-select ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)">
+          <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option>
+        </md-select>
+      </md-input-container>
+      <md-input-container>
+        <input type="text" ng-model="qvalue" required md-maxlength="10">
+      </md-input-container>
+    </div>
     <md-list >
         <md-list-item ng-repeat="item in expandedlist" layout="row">
             <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
@@ -554,10 +564,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       console.log '*** spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel
       console.dir $scope.list
       $scope.subscriptions = []
-      $scope.objects = []
       $scope.expandedlist = []
       $scope.objects = client.objects
+      $scope.objectmodel = undefined
+      $scope.qvalue = ''
+      $scope.qproperty = 'name'
 
+      client.getModelFor($scope.model.type).then (md) -> $scope.objectmodel = md
 
       success = (result) =>
         console.log 'success: '+result
@@ -565,6 +578,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       failure = (err) =>
         console.log 'error: '+err
         console.dir err
+
+      $scope.onsearchchange = (v)->
+        console.log 'onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
 
       $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'
