@@ -529,8 +529,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
     <div layout="row" style="height:55px" style="background-color:#e87d0d">
-      <md-input-container flex>
-        <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)">
+      <strong>Search:</strong><md-input-container flex>
+        <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)" style="padding:0px">
           <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option>
         </md-select>
       </md-input-container>
