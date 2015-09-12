@@ -656,7 +656,7 @@
       return {
         restrict: 'AE',
         replace: false,
-        template: '<div > <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <div layout="row" style="height:55px" style="background-color:#e87d0d"> <strong>Search:</strong><md-input-container flex> <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)" style="padding:0px"> <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option> </md-select> </md-input-container> <md-input-container flex layout-align="center"> <input aria-label="search value" type="text" ng-model="qvalue" required ng-change="onvaluechanged(qvalue)"> </md-input-container> </div> <md-list > <md-list-item ng-repeat="item in expandedlist" layout="row"> <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </md-list-item> </md-list> </div>',
+        template: '<div > <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> List of {{listmodel}}s</md-subheader> <div layout="row" style="height:55px" style="background-color:#e87d0d"> <strong flex>Search:</strong><md-input-container flex> <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)" style="padding:0px"> <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option> </md-select> </md-input-container> <md-input-container flex layout-align="center"> <input aria-label="search value" type="text" ng-model="qvalue" required ng-change="onvaluechanged(qvalue)"> </md-input-container> </div> <md-list > <md-list-item ng-repeat="item in expandedlist" layout="row"> <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)"> <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon> </md-button> <md-button  ng-click="selectItem(item)"> <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }} </md-button> </md-list-item> </md-list> </div>',
         scope: {
           list: '=list',
           listmodel: '=listmodel',
@@ -709,6 +709,7 @@
                 target: '_list' + $scope.listmodel + 's',
                 query: q
               }).then(function(newlist) {
+                console.log('search got back list of ' + newlist.length + ' items');
                 $scope.list = [];
                 newlist.forEach(function(item) {
                   return $scope.list.push(item.id);

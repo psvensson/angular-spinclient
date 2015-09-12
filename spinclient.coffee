@@ -529,7 +529,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
     <div layout="row" style="height:55px" style="background-color:#e87d0d">
-      <strong>Search:</strong><md-input-container flex>
+      <strong flex>Search:</strong><md-input-container flex>
         <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)" style="padding:0px">
           <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option>
         </md-select>
@@ -590,6 +590,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.log '---- query sent to server is..'
           console.dir q
           client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
+            console.log 'search got back list of '+newlist.length+' items'
             $scope.list = []
             newlist.forEach (item)-> $scope.list.push item.id
             $scope.renderList())
