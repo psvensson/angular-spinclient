@@ -568,7 +568,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.objects = client.objects
       $scope.objectmodel = undefined
 
-      $scope.qvalue = ' '
+      $scope.qvalue = ''
       $scope.qproperty = 'name'
 
       client.getModelFor($scope.listmodel).then (md) -> $scope.objectmodel = md
@@ -585,7 +585,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.onvaluechanged = (v)->
         console.log 'onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: {property: $scope.qproperty, value: $scope.qvalue }}).then( (newlist) ->
+        q = {property: $scope.qproperty, value: $scope.qvalue }
+        console.log '---- query sent to server is..'
+        console.dir q
+        client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
           $scope.list = newlist
           $scope.renderList())
 

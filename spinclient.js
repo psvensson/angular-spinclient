@@ -676,7 +676,7 @@
           $scope.expandedlist = [];
           $scope.objects = client.objects;
           $scope.objectmodel = void 0;
-          $scope.qvalue = ' ';
+          $scope.qvalue = '';
           $scope.qproperty = 'name';
           client.getModelFor($scope.listmodel).then(function(md) {
             return $scope.objectmodel = md;
@@ -696,13 +696,17 @@
             return console.log('onsearchchange called. v = ' + v + ' qprop = ' + $scope.qproperty + ', qval = ' + $scope.qvalue);
           };
           $scope.onvaluechanged = function(v) {
+            var q;
             console.log('onvaluechange called. v = ' + v + ' qprop = ' + $scope.qproperty + ', qval = ' + $scope.qvalue);
+            q = {
+              property: $scope.qproperty,
+              value: $scope.qvalue
+            };
+            console.log('---- query sent to server is..');
+            console.dir(q);
             return client.emitMessage({
               target: '_list' + $scope.listmodel + 's',
-              query: {
-                property: $scope.qproperty,
-                value: $scope.qvalue
-              }
+              query: q
             }).then(function(newlist) {
               $scope.list = newlist;
               return $scope.renderList();
