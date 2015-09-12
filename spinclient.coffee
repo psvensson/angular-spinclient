@@ -524,7 +524,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     restrict:    'AE'
     replace:     false
     #templateUrl: 'spinlist.html'
-    template:'<div>
+    template:'<div style="background-color:#e87d0d">
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
@@ -582,7 +582,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.onsearchchange = (v)->
         console.log 'onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
 
-      $scope.onvaluechange = (v)->
+      $scope.onvaluechanged = (v)->
         console.log 'onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
 
       $scope.selectItem = (item) =>
