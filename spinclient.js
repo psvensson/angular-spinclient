@@ -678,7 +678,7 @@
           $scope.objectmodel = void 0;
           $scope.qvalue = '';
           $scope.qproperty = 'name';
-          client.getModelFor($scope.model.type).then(function(md) {
+          client.getModelFor($scope.listmodel).then(function(md) {
             return $scope.objectmodel = md;
           });
           success = (function(_this) {
