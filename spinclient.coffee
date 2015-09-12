@@ -585,13 +585,19 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.onvaluechanged = (v)->
         console.log 'onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        q = {property: $scope.qproperty, value: $scope.qvalue }
-        console.log '---- query sent to server is..'
-        console.dir q
-        client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
-          $scope.list = []
-          newlist.forEach (item)-> $scope.list.push item.id
-          $scope.renderList())
+        if $scope.qvalue
+          q = {property: $scope.qproperty, value: $scope.qvalue }
+          console.log '---- query sent to server is..'
+          console.dir q
+          client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
+            $scope.list = []
+            newlist.forEach (item)-> $scope.list.push item.id
+            $scope.renderList())
+        else
+          client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then( (newlist2) ->
+            $scope.list = []
+            newlist2.forEach (item)-> $scope.list.push item.id
+            $scope.renderList())
 
       $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'

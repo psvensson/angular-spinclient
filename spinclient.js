@@ -698,22 +698,34 @@
           $scope.onvaluechanged = function(v) {
             var q;
             console.log('onvaluechange called. v = ' + v + ' qprop = ' + $scope.qproperty + ', qval = ' + $scope.qvalue);
-            q = {
-              property: $scope.qproperty,
-              value: $scope.qvalue
-            };
-            console.log('---- query sent to server is..');
-            console.dir(q);
-            return client.emitMessage({
-              target: '_list' + $scope.listmodel + 's',
-              query: q
-            }).then(function(newlist) {
-              $scope.list = [];
-              newlist.forEach(function(item) {
-                return $scope.list.push(item.id);
+            if ($scope.qvalue) {
+              q = {
+                property: $scope.qproperty,
+                value: $scope.qvalue
+              };
+              console.log('---- query sent to server is..');
+              console.dir(q);
+              return client.emitMessage({
+                target: '_list' + $scope.listmodel + 's',
+                query: q
+              }).then(function(newlist) {
+                $scope.list = [];
+                newlist.forEach(function(item) {
+                  return $scope.list.push(item.id);
+                });
+                return $scope.renderList();
               });
-              return $scope.renderList();
-            });
+            } else {
+              return client.emitMessage({
+                target: '_list' + $scope.listmodel + 's'
+              }).then(function(newlist2) {
+                $scope.list = [];
+                newlist2.forEach(function(item) {
+                  return $scope.list.push(item.id);
+                });
+                return $scope.renderList();
+              });
+            }
           };
           $scope.selectItem = (function(_this) {
             return function(item) {
