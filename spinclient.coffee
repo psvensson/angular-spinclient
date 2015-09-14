@@ -375,7 +375,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.log 'updating parent model to list with spliced list'
           client.emitMessage({target:'updateObject', obj: $scope.model}).then( ()->
             # actually delete the model formerly in the list
-            client.emitMessage( {target:'_delete'+item.type, obj: {id:m.id, type:item.type}}).then (o)=>
+            client.emitMessage( {target:'_delete'+item.type, obj: {id:item.id, type:item.type}}).then (o)=>
               console.log 'deleted '+o.type+' on server'
           , failure)
 
