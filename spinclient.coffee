@@ -275,7 +275,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client, $mdDialog) ->
     {
     restrict:    'AE'
-    replace:     true
+    replace:     false
     #templateUrl: 'spinmodel.html'
     template:'<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
@@ -503,7 +503,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict:    'AE'
-    replace:     true
+    replace:     false
     #templateUrl: 'spinlist.html'
     template:'<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
