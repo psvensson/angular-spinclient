@@ -503,7 +503,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict:    'AE'
-    replace:     false
+    replace:     true
     #templateUrl: 'spinlist.html'
     template:'<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
@@ -514,7 +514,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                 <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
             </md-button>
-            <md-button  ng-click="selectItem(item, false)">
+            <md-button  ng-click="selectItem(item, true)">
               <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }}
             </md-button>
         </md-list-item>
