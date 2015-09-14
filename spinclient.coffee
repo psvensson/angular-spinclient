@@ -484,7 +484,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         if idx > -1 and $scope.breadcrumbs.length > 1
           $scope.breadcrumbs.splice idx,1
 
-      $scope.onselect = (model, replace) ->
+      $scope.onselect = (model) ->
+        replace = false
         console.log '************************************************* spinwalker onselect for model '+model.name+' replace = '+replace
         console.log model
         if replace then $scope.breadcrumbs = []
