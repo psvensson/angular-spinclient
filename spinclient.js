@@ -371,7 +371,8 @@
           })(this);
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
-            if ($scope.model) {
+            if ($scope.model && $scope.model.type) {
+              console.log('asking for user rights on model ' + $scope.model.type);
               client.getRightsFor($scope.model.type).then(function(rights) {
                 return $scope.accessrights[$scope.model.type] = rights;
               });

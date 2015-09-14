@@ -337,7 +337,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinmodel watch fired for '+newval
         #console.log 'edit is '+$scope.edit
-        if $scope.model
+        if $scope.model and $scope.model.type
+          console.log 'asking for user rights on model '+$scope.model.type
           client.getRightsFor($scope.model.type).then (rights) -> $scope.accessrights[$scope.model.type] = rights
           if $scope.listprops and newval.id == oldval.id
             $scope.updateModel()
