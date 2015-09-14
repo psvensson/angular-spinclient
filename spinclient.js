@@ -611,9 +611,7 @@
               return $scope.breadcrumbs.splice(idx, 1);
             }
           };
-          $scope.onselect = function(model) {
-            var replace;
-            replace = false;
+          $scope.onselect = function(model, replace) {
             console.log('************************************************* spinwalker onselect for model ' + model.name + ' replace = ' + replace);
             console.log(model);
             if (replace) {
