@@ -513,7 +513,7 @@
               return client.emitMessage({
                 target: '_get' + prop.type,
                 obj: {
-                  id: $scope.model[prop.name],
+                  id: $scope.model[prop.name].id,
                   type: prop.type
                 }
               }).then(function(o) {

@@ -407,7 +407,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.enterDirectReference = (prop) =>
         console.log 'enterDirectReference called for '
         console.dir prop
-        client.emitMessage({ target:'_get'+prop.type, obj: {id: $scope.model[prop.name], type: prop.type }}).then( (o)->
+        client.emitMessage({ target:'_get'+prop.type, obj: {id: $scope.model[prop.name].id, type: prop.type }}).then( (o)->
           console.log 'enterDirectReference got back '
           console.dir o
           $scope.onselect(o)
