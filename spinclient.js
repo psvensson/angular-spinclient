@@ -459,11 +459,13 @@
             for (k in ref) {
               v = ref[k];
               results1.push($scope.listprops.forEach(function(lp) {
-                console.log('model.updateModel run for ' + lp);
+                console.log('-------------------------- model.updateModel run for ' + lp);
                 console.dir(lp);
-                client.getRightsFor(lp.type).then(function(rights) {
-                  return $scope.accessrights[lp] = rights;
-                });
+                if (lp.type) {
+                  client.getRightsFor(lp.type).then(function(rights) {
+                    return $scope.accessrights[lp] = rights;
+                  });
+                }
                 if (lp.name === k) {
                   return lp.value = v;
                 }
@@ -490,9 +492,11 @@
                     prop = md[i];
                     notshow = (ref = prop.name, indexOf.call($scope.hideproperties, ref) >= 0);
                     if (prop.name !== 'id' && !notshow && prop.name !== $scope.activeField && $scope.model[prop.name]) {
-                      client.getRightsFor(prop.type).then(function(rights) {
-                        return $scope.accessrights[prop.type] = rights;
-                      });
+                      if (prop.type) {
+                        client.getRightsFor(prop.type).then(function(rights) {
+                          return $scope.accessrights[prop.type] = rights;
+                        });
+                      }
                       foo = {
                         name: prop.name,
                         value: $scope.model[prop.name] || "",
