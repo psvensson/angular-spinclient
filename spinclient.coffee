@@ -162,6 +162,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       return d.promise
 
     getRightsFor: (type) ->
+      console.log ' getRightsFor called for modelname '+type
       d = $q.defer()
       if service.rightscache[type]
         d.resolve(service.rightscache[type])
@@ -383,8 +384,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.updateModel = () ->
         for k,v of $scope.model
           $scope.listprops.forEach (lp) ->
-            #console.log 'model.updateModel run for '+lp
-            client.getRightsFor(lp).then (rights) -> $scope.accessrights[lp] = rights
+            console.log 'model.updateModel run for '+lp
+            console.dir lp
+            client.getRightsFor(lp.type).then (rights) -> $scope.accessrights[lp] = rights
             if lp.name == k then lp.value = v
 
       $scope.renderModel = () =>

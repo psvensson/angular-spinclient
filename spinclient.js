@@ -200,6 +200,7 @@
       },
       getRightsFor: function(type) {
         var d;
+        console.log(' getRightsFor called for modelname ' + type);
         d = $q.defer();
         if (service.rightscache[type]) {
           d.resolve(service.rightscache[type]);
@@ -458,7 +459,9 @@
             for (k in ref) {
               v = ref[k];
               results1.push($scope.listprops.forEach(function(lp) {
-                client.getRightsFor(lp).then(function(rights) {
+                console.log('model.updateModel run for ' + lp);
+                console.dir(lp);
+                client.getRightsFor(lp.type).then(function(rights) {
                   return $scope.accessrights[lp] = rights;
                 });
                 if (lp.name === k) {
