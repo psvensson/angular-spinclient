@@ -445,7 +445,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict: 'AE'
-    replace: true
+    replace: false
     #templateUrl: 'spinwalker.html
     template:'<div>
     <span ng-repeat="crumb in breadcrumbs">
@@ -548,7 +548,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.dir err
 
       $scope.selectItem = (item, replace) =>
-        #console.log 'item '+item.name+' selected'
+        console.log 'item '+item.name+' selected. replace = '+replace
         $scope.onselect(item, replace) if $scope.onselect
 
       $scope.deleteItem = (item) ->
@@ -609,7 +609,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict:    'AE'
-    replace:     true
+    replace:     false
     #templateUrl: 'spinhash.html'
     template: '<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
@@ -651,7 +651,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         , failure)
 
       $scope.selectItem = (item, replace) =>
-        #console.log 'item '+item.name+' selected'
+        console.log 'hash item '+item.name+' selected replace = '+replace
         $scope.onselect(item, replace) if $scope.onselect
 
     }
