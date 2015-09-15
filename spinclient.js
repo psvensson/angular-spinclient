@@ -614,15 +614,15 @@
             for (i = j = 0, len = ref.length; j < len; i = ++j) {
               crumb = ref[i];
               if (crumb.id === model.id) {
-                idx = i;
+                idx = i + 1;
                 console.log('=== setting splice index to crumb ' + idx + ' name ' + crumb.name);
               }
             }
             console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
             console.dir($scope.breadcrumbs);
-            if (idx > -1 && $scope.breadcrumbs.length > 1) {
+            if (idx > 0 && $scope.breadcrumbs.length > 1) {
               console.log('splicing crumbs at idx ' + idx);
-              $scope.breadcrumbs.splice(idx, 1);
+              $scope.breadcrumbs.splice(idx, $scope.breadcrumbs.length - idx);
               return console.dir($scope.breadcrumbs);
             }
           };
