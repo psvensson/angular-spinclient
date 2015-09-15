@@ -487,8 +487,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         for crumb, i  in $scope.breadcrumbs
           idx = i if crumb.id == model.id
         console.log '************************************************* crumbClicked crumbs length = '+$scope.breadcrumbs.length
+        console.dir $scope.breadcrumbs
         if idx > -1 and $scope.breadcrumbs.length > 1
+          console.log 'splicing crumbs at idx '+idx
           $scope.breadcrumbs.splice idx,1
+          console.dir $scope.breadcrumbs
 
       $scope.onselect = (model, replace) ->
         console.log '************************************************* spinwalker onselect for model '+model.name+' replace = '+replace
