@@ -615,6 +615,7 @@
               crumb = ref[i];
               if (crumb.id === model.id) {
                 idx = i;
+                console.log('=== setting splice index to crumb ' + idx + ' name ' + crumb.name);
               }
             }
             console.log('************************************************* crumbClicked crumbs length = ' + $scope.breadcrumbs.length);
