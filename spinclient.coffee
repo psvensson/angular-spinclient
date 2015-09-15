@@ -295,8 +295,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
                       <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
                       <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
-                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
-                      <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
+                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect(prop, replace)" ondelete="ondelete"></spinlist>
+                      <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect(prop, replace)"></spinlist>
                       <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
                     </md-input-container>
         </md-list-item>
@@ -455,7 +455,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
        <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> >
     </span>
     <md-divider></md-divider>
-    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
+    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto" replace="false"></spinmodel>
 </div>'
     scope:
       model: '=model'
@@ -501,12 +501,15 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     }
   ]
+#
+#-- TODO: when having a first inital list of something, we want replace = true, but when going from a model you want replace = false
+#
 .directive 'spinlist', [
   'spinclient'
   (client) ->
     {
     restrict:    'AE'
-    replace:     true
+    replace:     false
     #templateUrl: 'spinlist.html'
     template:'<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
@@ -517,7 +520,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                 <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
             </md-button>
-            <md-button  ng-click="selectItem(item, true)">
+            <md-button  ng-click="selectItem(item, replace)">
               <img ng-if="item.value" ng-src="item.value"> {{ objects[item.id].name }}
             </md-button>
         </md-list-item>
@@ -550,7 +553,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'error: '+err
         console.dir err
 
-      $scope.selectItem = (item, replace) =>
+      $scope.selectItem = (item) =>
+        replace = $scope.replace
         console.log 'item '+item.name+' selected. replace = '+replace
         $scope.onselect(item, replace) if $scope.onselect
 
@@ -622,7 +626,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         <md-list-item ng-repeat="item in expandedlist" layout="row">
           <md-button ng-if="!edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
               <md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon>
-          </md-button> <md-button  ng-click="selectItem(item)">{{ objects[item.id].name }}</md-button>
+          </md-button> <md-button  ng-click="selectItem(item, replace)">{{ objects[item.id].name }}</md-button>
     </md-list>
 </div>'
     scope:
