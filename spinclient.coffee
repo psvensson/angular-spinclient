@@ -295,9 +295,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
                       <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
                       <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
-                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect(prop, replace)" ondelete="ondelete"></spinlist>
-                      <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect(prop, replace)"></spinlist>
-                      <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="myselect" ondelete="ondelete"></spinlist>
+                      <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="myselect"></spinlist>
+                      <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="myselect"></spinhash>
                     </md-input-container>
         </md-list-item>
     </md-list>
@@ -334,6 +334,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         rv = $scope.edit
         if propname in $scope.nonEditable then rv = false
         return rv
+
+      $scope.myselect = (prop)->
+        $scope.onselect(prop, $scope.replace)
 
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinmodel watch fired for '+newval
@@ -433,7 +436,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               console.log '* selectMode onselect callback'
               console.dir model
               $mdDialog.hide()
-          template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+          template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="myselect"></spinlist></md-content></md-dialog>'
 
       $scope.$on '$destroy', () =>
         s = $scope.subscription

@@ -331,7 +331,7 @@
       return {
         restrict: 'AE',
         replace: false,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list > <md-list-item ng-repeat="prop in listprops" layout-fill> <md-input-container layout="row"> <label> {{prop.name}} </label> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"> <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true"> <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div> <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect(prop, replace)" ondelete="ondelete"></spinlist> <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect(prop, replace)"></spinlist> <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash> </md-input-container> </md-list-item> </md-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon> {{model.type}} {{objects[model.id].name}}</md-subheader> <md-list > <md-list-item ng-repeat="prop in listprops" layout-fill> <md-input-container layout="row"> <label> {{prop.name}} </label> <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array"> <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> > </span> <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"> <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true"> <div ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div> <div ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div> <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="myselect" ondelete="ondelete"></spinlist> <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="myselect"></spinlist> <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="myselect"></spinhash> </md-input-container> </md-list-item> </md-list> </div>',
         scope: {
           model: '=model',
           edit: '=?edit',
@@ -370,6 +370,9 @@
               return rv;
             };
           })(this);
+          $scope.myselect = function(prop) {
+            return $scope.onselect(prop, $scope.replace);
+          };
           $scope.$watch('model', function(newval, oldval) {
             console.log('spinmodel watch fired for ' + newval);
             if ($scope.model && $scope.model.type) {
@@ -560,7 +563,7 @@
                   return $mdDialog.hide();
                 };
               },
-              template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+              template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="myselect"></spinlist></md-content></md-dialog>'
             });
           };
           return $scope.$on('$destroy', (function(_this) {
