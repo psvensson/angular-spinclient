@@ -1113,6 +1113,7 @@
           console.dir($scope.list);
           $scope.objects = client.objects;
           $scope.expandedlist = [];
+          $scope.objectmodel = [];
           client.getModelFor($scope.listmodel).then(function(md) {
             return $scope.objectmodel = md;
           });

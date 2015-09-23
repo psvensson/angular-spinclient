@@ -872,6 +872,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       console.dir $scope.list
       $scope.objects = client.objects
       $scope.expandedlist = []
+      $scope.objectmodel = []
 
       client.getModelFor($scope.listmodel).then (md) -> $scope.objectmodel = md
 
