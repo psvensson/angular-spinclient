@@ -712,3 +712,183 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     }
   ]
+.directive 'spinmodelcompact', [
+  'spinclient', '$mdDialog'
+  (client, $mdDialog) ->
+    {
+    restrict: 'AE'
+    replace: true
+    template: '
+    <md-list layout="row">
+        <md-list-item ng-repeat="prop in listprops" layout-padding>
+            <md-input-container  layout-padding style="min-height:20px">
+              <input flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array" ng-click="enterDirectReference(prop)">{{prop.name}}</input>
+              <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
+              <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
+              <input ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" flex   ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)"></input>
+              <input ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" flex  ng-model="model[prop.name]" >{{model[prop.name]}}</input>
+            </md-input-container>
+        </md-list-item>
+    </md-list>'
+    scope:
+      model: '=model'
+      edit: '=?edit'
+      onselect: '&'
+      hideproperties: '=?hideproperties'
+
+    link: (scope) ->
+      scope.onselect = scope.onselect()
+
+    controller: ($scope) ->
+      $scope.hideproperties = $scope.hideproperties or []
+      $scope.isarray = angular.isArray
+      $scope.subscription = undefined
+      $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
+      $scope.activeField = undefined
+      $scope.objects = client.objects
+      $scope.accessrights = []
+
+
+
+      $scope.onSubscribedObject = (o) ->
+        console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
+        #console.dir o
+        for k,v of o
+          $scope.model[k] = o[k]
+
+      $scope.isEditable = (propname) =>
+        rv = $scope.edit
+        if propname in $scope.nonEditable then rv = false
+        return rv
+
+      $scope.$watch 'model', (newval, oldval) ->
+        console.log 'spinmodel watch fired for '+newval
+        #console.log 'edit is '+$scope.edit
+        if $scope.model
+          client.getRightsFor($scope.model.type).then (rights) -> $scope.accessrights[$scope.model.type] = rights
+          if $scope.listprops and newval.id == oldval.id
+            $scope.updateModel()
+          else
+            $scope.renderModel()
+          if not $scope.subscription
+            client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
+              $scope.subscription = {sid: listenerid, o: $scope.model}
+
+      success = (result) =>
+        console.log 'success: '+result
+
+      failure = (err) =>
+        console.log 'error: '+err
+
+      $scope.onChange = (model) =>
+        console.log 'spinmodel onChange called for'
+        console.dir model
+        $scope.activeField = model.type
+        #console.dir prop
+        client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
+
+      $scope.updateModel = () ->
+        for k,v of $scope.model
+          $scope.listprops.forEach (lp) ->
+            console.log 'model.updateModel run for '+lp
+            if lp.type
+              client.getRightsFor(lp.type).then (rights) -> $scope.accessrights[lp.type] = rights
+            if lp.name == k then lp.value = v
+
+      $scope.renderModel = () =>
+        $scope.listprops = []
+        client.getModelFor($scope.model.type).then (md) ->
+          modeldef = {}
+          md.forEach (modelprop) -> modeldef[modelprop.name] = modelprop
+          if $scope.model
+            $scope.listprops.push {name: 'id', value: $scope.model.id}
+            #delete $scope.model.id
+            for prop,i in md
+              if prop.type
+                client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
+              notshow = prop.name in $scope.hideproperties
+              #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
+              if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
+                foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
+                $scope.listprops.push foo
+
+      $scope.selectModel = (type, propname) ->
+        client.emitMessage(target: '_list'+type+'s').then (objlist) ->
+          $mdDialog.show
+            controller: (scope) ->
+              console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' objlist is...'
+              console.dir objlist
+              list = []
+              objlist.forEach (obj)-> list.push obj.id
+              scope.list = list
+              scope.type = type
+              console.log 'list is'
+              console.dir list
+              scope.onselect = (model) ->
+                console.log '* selectMode onselect callback'
+                console.dir model
+                $scope.model[propname].push(model.id)
+                client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
+                $mdDialog.hide()
+            template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+
+      $scope.$on '$destroy', () =>
+        s = $scope.subscription
+        console.log 'spinmodel captured $destroy event s = '+s
+        if s
+          client.deRegisterObjectSubscriber(s.sid, s.o)
+    }
+  ]
+.directive 'spingrid', [
+  'spinclient'
+  (client) ->
+    {
+    restrict:    'AE'
+    replace:     false
+    template: '<div>
+    <md-subheader class="md-no-sticky" style="background-color:#ddd">
+            <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
+                Grid of {{listmodel}}s</md-subheader>
+    <md-grid-list md-cols="objectmodel.length" md-gutter="1em" md-row-height="4:3">
+      <md-grid-tile ng-repeat="prop in objectmodel">
+        prop
+      </md-grid-tile>
+      <md-grid-tile ng-repeat="item in expandedlist">
+        <spinmodelcompact model="item"></spinmodelcompact>
+      </md-grid-tile>
+    </md-grid-list>
+</div>'
+    scope:
+      list: '=list'
+      listmodel:   '=listmodel'
+      onselect:    '&'
+      ondelete:    '&'
+
+    link: (scope, elem, attrs) ->
+      scope.onselect = scope.onselect()
+
+    controller: ($scope) ->
+      console.log 'spingrid list for model '+$scope.listmodel+' is'
+      console.dir $scope.list
+      $scope.objects = client.objects
+      $scope.expandedlist = []
+
+      client.getModelFor($scope.listmodel).then (md) -> $scope.objectmodel = md
+
+      failure = (err) =>
+        console.log 'error: '+err
+        console.dir err
+
+      for mid in $scope.list
+        client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: mid, type: $scope.listmodel }}).then( (o)->
+          for modid,i in $scope.list
+            if modid == o.id
+              console.log 'adding hashtable element '+o.name
+              $scope.expandedlist[i] = o
+        , failure)
+
+      $scope.selectItem = (item) =>
+        $scope.onselect(item, $scope.replace) if $scope.onselect
+
+    }
+]

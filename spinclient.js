@@ -896,6 +896,267 @@
         }
       };
     }
+  ]).directive('spinmodelcompact', [
+    'spinclient', '$mdDialog', function(client, $mdDialog) {
+      return {
+        restrict: 'AE',
+        replace: true,
+        template: '<md-list layout="row"> <md-list-item ng-repeat="prop in listprops" layout-padding> <md-input-container  layout-padding style="min-height:20px"> <input flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array" ng-click="enterDirectReference(prop)">{{prop.name}}</input> <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)"> <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true"> <input ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" flex   ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)"></input> <input ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" flex  ng-model="model[prop.name]" >{{model[prop.name]}}</input> </md-input-container> </md-list-item> </md-list>',
+        scope: {
+          model: '=model',
+          edit: '=?edit',
+          onselect: '&',
+          hideproperties: '=?hideproperties'
+        },
+        link: function(scope) {
+          return scope.onselect = scope.onselect();
+        },
+        controller: function($scope) {
+          var failure, success;
+          $scope.hideproperties = $scope.hideproperties || [];
+          $scope.isarray = angular.isArray;
+          $scope.subscription = void 0;
+          $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt'];
+          $scope.activeField = void 0;
+          $scope.objects = client.objects;
+          $scope.accessrights = [];
+          $scope.onSubscribedObject = function(o) {
+            var k, v, _results;
+            console.log('==== spinmodel onSubscribedModel called for ' + o.id + ' updating model..');
+            _results = [];
+            for (k in o) {
+              v = o[k];
+              _results.push($scope.model[k] = o[k]);
+            }
+            return _results;
+          };
+          $scope.isEditable = (function(_this) {
+            return function(propname) {
+              var rv;
+              rv = $scope.edit;
+              if (__indexOf.call($scope.nonEditable, propname) >= 0) {
+                rv = false;
+              }
+              return rv;
+            };
+          })(this);
+          $scope.$watch('model', function(newval, oldval) {
+            console.log('spinmodel watch fired for ' + newval);
+            if ($scope.model) {
+              client.getRightsFor($scope.model.type).then(function(rights) {
+                return $scope.accessrights[$scope.model.type] = rights;
+              });
+              if ($scope.listprops && newval.id === oldval.id) {
+                $scope.updateModel();
+              } else {
+                $scope.renderModel();
+              }
+              if (!$scope.subscription) {
+                return client.registerObjectSubscriber({
+                  id: $scope.model.id,
+                  type: $scope.model.type,
+                  cb: $scope.onSubscribedObject
+                }).then(function(listenerid) {
+                  return $scope.subscription = {
+                    sid: listenerid,
+                    o: $scope.model
+                  };
+                });
+              }
+            }
+          });
+          success = (function(_this) {
+            return function(result) {
+              return console.log('success: ' + result);
+            };
+          })(this);
+          failure = (function(_this) {
+            return function(err) {
+              return console.log('error: ' + err);
+            };
+          })(this);
+          $scope.onChange = (function(_this) {
+            return function(model) {
+              console.log('spinmodel onChange called for');
+              console.dir(model);
+              $scope.activeField = model.type;
+              return client.emitMessage({
+                target: 'updateObject',
+                obj: model
+              }).then(success, failure);
+            };
+          })(this);
+          $scope.updateModel = function() {
+            var k, v, _ref, _results;
+            _ref = $scope.model;
+            _results = [];
+            for (k in _ref) {
+              v = _ref[k];
+              _results.push($scope.listprops.forEach(function(lp) {
+                console.log('model.updateModel run for ' + lp);
+                if (lp.type) {
+                  client.getRightsFor(lp.type).then(function(rights) {
+                    return $scope.accessrights[lp.type] = rights;
+                  });
+                }
+                if (lp.name === k) {
+                  return lp.value = v;
+                }
+              }));
+            }
+            return _results;
+          };
+          $scope.renderModel = (function(_this) {
+            return function() {
+              $scope.listprops = [];
+              return client.getModelFor($scope.model.type).then(function(md) {
+                var foo, i, modeldef, notshow, prop, _i, _len, _ref, _results;
+                modeldef = {};
+                md.forEach(function(modelprop) {
+                  return modeldef[modelprop.name] = modelprop;
+                });
+                if ($scope.model) {
+                  $scope.listprops.push({
+                    name: 'id',
+                    value: $scope.model.id
+                  });
+                  _results = [];
+                  for (i = _i = 0, _len = md.length; _i < _len; i = ++_i) {
+                    prop = md[i];
+                    if (prop.type) {
+                      client.getRightsFor(prop.type).then(function(rights) {
+                        return $scope.accessrights[prop.type] = rights;
+                      });
+                    }
+                    notshow = (_ref = prop.name, __indexOf.call($scope.hideproperties, _ref) >= 0);
+                    if (prop.name !== 'id' && !notshow && prop.name !== $scope.activeField && $scope.model[prop.name]) {
+                      foo = {
+                        name: prop.name,
+                        value: $scope.model[prop.name] || "",
+                        type: modeldef[prop.name].type,
+                        array: modeldef[prop.name].array,
+                        hashtable: modeldef[prop.name].hashtable
+                      };
+                      _results.push($scope.listprops.push(foo));
+                    } else {
+                      _results.push(void 0);
+                    }
+                  }
+                  return _results;
+                }
+              });
+            };
+          })(this);
+          $scope.selectModel = function(type, propname) {
+            return client.emitMessage({
+              target: '_list' + type + 's'
+            }).then(function(objlist) {
+              return $mdDialog.show({
+                controller: function(scope) {
+                  var list;
+                  console.log('++++++++++++++ selectModel controller type=' + type + ', propname=' + propname + ' objlist is...');
+                  console.dir(objlist);
+                  list = [];
+                  objlist.forEach(function(obj) {
+                    return list.push(obj.id);
+                  });
+                  scope.list = list;
+                  scope.type = type;
+                  console.log('list is');
+                  console.dir(list);
+                  return scope.onselect = function(model) {
+                    console.log('* selectMode onselect callback');
+                    console.dir(model);
+                    $scope.model[propname].push(model.id);
+                    client.emitMessage({
+                      target: 'updateObject',
+                      obj: $scope.model
+                    }).then(success, failure);
+                    return $mdDialog.hide();
+                  };
+                },
+                template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+              });
+            });
+          };
+          return $scope.$on('$destroy', (function(_this) {
+            return function() {
+              var s;
+              s = $scope.subscription;
+              console.log('spinmodel captured $destroy event s = ' + s);
+              if (s) {
+                return client.deRegisterObjectSubscriber(s.sid, s.o);
+              }
+            };
+          })(this));
+        }
+      };
+    }
+  ]).directive('spingrid', [
+    'spinclient', function(client) {
+      return {
+        restrict: 'AE',
+        replace: false,
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Grid of {{listmodel}}s</md-subheader> <md-grid-list md-cols="objectmodel.length" md-gutter="1em" md-row-height="4:3"> <md-grid-tile ng-repeat="prop in objectmodel"> prop </md-grid-tile> <md-grid-tile ng-repeat="item in expandedlist"> <spinmodelcompact model="item"></spinmodelcompact> </md-grid-tile> </md-grid-list> </div>',
+        scope: {
+          list: '=list',
+          listmodel: '=listmodel',
+          onselect: '&',
+          ondelete: '&'
+        },
+        link: function(scope, elem, attrs) {
+          return scope.onselect = scope.onselect();
+        },
+        controller: function($scope) {
+          var failure, mid, _i, _len, _ref;
+          console.log('spingrid list for model ' + $scope.listmodel + ' is');
+          console.dir($scope.list);
+          $scope.objects = client.objects;
+          $scope.expandedlist = [];
+          client.getModelFor($scope.listmodel).then(function(md) {
+            return $scope.objectmodel = md;
+          });
+          failure = (function(_this) {
+            return function(err) {
+              console.log('error: ' + err);
+              return console.dir(err);
+            };
+          })(this);
+          _ref = $scope.list;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            mid = _ref[_i];
+            client.emitMessage({
+              target: '_get' + $scope.listmodel,
+              obj: {
+                id: mid,
+                type: $scope.listmodel
+              }
+            }).then(function(o) {
+              var i, modid, _j, _len1, _ref1, _results;
+              _ref1 = $scope.list;
+              _results = [];
+              for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+                modid = _ref1[i];
+                if (modid === o.id) {
+                  console.log('adding hashtable element ' + o.name);
+                  _results.push($scope.expandedlist[i] = o);
+                } else {
+                  _results.push(void 0);
+                }
+              }
+              return _results;
+            }, failure);
+          }
+          return $scope.selectItem = (function(_this) {
+            return function(item) {
+              if ($scope.onselect) {
+                return $scope.onselect(item, $scope.replace);
+              }
+            };
+          })(this);
+        }
+      };
+    }
   ]);
 
 }).call(this);
