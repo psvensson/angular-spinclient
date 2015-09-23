@@ -1097,12 +1097,13 @@
       return {
         restrict: 'AE',
         replace: false,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Grid of {{listmodel}}s</md-subheader> <md-grid-list md-cols="objectmodel.length" md-rows="expandedlist.length" md-gutter="2em" md-row-height="80px"> <md-grid-tile ng-repeat="prop in objectmodel" class="gray"> {{prop}} </md-grid-tile> <md-grid-tile ng-repeat="item in expandedlist"> <spinmodelcompact onselect="onselect" model="item"></spinmodelcompact> </md-grid-tile> </md-grid-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Grid of {{listmodel}}s</md-subheader> <md-grid-list md-cols="ocols" md-rows="expandedlist.length" md-gutter="2em" md-row-height="80px"> <md-grid-tile ng-repeat="prop in objectmodel" class="gray"> {{prop}} </md-grid-tile> <md-grid-tile ng-repeat="item in expandedlist"> <spinmodelcompact onselect="onselect" model="item"></spinmodelcompact> </md-grid-tile> </md-grid-list> </div>',
         scope: {
           list: '=list',
           listmodel: '=listmodel',
           onselect: '&',
-          ondelete: '&'
+          ondelete: '&',
+          ocols: 4
         },
         link: function(scope, elem, attrs) {
           return scope.onselect = scope.onselect();
@@ -1115,7 +1116,8 @@
           $scope.expandedlist = [];
           $scope.objectmodel = [];
           client.getModelFor($scope.listmodel).then(function(md) {
-            return $scope.objectmodel = md;
+            $scope.objectmodel = md;
+            return $scope.ocols = md.length;
           });
           failure = (function(_this) {
             return function(err) {

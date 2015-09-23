@@ -849,7 +849,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                 Grid of {{listmodel}}s</md-subheader>
-    <md-grid-list md-cols="objectmodel.length" md-rows="expandedlist.length" md-gutter="2em" md-row-height="80px">
+    <md-grid-list md-cols="ocols" md-rows="expandedlist.length" md-gutter="2em" md-row-height="80px">
       <md-grid-tile ng-repeat="prop in objectmodel" class="gray">
         {{prop}}
       </md-grid-tile>
@@ -863,6 +863,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       listmodel:   '=listmodel'
       onselect:    '&'
       ondelete:    '&'
+      ocols:        4
 
     link: (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
@@ -874,7 +875,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.expandedlist = []
       $scope.objectmodel = []
 
-      client.getModelFor($scope.listmodel).then (md) -> $scope.objectmodel = md
+      client.getModelFor($scope.listmodel).then (md) ->
+        $scope.objectmodel = md
+        $scope.ocols = md.length
 
       failure = (err) =>
         console.log 'error: '+err
