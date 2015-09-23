@@ -286,7 +286,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-list >
 
             <md-list-item ng-repeat="prop in listprops" layout-fill>
-                    <md-input-container layout="row" layout-fill>
+                    <md-input-container layout="row" layout-fill style="min-height:20px">
                       <label> {{prop.name}} </label>
                       <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
                           <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
@@ -530,14 +530,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
-    <div layout="row" style="height:55px" style="background-color:#e87d0d">
+    <div ng-if="list.length>0" layout="row" style="height:55px" style="background-color:#e87d0d">
       <strong flex>Search:</strong>
-      <md-input-container flex>
+      <md-input-container flex layout-align="left" style="min-height:20px">
         <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)" style="padding:0px">
           <md-option ng-value="opt" ng-repeat="opt in objectmodel">{{ opt.name }}</md-option>
         </md-select>
       </md-input-container>
-      <md-input-container flex layout-align="center">
+      <md-input-container flex layout-align="center" style="min-height:20px">
         <input aria-label="search value" type="text" ng-model="qvalue" required ng-change="onvaluechanged(qvalue)">
       </md-input-container>
     </div>
@@ -589,7 +589,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.onvaluechanged = (v)->
         console.log 'onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
         if $scope.qvalue
-          q = {property: $scope.qproperty, value: $scope.qvalue }
+          q = {property: $scope.qproperty, value: $scope.qvalue, wildcard: true }
           console.log '---- query sent to server is..'
           console.dir q
           client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
