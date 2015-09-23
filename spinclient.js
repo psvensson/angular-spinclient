@@ -1102,8 +1102,7 @@
           list: '=list',
           listmodel: '=listmodel',
           onselect: '&',
-          ondelete: '&',
-          ocols: 4
+          ondelete: '&'
         },
         link: function(scope, elem, attrs) {
           return scope.onselect = scope.onselect();
@@ -1115,6 +1114,7 @@
           $scope.objects = client.objects;
           $scope.expandedlist = [];
           $scope.objectmodel = [];
+          $scope.ocols = 4;
           client.getModelFor($scope.listmodel).then(function(md) {
             $scope.objectmodel = md;
             return $scope.ocols = md.length;

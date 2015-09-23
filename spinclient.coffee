@@ -863,7 +863,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       listmodel:   '=listmodel'
       onselect:    '&'
       ondelete:    '&'
-      ocols:        4
+
 
     link: (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
@@ -874,6 +874,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.objects = client.objects
       $scope.expandedlist = []
       $scope.objectmodel = []
+      $scope.ocols = 4
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
