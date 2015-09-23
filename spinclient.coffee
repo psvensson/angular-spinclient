@@ -854,7 +854,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         prop
       </md-grid-tile>
       <md-grid-tile ng-repeat="item in expandedlist">
-        <spinmodelcompact model="item"></spinmodelcompact>
+        <spinmodelcompact onselect="onselect" model="item"></spinmodelcompact>
       </md-grid-tile>
     </md-grid-list>
 </div>'
