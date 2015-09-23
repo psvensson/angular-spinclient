@@ -1097,7 +1097,7 @@
       return {
         restrict: 'AE',
         replace: false,
-        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Grid of {{listmodel}}s</md-subheader> <md-grid-list md-cols="objectmodel.length" md-gutter="1em" md-row-height="4:3"> <md-grid-tile ng-repeat="prop in objectmodel"> prop </md-grid-tile> <md-grid-tile ng-repeat="item in expandedlist"> <spinmodelcompact onselect="onselect" model="item"></spinmodelcompact> </md-grid-tile> </md-grid-list> </div>',
+        template: '<div> <md-subheader class="md-no-sticky" style="background-color:#ddd"> <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon> Grid of {{listmodel}}s</md-subheader> <md-grid-list md-cols="objectmodel.length" md-gutter="2em" md-row-height="80px"> <md-grid-tile ng-repeat="prop in objectmodel" class="gray"> {{prop}} </md-grid-tile> <md-grid-tile ng-repeat="item in expandedlist"> <spinmodelcompact onselect="onselect" model="item"></spinmodelcompact> </md-grid-tile> </md-grid-list> </div>',
         scope: {
           list: '=list',
           listmodel: '=listmodel',
