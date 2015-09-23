@@ -719,8 +719,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     restrict: 'AE'
     replace: true
     template: '
-    <md-grid-list md-cols="{{listprops.length}}" md-rows="1" md-gutter="2em" md-row-height="80px">
-      <md-grid-tile ng-repeat="prop in listprops" class="gray">
+    <div layout="row">
+      <div flex ng-repeat="prop in listprops" class="gray">
 
               <input flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array" ng-click="enterDirectReference(prop)">{{prop.name}}</input>
               <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
@@ -728,8 +728,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               <input ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" flex   ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)"></input>
               <input ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" flex  ng-model="model[prop.name]" >{{model[prop.name]}}</input>
 
-       </md-grid-tile>
-    </md-grid>'
+       </div>
+    </div>'
     scope:
       model: '=model'
       edit: '=?edit'
