@@ -723,10 +723,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       <div flex ng-repeat="prop in listprops" class="gray">
 
               <input flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array" ng-click="enterDirectReference(prop)">{{prop.name}}</input>
-              <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
-              <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
-              <input ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" flex   ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)"></input>
-              <input ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" flex  ng-model="model[prop.name]" >{{model[prop.name]}}</input>
+              <input flex ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
+              <input flex ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
+              <input flex ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)">
+              <input flex ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" ><
 
        </div>
     </div>'
