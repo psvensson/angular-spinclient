@@ -722,11 +722,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <div layout="row">
       <div flex ng-repeat="prop in listprops" class="gray">
 
-              <input flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array" ng-click="enterDirectReference(prop)">{{prop.name}}</input>
+              <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array" ng-click="enterDirectReference(prop)">{{prop.name}}</span>
               <input flex ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
               <input flex ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
-              <input flex ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)">
-              <input flex ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" >
+              <span flex ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)">{{prop.name}}s</span>
+              <span flex ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" >{{prop.name}}s</span>
 
        </div>
     </div>'
@@ -747,6 +747,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.activeField = undefined
       $scope.objects = client.objects
       $scope.accessrights = []
+      $scope.edit = true
 
 
 
@@ -850,7 +851,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                 Grid of {{listmodel}}s</md-subheader>
     <md-grid-list md-cols="1" md-rows="expandedlist.length" md-gutter="2em" md-row-height="80px">
-      <md-grid-tile ng-repeat="prop in objectmodel" class="gray">
+      <md-grid-tile ng-repeat="prop in objectmodel" class="grey">
         {{prop}}
       </md-grid-tile>
       <md-grid-tile ng-repeat="item in expandedlist">
