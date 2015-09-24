@@ -726,7 +726,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               <input flex ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
               <input flex ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
               <input flex ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)">
-              <input flex ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" ><
+              <input flex ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" >
 
        </div>
     </div>'
