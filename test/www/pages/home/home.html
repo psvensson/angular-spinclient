@@ -1,0 +1,18 @@
+<div ng-controller='HomeCtrl' layout-fill>
+    <md-content class="md-padding" layout-fill>
+        <h1 class="md-display-2">Games</h1>
+        <div>
+            <spingrid layout-fill ng-if="allgames.length > 0" list="allgames" listmodel="'SampleGame'" onselect="onselect" style="height:250px;overflow:auto;border-bottom:1px solid grey;" edit="true" replace="true"></spingrid>
+        </div>
+    </md-content>
+
+    <md-divider class="md-padding"></md-divider>
+
+    <md-content>
+
+        <div>
+            <spinwalker ng-if="selectedgame" model="objects[selectedgame.id]" model="SampleGame" edit="true" hideproperties="['admin', 'id']"></spinwalker>
+        </div>
+
+    </md-content>
+</div>
