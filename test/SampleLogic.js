@@ -20,7 +20,9 @@
           return DB.getOrCreateObjectByRecord({
             id: 17,
             name: 'fooGame',
-            type: 'SampleGame'
+            type: 'SampleGame',
+            createdBy: 'SYSTEM',
+            createdAt: Date.now()
           }).then(function(game) {
             console.log('got first game');
             return game.serialize();

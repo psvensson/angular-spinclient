@@ -296,7 +296,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
                       <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
                       <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
-                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex  listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
+                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex search="local" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
                       <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
                       <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
                     </md-input-container>
@@ -324,6 +324,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.activeField = undefined
       $scope.objects = client.objects
       $scope.accessrights = []
+      $scope.local = 'local'
 
       $scope.onSubscribedObject = (o) ->
         console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
@@ -523,7 +524,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
                 <md-icon md-svg-src="assets/images/ic_apps_24px.svg" ></md-icon>
                     List of {{listmodel}}s</md-subheader>
-    <div ng-if="list.length>0" layout="row" >
+    <div ng-if="list" layout="row" >
       <md-input-container flex style="padding:0">
         <label>Property:</label>
         <md-select aria-label="search property" ng-model="qproperty" placeholder="name" ng-change="onsearchchange(qproperty)" >
@@ -550,6 +551,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       list: '=list'
       listmodel: '=listmodel'
       edit: '=edit'
+      search: '=search'
       onselect: '&'
       ondelete: '&'
 
@@ -558,7 +560,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       scope.ondelete = scope.ondelete()
 
     controller:  ($scope) ->
-      console.log '*** spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel
+      console.log '*** spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel+', search is '+$scope.search
       console.dir $scope.list
       $scope.subscriptions = []
       $scope.expandedlist = []
@@ -567,6 +569,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.qvalue = ''
       $scope.qproperty = 'name'
+      $scope.origlist = $scope.list
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
@@ -581,24 +584,46 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.dir err
 
       $scope.onsearchchange = (v)->
-        console.log 'onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
+        $scope.qvalue = v
+        console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
+        if $scope.search != 'local' then $scope.doSearch(v) else $scope.localSearch(v)
 
       $scope.onvaluechanged = (v)->
-        console.log 'onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if $scope.qvalue
-          q = {property: $scope.qproperty, value: $scope.qvalue, wildcard: true }
+        console.log '* onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
+        if $scope.search != 'local' then $scope.doSearch(v) else $scope.localSearch(v)
+
+      $scope.doSearch = (v) ->
+        console.log 'dosearch called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
+        if v
+          q = {property: $scope.qproperty, value: v, wildcard: true }
           console.log '---- query sent to server is..'
           console.dir q
           client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
             console.log 'search got back list of '+newlist.length+' items'
-            $scope.list = []
-            newlist.forEach (item)-> $scope.list.push item.id
+            tmp = []
+            newlist.forEach (item)-> tmp.push item.id
+            $scope.list = tmp
             $scope.renderList())
         else
           client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then( (newlist2) ->
-            $scope.list = []
-            newlist2.forEach (item)-> $scope.list.push item.id
+            tmp = []
+            newlist2.forEach (item)-> tmp.push item.id
+            $scope.list = tmp
             $scope.renderList())
+
+      $scope.localSearch = (v) ->
+        console.log 'localSearch called. v = '+v
+        tmp = []
+
+        $scope.origlist.forEach (id) ->
+          item = client.objects[id]
+          console.log 'localSearch comparing property '+$scope.qproperty+' which is '+item[$scope.qproperty]+' to see if ti is '+v
+          if v
+            if (""+item[$scope.qproperty]).indexOf(v) > -1 then tmp.push item.id
+          else
+            tmp.push item.id
+        $scope.list = tmp
+        $scope.renderList()
 
       $scope.selectItem = (item) =>
         #console.log 'item '+item.name+' selected'
@@ -615,16 +640,20 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.expandedlist = []
         if $scope.list
           for modelid in $scope.list
-            console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
-            client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
-              console.log 'spinlist _get got back object '+o
-              console.dir o
-              client.objects[o.id] = o
-              for modid,i in $scope.list
-                if modid == o.id
-                  console.log '-- exchanging list id with actual list model from server for '+o.name
-                  $scope.expandedlist[i] = o
-            , failure)
+            #console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+            if client.objects[modelid]
+              $scope.addExpandedModel(client.objects[modelid])
+            else
+              client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
+                client.objects[o.id] = o
+                $scope.addExpandedModel(o)
+              , failure)
+
+      $scope.addExpandedModel = (o) ->
+        for modid,i in $scope.list
+          if modid == o.id
+            #console.log '-- exchanging list id with actual list model from server for '+o.name
+            $scope.expandedlist[i] = o
 
       $scope.onSubscribedObject = (o) ->
         console.log 'onSubscribedObject called ++++++++++++++++++++++++'
@@ -852,9 +881,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       </md-grid-tile>
       <md-grid-tile ng-repeat="cell in cells" style="height:15px" layout-fill ng-click="selectItem(cell.item)">
         <span flex ng-if="cell.prop.type && cell.prop.value && !cell.prop.hashtable && !cell.prop.array" ng-click="enterDirectReference(prop)">{{cell.item[cell.prop.name]}}</span>
-        <input lyout-fill flex ng-if="!cell.prop.array && !cell.prop.type && isEditable(cell.prop.type) && cell.prop.name != \'id\'" type="text" ng-model="cell.item[cell.prop.name]" ng-change="onChange(cell.item, cell.prop.name)">
-        <input layout-fill flex ng-if="!cell.prop.array && !cell.prop.type && !isEditable(cell.prop.type) || cell.prop.name == \'id\'" type="text" ng-model="cell.item[cell.prop.name]" disabled="true">
-        <span flex ng-if="isEditable(cell.prop.name) && (cell.prop.array || cell.prop.hashtable)" ng-model="cell.item[cell.prop]" ng-click="selectModel(cell.item.type, cell.prop.name)">{{cell.item[cell.prop.name]}}</span>
+        <input layout-fill flex ng-if="!cell.prop.array && !cell.prop.type &&  isEditable(cell.prop.name) && cell.prop.name != \'id\'" type="text" ng-model="cell.item[cell.prop.name]" ng-change="onChange(cell.item, cell.prop.name)">
+        <input layout-fill flex ng-if="!cell.prop.array && !cell.prop.type && !isEditable(cell.prop.name) && cell.prop.name != \'id\'" type="text" ng-model="cell.item[cell.prop.name]" disabled="true">
+        <span flex ng-if="isEditable(cell.prop.name) && (cell.prop.array || cell.prop.hashtable)" ng-model="cell.item[cell.prop.name]" >{{cell.item[cell.prop.name].length}} {{cell.prop.name}}</span>
         <span flex ng-if="!isEditable(cell.prop.name) && (cell.prop.array || cell.prop.hashtable)" >{{cell.item[cell.prop.name].length}} {{cell.prop.name}}</span>
       </md-grid-tile>
     </md-grid-list>
@@ -864,7 +893,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       listmodel:   '=listmodel'
       onselect:    '&'
       ondelete:    '&'
-
+      edit:        '=edit'
 
     link: (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
@@ -878,6 +907,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.objectmodel = []
       $scope.ocols = 4
       $scope.cells = []
+      $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
+
+      $scope.isEditable = (propname) =>
+        rv = $scope.edit
+        if not propname then rv = false
+        if propname in $scope.nonEditable then rv = false
+        #console.log 'isEditable returned '+rv+' for '+propname
+        return rv
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
@@ -890,7 +927,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 $scope.expandedlist[i] = o
                 for k,v of $scope.objectmodel
                   $scope.cells.push {item: o, prop: v}
-                  console.log 'adding cell '+o.name
+                  #console.log 'adding cell '+o.name+' - '+v.name
+                  #console.dir {item: o, prop: v}
           , failure)
 
 
@@ -898,10 +936,39 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'error: '+err
         console.dir err
 
+      success = (result) =>
+        console.log 'success: '+result
 
       $scope.selectItem = (item) =>
         console.log 'selected item '+item
         $scope.onselect(item, $scope.replace) if $scope.onselect
+
+      $scope.onChange = (model) =>
+        console.log 'spingrid onChange called for'
+        console.dir model
+        $scope.activeField = model.type
+        #console.dir prop
+        client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
+
+      $scope.selectModel = (type, propname) ->
+        client.emitMessage(target: '_list'+type+'s').then (objlist) ->
+          $mdDialog.show
+            controller: (scope) ->
+              console.log '++++++++++++++ spingrid selectModel controller type='+type+', propname='+propname+' objlist is...'
+              console.dir objlist
+              list = []
+              objlist.forEach (obj)-> list.push obj.id
+              scope.list = list
+              scope.type = type
+              console.log 'list is'
+              console.dir list
+              scope.onselect = (model) ->
+                console.log '* spingrid selectMode onselect callback'
+                console.dir model
+                $scope.model[propname].push(model.id)
+                client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
+                $mdDialog.hide()
+            template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
 
     }
 ]

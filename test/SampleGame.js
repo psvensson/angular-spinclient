@@ -59,15 +59,24 @@
       console.log('creating sample players');
       q = defer();
       this.players = [];
-      all([new SamplePlayer(), new SamplePlayer()]).then((function(_this) {
+      all([
+        new SamplePlayer({
+          createdBy: 'SYSTEM',
+          createdAt: Date.now()
+        }), new SamplePlayer({
+          createdBy: 'SYSTEM',
+          createdAt: Date.now()
+        })
+      ]).then((function(_this) {
         return function(results) {
           console.log('sample players created');
           results.forEach(function(player) {
+            console.log('adding player..');
             console.dir(player);
-            _this.players[player.name] = player;
-            player.serialize();
-            return console.log('  serializing player ' + player.name);
+            _this.players.push(player);
+            return player.serialize();
           });
+          _this.serialize();
           return q.resolve();
         };
       })(this));

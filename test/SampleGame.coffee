@@ -27,14 +27,14 @@ class SampleGame extends SuperModel
     console.log 'creating sample players'
     q = defer()
     @players = []
-    all([new SamplePlayer(), new SamplePlayer()]).then (results) =>
+    all([new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()}), new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()})]).then (results) =>
       console.log 'sample players created'
       results.forEach (player) =>
+        console.log 'adding player..'
         console.dir player
-        @players[player.name] = player
+        @players.push player
         player.serialize()
-        console.log '  serializing player '+player.name
-
+      @serialize()
       q.resolve()
 
     return q
