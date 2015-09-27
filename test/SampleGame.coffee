@@ -17,6 +17,8 @@ class SampleGame extends SuperModel
     return super
 
   postCreate: (q) =>
+    console.log 'players.length == '+@players.length
+    #console.dir @
     if @players.length == 0
       @createPlayers().then () =>
         q.resolve(@)
@@ -27,16 +29,17 @@ class SampleGame extends SuperModel
     console.log 'creating sample players'
     q = defer()
     @players = []
-    all([new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()}), new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()})]).then (results) =>
-      console.log 'sample players created'
-      results.forEach (player) =>
-        console.log 'adding player..'
-        console.dir player
-        @players.push player
-        player.serialize()
-      @serialize()
-      q.resolve()
-
+    new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()}).then (p1) =>
+      new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()}).then (p2) =>
+        console.log 'adding player '+p1.name
+        #console.dir player
+        @players.push p1
+        console.log 'adding player '+p2.name
+        @players.push p2
+        p1.serialize()
+        p2.serialize()
+        @serialize()
+        q.resolve()
     return q
 
 

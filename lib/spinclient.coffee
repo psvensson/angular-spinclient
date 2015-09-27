@@ -81,24 +81,24 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       d = $q.defer()
       sid = uuid4.generate()
       localsubs = service.objectsSubscribedTo[detail.id]
-      console.log 'registerObjectSubscriber localsubs is'
-      console.dir localsubs
+      #console.log 'registerObjectSubscriber localsubs is'
+      #console.dir localsubs
       if not localsubs
         localsubs = []
-        console.log 'no local subs, so get the original server-side subscription for id '+detail.id
+        #console.log 'no local subs, so get the original server-side subscription for id '+detail.id
         # actually set up subscription, once for each object
         service._registerObjectSubscriber({id: detail.id, type: detail.type, cb: (updatedobj) ->
-          console.log '-- registerObjectSubscriber getting obj update callback for '+detail.id
+          #console.log '-- registerObjectSubscriber getting obj update callback for '+detail.id
           lsubs = service.objectsSubscribedTo[detail.id]
           #console.dir(lsubs)
           for k,v of lsubs
             if (v.cb)
-              console.log '--*****--*****-- calling back object update to local sid --****--*****-- '+k
+              #console.log '--*****--*****-- calling back object update to local sid --****--*****-- '+k
               v.cb updatedobj
         }).then (remotesid) ->
           localsubs['remotesid'] = remotesid
           localsubs[sid] = detail
-          console.log '-- adding local callback listener to object updates for '+detail.id+' local sid = '+sid+' remotesid = '+remotesid
+          #console.log '-- adding local callback listener to object updates for '+detail.id+' local sid = '+sid+' remotesid = '+remotesid
           service.objectsSubscribedTo[detail.id] = localsubs
           d.resolve(sid)
       return d.promise
@@ -478,15 +478,18 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     link: (scope, elem, attrs) ->
 
     controller: ($scope) ->
-      console.log 'spinwalker mode originally is'
+      console.log 'spinwalker model originally is'
       console.dir $scope.model
       $scope.selectedmodel = $scope.model
       $scope.breadcrumbs = [$scope.model]
 
       $scope.$watch 'model', (newval, oldval) ->
         console.log 'spinwalker model = '+$scope.model
+        console.log 'newval is..'
+        console.dir newval
+        console.log 'oldval is'
+        console.dir oldval
         if($scope.model)
-          console.dir $scope.model
           if not $scope.breadcrumbs
             console.log '************************************************* creating new breadcrumbs...'
             $scope.breadcrumbs = [$scope.model]
@@ -925,6 +928,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               if modid == o.id
                 console.log 'adding hashtable element '+o.name
                 $scope.expandedlist[i] = o
+                client.objects[o.id] = o
                 for k,v of $scope.objectmodel
                   $scope.cells.push {item: o, prop: v}
                   #console.log 'adding cell '+o.name+' - '+v.name
@@ -940,8 +944,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'success: '+result
 
       $scope.selectItem = (item) =>
-        console.log 'selected item '+item
-        $scope.onselect(item, $scope.replace) if $scope.onselect
+        console.log 'spingrid selected item '+item
+        console.dir(item)
+        deepclone = JSON.parse(JSON.stringify(item))
+        $scope.onselect(deepclone, $scope.replace) if $scope.onselect
 
       $scope.onChange = (model) =>
         console.log 'spingrid onChange called for'
@@ -951,6 +957,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
 
       $scope.selectModel = (type, propname) ->
+        console.log 'selectModel called for prop '+prop+' type '+type
         client.emitMessage(target: '_list'+type+'s').then (objlist) ->
           $mdDialog.show
             controller: (scope) ->

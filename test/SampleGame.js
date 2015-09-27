@@ -43,6 +43,7 @@
     }
 
     SampleGame.prototype.postCreate = function(q) {
+      console.log('players.length == ' + this.players.length);
       if (this.players.length === 0) {
         return this.createPlayers().then((function(_this) {
           return function() {
@@ -59,25 +60,24 @@
       console.log('creating sample players');
       q = defer();
       this.players = [];
-      all([
-        new SamplePlayer({
-          createdBy: 'SYSTEM',
-          createdAt: Date.now()
-        }), new SamplePlayer({
-          createdBy: 'SYSTEM',
-          createdAt: Date.now()
-        })
-      ]).then((function(_this) {
-        return function(results) {
-          console.log('sample players created');
-          results.forEach(function(player) {
-            console.log('adding player..');
-            console.dir(player);
-            _this.players.push(player);
-            return player.serialize();
+      new SamplePlayer({
+        createdBy: 'SYSTEM',
+        createdAt: Date.now()
+      }).then((function(_this) {
+        return function(p1) {
+          return new SamplePlayer({
+            createdBy: 'SYSTEM',
+            createdAt: Date.now()
+          }).then(function(p2) {
+            console.log('adding player ' + p1.name);
+            _this.players.push(p1);
+            console.log('adding player ' + p2.name);
+            _this.players.push(p2);
+            p1.serialize();
+            p2.serialize();
+            _this.serialize();
+            return q.resolve();
           });
-          _this.serialize();
-          return q.resolve();
         };
       })(this));
       return q;
