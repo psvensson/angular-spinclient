@@ -282,25 +282,25 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     template:'<div>
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon>
-            {{model.type}} {{objects[model.id].name}}</md-subheader>
+            {{model.type}} {{objects[model.id].name}}
+    </md-subheader>
     <md-list flex>
+      <md-list-item ng-repeat="prop in listprops" flex layout="row"  layout-fill>
+        <md-input-container layout-padding layout-fill style="min-height:20px">
+          <label flex="25"> {{prop.name}} </label>
+          <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
+              <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
+          </span>
+          <input flex="50" ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
+          <input flex="50" ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
 
-            <md-list-item ng-repeat="prop in listprops" flex layout="row"  layout-fill>
-                    <md-input-container layout-padding layout-fill style="min-height:20px">
-                      <label> {{prop.name}} </label>
-                      <span flex layout-align="left" ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
-                          <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
-                      </span>
-                      <input ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
-                      <input ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
-
-                      <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
-                      <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
-                      <spinlist ng-if="isEditable(prop.name) && prop.array" flex search="local" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
-                      <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
-                      <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
-                    </md-input-container>
-        </md-list-item>
+          <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+          <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
+          <spinlist ng-if="isEditable(prop.name) && prop.array" flex search="local" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
+          <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
+          <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+        </md-input-container>
+      </md-list-item>
     </md-list>
 </div>'
     scope:
@@ -869,8 +869,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     }
   ]
 .directive 'spingrid', [
-  'spinclient'
-  (client) ->
+  'spinclient', '$mdDialog'
+  (client, $mdDialog) ->
     {
     restrict:    'AE'
     replace:     false
@@ -882,11 +882,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       <md-grid-tile ng-repeat="prop in objectmodel" style="background-color: #cacaca">
         {{prop.name}}
       </md-grid-tile>
-      <md-grid-tile ng-repeat="cell in cells" style="height:15px" layout-fill ng-click="selectItem(cell.item)">
+      <md-grid-tile ng-if="!onselect" ng-repeat="cell in cells" style="height:15px" layout-fill>
+        <md-button raised ng-if="onselect" ng-click="selectItem(cell.item)">Select</md-button>
         <span flex ng-if="cell.prop.type && cell.prop.value && !cell.prop.hashtable && !cell.prop.array" ng-click="enterDirectReference(prop)">{{cell.item[cell.prop.name]}}</span>
         <input layout-fill flex ng-if="!cell.prop.array && !cell.prop.type &&  isEditable(cell.prop.name) && cell.prop.name != \'id\'" type="text" ng-model="cell.item[cell.prop.name]" ng-change="onChange(cell.item, cell.prop.name)">
         <input layout-fill flex ng-if="!cell.prop.array && !cell.prop.type && !isEditable(cell.prop.name) && cell.prop.name != \'id\'" type="text" ng-model="cell.item[cell.prop.name]" disabled="true">
-        <span flex ng-if="isEditable(cell.prop.name) && (cell.prop.array || cell.prop.hashtable)" ng-model="cell.item[cell.prop.name]" >{{cell.item[cell.prop.name].length}} {{cell.prop.name}}</span>
+        <span flex ng-if="isEditable(cell.prop.name) && (cell.prop.array || cell.prop.hashtable)" ng-model="cell.item[cell.prop.name]" ng-click="selectModel(cell.item, cell.prop.type, cell.prop.name)">{{cell.item[cell.prop.name].length}} {{cell.prop.name}}</span>
         <span flex ng-if="!isEditable(cell.prop.name) && (cell.prop.array || cell.prop.hashtable)" >{{cell.item[cell.prop.name].length}} {{cell.prop.name}}</span>
       </md-grid-tile>
     </md-grid-list>
@@ -956,26 +957,66 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         #console.dir prop
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
 
-      $scope.selectModel = (type, propname) ->
-        console.log 'selectModel called for prop '+prop+' type '+type
-        client.emitMessage(target: '_list'+type+'s').then (objlist) ->
-          $mdDialog.show
-            controller: (scope) ->
-              console.log '++++++++++++++ spingrid selectModel controller type='+type+', propname='+propname+' objlist is...'
-              console.dir objlist
-              list = []
-              objlist.forEach (obj)-> list.push obj.id
-              scope.list = list
-              scope.type = type
-              console.log 'list is'
-              console.dir list
-              scope.onselect = (model) ->
-                console.log '* spingrid selectMode onselect callback'
-                console.dir model
-                $scope.model[propname].push(model.id)
-                client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
-                $mdDialog.hide()
-            template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+      $scope.selectModel = (item, type, propname) ->
+        console.log 'selectModel called for prop '+propname+' type '+type
+        objlist = item[propname]
+        $mdDialog.show
+          controller: (scope) ->
+            console.log '++++++++++++++ spingrid selectModel controller type='+type+', propname='+propname+' objlist is...'
+            console.dir objlist
+            list = []
+            objlist.forEach (id)-> list.push id
+            scope.list = list
+            scope.type = type
+            scope.item = item
+            scope.propname = propname
+
+            scope.addModel = (item, type, propname) ->
+              console.log 'spingrid.addModel called for type '+type+' propname '+propname
+              console.dir item
+              client.emitMessage({target:'_create'+type, obj: {name: 'new '+type, type:type}}).then((o) =>
+                item[propname].push(o.id)
+                console.log 'update list after addition'
+                console.dir item[propname]
+                scope.list = item[propname]
+                client.emitMessage({target:'updateObject', obj: item}).then(success, failure)
+              , failure)
+
+            scope.ondelete = (arrayitem) ->
+              client.getModelFor(item.type).then (md) ->
+                propname = undefined
+                console.log 'item'
+                console.dir item
+                md.forEach (m) -> propname = m.name if m.type == arrayitem.type
+                li = item[propname]
+                console.log 'li'
+                console.dir li
+                idx = -1
+                for mid,i in li
+                  if mid == arrayitem.id then idx = i
+                if idx > -1 then li.splice idx,1
+                item[propname] = li
+                scope.list = li
+                client.emitMessage({target:'updateObject', obj: item}).then ()->
+                  console.log 'update list after deletion'
+                  console.dir li
+
+            console.log 'list is'
+            console.dir list
+            scope.onselect = (model) ->
+              console.log '* spingrid selectMode onselect callback'
+              console.dir model
+              
+              $mdDialog.hide()
+
+          template: '<md-dialog aria-label="selectdialog">
+                      <md-content>
+                        <md-button class="md-raised" ng-click="addModel(item, type, propname)">New {{type}}</md-button>
+                        <spinlist listmodel="type" list="list" edit="true" onselect="onselect" ondelete="ondelete"></spinlist>
+                      </md-content>
+                     </md-dialog>'
+
+
 
     }
 ]
