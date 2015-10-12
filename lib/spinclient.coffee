@@ -441,7 +441,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               console.log 'list is'
               console.dir list
               scope.onselect = (model) ->
-                console.log '* selectMode onselect callback'
+                console.log '* selectModel onselect callback'
                 console.dir model
                 $scope.model[propname].push(model.id)
                 client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
@@ -468,11 +468,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
        <md-button ng-click="crumbClicked(crumb)">{{crumbPresentation(crumb)}}</md-button> >
     </span>
     <md-divider></md-divider>
-    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
+    <spinmodel model="selectedmodel" edit="edit" onselect="onselect" ondelete="ondelete" hideproperties="hideproperties" style="height:400px;overflow:auto"></spinmodel>
 </div>'
     scope:
       model: '=model'
       edit: '=edit'
+      ondelete: '=ondelete'
       hideproperties: '='
 
     link: (scope, elem, attrs) ->
@@ -540,7 +541,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       </md-input-container>
     </div>
     <md-list flex>
-        <md-list-item ng-repeat="item in expandedlist" layout="row" style="min-height:10px">
+        <md-list-item ng-repeat="item in expandedlist track by id" layout="row" style="min-height:10px">
             <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                 <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
             </md-button>
@@ -633,7 +634,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.onselect(item, $scope.replace) if $scope.onselect
 
       $scope.deleteItem = (item) ->
-        #console.log 'list delete'
+        console.log 'list item delete clicked'
         $scope.ondelete(item) if $scope.ondelete
 
       $scope.$watch 'list', (newval, oldval) ->
@@ -964,7 +965,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           controller: (scope) ->
             console.log '++++++++++++++ spingrid selectModel controller type='+type+', propname='+propname+' objlist is...'
             console.dir objlist
-            list = []
+            list = item[propname]
             objlist.forEach (id)-> list.push id
             scope.list = list
             scope.type = type
@@ -996,7 +997,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                   if mid == arrayitem.id then idx = i
                 if idx > -1 then li.splice idx,1
                 item[propname] = li
-                scope.list = li
+                scope.list = item[propname]
                 client.emitMessage({target:'updateObject', obj: item}).then ()->
                   console.log 'update list after deletion'
                   console.dir li
@@ -1006,7 +1007,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             scope.onselect = (model) ->
               console.log '* spingrid selectMode onselect callback'
               console.dir model
-              
+              exists = false
+              for o, i in list
+                if i.id == model.id then exists = true
+              if not exists
+                console.lo '-- adding new model to list'
+                item[propname].push model.id
+                scope.list = item[propname]
+                client.emitMessage({target:'updateObject', obj: item}).then(success, failure)
               $mdDialog.hide()
 
           template: '<md-dialog aria-label="selectdialog">
