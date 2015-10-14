@@ -541,7 +541,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       </md-input-container>
     </div>
     <md-list flex>
-        <md-list-item ng-repeat="item in expandedlist track by id" layout="row" style="min-height:10px">
+        <md-list-item ng-repeat="item in expandedlist track by item.id" layout="row" style="min-height:10px">
             <md-button ng-if="edit" aria-label="delete" class="md-icon-button" ng-click="deleteItem(item)">
                 <md-icon md-svg-src="assets/images/ic_delete_24px.svg"></md-icon>
             </md-button>
@@ -577,8 +577,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
-        console.log '** objectmodel for list is **'
-        console.dir md
+        #console.log '** objectmodel for list is **'
+        #console.dir md
 
       success = (result) =>
         console.log 'success: '+result
@@ -642,12 +642,16 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.renderList = () ->
         $scope.expandedlist = []
+        console.log 'scope list is '
+        console.dir $scope.list
         if $scope.list
-          for modelid in $scope.list
-            #console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+          for modelid,i in $scope.list
+            console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
             if client.objects[modelid]
+              console.log 'found model '+i+' in cache '+modelid
               $scope.addExpandedModel(client.objects[modelid])
             else
+              #console.log 'fetching model '+i+' from server '+modelid
               client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
                 client.objects[o.id] = o
                 $scope.addExpandedModel(o)
@@ -656,7 +660,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.addExpandedModel = (o) ->
         for modid,i in $scope.list
           if modid == o.id
-            #console.log '-- exchanging list id with actual list model from server for '+o.name
+            console.log '-- exchanging list id '+o.id+' with actual list model from server'
             $scope.expandedlist[i] = o
 
       $scope.onSubscribedObject = (o) ->
@@ -965,7 +969,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           controller: (scope) ->
             console.log '++++++++++++++ spingrid selectModel controller type='+type+', propname='+propname+' objlist is...'
             console.dir objlist
-            list = item[propname]
+            list = []
             objlist.forEach (id)-> list.push id
             scope.list = list
             scope.type = type
@@ -1004,22 +1008,33 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
             console.log 'list is'
             console.dir list
+
+            scope.hide = () ->
+              console.log 'hiding dialog'
+              $mdDialog.hide()
+
             scope.onselect = (model) ->
               console.log '* spingrid selectMode onselect callback'
               console.dir model
               exists = false
-              for o, i in list
-                if i.id == model.id then exists = true
+              console.log '-- checking for dupes --'
+              console.dir item[propname]
+              for id in item[propname]
+                console.log 'testing if existing list model '+id+' matches new addition '+model.id
+                if id == model.id then exists = true
               if not exists
-                console.lo '-- adding new model to list'
+                console.log '-- adding new model to list'
                 item[propname].push model.id
                 scope.list = item[propname]
                 client.emitMessage({target:'updateObject', obj: item}).then(success, failure)
+              else
+                console.log 'avoiding adding duplicate!'
               $mdDialog.hide()
 
           template: '<md-dialog aria-label="selectdialog">
                       <md-content>
                         <md-button class="md-raised" ng-click="addModel(item, type, propname)">New {{type}}</md-button>
+                        <md-button class="md-raised" ng-click="hide()">Close</md-button>
                         <spinlist listmodel="type" list="list" edit="true" onselect="onselect" ondelete="ondelete"></spinlist>
                       </md-content>
                      </md-dialog>'

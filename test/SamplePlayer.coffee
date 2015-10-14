@@ -8,7 +8,7 @@ class SamplePlayer extends SuperModel
 
   @model =
     [
-      {name: 'name', public: true, value: 'name', default:  'player_'+uuid.v4()}
+      {name: 'name', public: true, value: 'name', default:  'player'}
     ]
 
   constructor: (@record={}) ->

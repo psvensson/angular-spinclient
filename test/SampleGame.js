@@ -61,11 +61,13 @@
       q = defer();
       this.players = [];
       new SamplePlayer({
+        name: 'player 1',
         createdBy: 'SYSTEM',
         createdAt: Date.now()
       }).then((function(_this) {
         return function(p1) {
           return new SamplePlayer({
+            name: 'player 2',
             createdBy: 'SYSTEM',
             createdAt: Date.now()
           }).then(function(p2) {

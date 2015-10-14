@@ -29,8 +29,8 @@ class SampleGame extends SuperModel
     console.log 'creating sample players'
     q = defer()
     @players = []
-    new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()}).then (p1) =>
-      new SamplePlayer({createdBy: 'SYSTEM', createdAt: Date.now()}).then (p2) =>
+    new SamplePlayer({name: 'player 1', createdBy: 'SYSTEM', createdAt: Date.now()}).then (p1) =>
+      new SamplePlayer({name: 'player 2',createdBy: 'SYSTEM', createdAt: Date.now()}).then (p2) =>
         console.log 'adding player '+p1.name
         #console.dir player
         @players.push p1

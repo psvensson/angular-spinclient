@@ -20,7 +20,7 @@
         name: 'name',
         "public": true,
         value: 'name',
-        "default": 'player_' + uuid.v4()
+        "default": 'player'
       }
     ];
 
