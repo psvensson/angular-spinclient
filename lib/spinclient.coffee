@@ -142,12 +142,15 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       #console.log 'emitMessage called'
       #console.dir detail
       d = $q.defer()
-      detail.messageId = uuid4.generate()
-      detail.sessionId = service.sessionId
-      detail.d = d
-      service.outstandingMessages.push detail
-      #console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
-      service.io.emit 'message', JSON.stringify(detail)
+      try
+        detail.messageId = uuid4.generate()
+        detail.sessionId = service.sessionId
+        detail.d = d
+        service.outstandingMessages.push detail
+        #console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
+        service.io.emit 'message', JSON.stringify(detail)
+      catch e
+        console.log 'spinclient emitMessage ERROR: '+e
 
       return d.promise
 
@@ -887,7 +890,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       <md-grid-tile ng-repeat="prop in objectmodel" style="background-color: #cacaca">
         {{prop.name}}
       </md-grid-tile>
-      <md-grid-tile ng-if="!onselect" ng-repeat="cell in cells" style="height:15px" layout-fill>
+      <md-grid-tile ng-repeat="cell in cells" style="height:15px" layout-fill>
         <md-button raised ng-if="onselect" ng-click="selectItem(cell.item)">Select</md-button>
         <span flex ng-if="cell.prop.type && cell.prop.value && !cell.prop.hashtable && !cell.prop.array" ng-click="enterDirectReference(prop)">{{cell.item[cell.prop.name]}}</span>
         <input layout-fill flex ng-if="!cell.prop.array && !cell.prop.type &&  isEditable(cell.prop.name) && cell.prop.name != \'id\'" type="text" ng-model="cell.item[cell.prop.name]" ng-change="onChange(cell.item, cell.prop.name)">
