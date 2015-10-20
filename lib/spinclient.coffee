@@ -119,6 +119,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         )
       return d.promise
 
+      
     deRegisterObjectSubscriber: (sid, o) =>
       localsubs = service.objectsSubscribedTo[o.id] or []
       if localsubs[sid]
