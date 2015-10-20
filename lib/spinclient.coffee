@@ -139,15 +139,15 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.log 'deregistering server updates for object '+o.id
 
     emitMessage : (detail) ->
-      #console.log 'emitMessage called'
-      #console.dir detail
+      console.log 'emitMessage called'
+      console.dir detail
       d = $q.defer()
       try
         detail.messageId = uuid4.generate()
         detail.sessionId = service.sessionId
         detail.d = d
         service.outstandingMessages.push detail
-        #console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
+        console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
         service.io.emit 'message', JSON.stringify(detail)
       catch e
         console.log 'spinclient emitMessage ERROR: '+e
