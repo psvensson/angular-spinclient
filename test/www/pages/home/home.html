@@ -12,8 +12,9 @@
     <md-content>
 
         <div>
-            <spinwalker ng-if="selectedgame" model="objects[selectedgame.id]" model="SampleGame" edit="true" hideproperties="['admin', 'id']"></spinwalker>
+            <spinwalker ng-if="selectedgame" model="objects[selectedgame.id]"  edit="true" hideproperties="['admin', 'id']"></spinwalker>
         </div>
 
     </md-content>
+	<spinlistmodel ng-if="allplayers.length > 0"  listmodel="'SamplePlayer'" ></spinlistmodel>
 </div>

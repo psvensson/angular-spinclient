@@ -140,15 +140,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           console.log 'deregistering server updates for object '+o.id
 
     emitMessage : (detail) ->
-      console.log 'emitMessage called'
-      console.dir detail
       d = $q.defer()
       try
         detail.messageId = uuid4.generate()
         detail.sessionId = service.sessionId
         detail.d = d
         service.outstandingMessages.push detail
-        console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
+        #console.log 'saving outstanding reply to messageId '+detail.messageId+' and sessionId '+detail.sessionId
         service.io.emit 'message', JSON.stringify(detail)
       catch e
         console.log 'spinclient emitMessage ERROR: '+e
@@ -521,6 +519,52 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     }
   ]
+.directive 'spinlistmodel', [
+  'spinclient'
+  (client) ->
+    {
+    restrict: 'AE'
+    replace: false
+    template: '<div >
+      <spinlist listmodel="listmodel" list="list" onselect="onselect" ondelete="ondelete" edit="edit" search="search" searchfunc="searchfunc"></spinlist>
+    </div>'
+    scope:
+      listmodel: '=listmodel'
+      edit: '=edit'
+      onselect: '&'
+      ondelete: '&'
+
+    link: (scope, elem, attrs) ->
+      scope.onselect = scope.onselect()
+      scope.ondelete = scope.ondelete()
+
+    controller: ($scope) ->
+      $scope.search = 'server'
+      console.log '*** spinlistmodel created, type is ' + $scope.listmodel + ', search is ' + $scope.search
+      client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then (newlist2) ->
+        tmp = []
+        newlist2.forEach (item)-> tmp.push item.id
+        console.log 'spinlistmodel list is now '+tmp
+        $scope.list = tmp
+
+      $scope.searchfunc = (v, qprop, qval, selectedindex) ->
+        console.log 'spinlistmodel - searchfunc'
+        if v
+          q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
+          console.log '---- query sent to server is..'
+          console.dir q
+          client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then (newlist) ->
+            console.log 'search got back list of '+newlist.length+' items'
+            tmp = []
+            newlist.forEach (item)-> tmp.push item.id
+            $scope.list = tmp
+        else
+          client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then (newlist2) ->
+            tmp = []
+            newlist2.forEach (item)-> tmp.push item.id
+            $scope.list = tmp
+    }
+  ]
 .directive 'spinlist', [
   'spinclient'
   (client) ->
@@ -554,6 +598,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             </md-button>
         </md-list-item>
     </md-list>
+    <div ng-if="listcount.length>0">
+      <span ng-style="setIndexStyle($index)" ng-click="selectPage($index)" ng-repeat="n in listcount track by $index"> {{$index}}</span>
+    </div>
 </div>'
     scope:
       list: '=list'
@@ -562,18 +609,25 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       search: '=search'
       onselect: '&'
       ondelete: '&'
+      searchfunc: '&'
 
     link:        (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
       scope.ondelete = scope.ondelete()
+      scope.searchfunc = scope.searchfunc()
 
     controller:  ($scope) ->
+      $scope.search = $scope.search or 'local'
+      $scope.list = $scope.list or []
       console.log '*** spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel+', search is '+$scope.search
       console.dir $scope.list
       $scope.subscriptions = []
       $scope.expandedlist = []
       $scope.objects = client.objects
       $scope.objectmodel = []
+      $scope.selectedindex = 0
+
+      $scope.listcount = []
 
       $scope.qvalue = ''
       $scope.qproperty = 'name'
@@ -591,6 +645,30 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'error: '+err
         console.dir err
 
+      #-----------------------------------------------------------------------------------------------------------------
+
+      $scope.setIndexStyle = (i)->
+        #console.log 'setIndexStyle i='+i+', selectedIndex='+$scope.selectedindex
+        if i != $scope.selectedindex
+          rv = {color:"black", "background-color":"white",padding:"20px"}
+        else
+          rv = {color:"white", "background-color":"black",padding:"20px"}
+        rv
+
+      $scope.selectPage = (p)->
+        console.log '********************************************************* page '+p+' selected'
+        $scope.selectedindex = p
+
+        ###q = {property: $scope.qproperty, value: $scope.qvalue or '', limit:10, skip: 10*p, wildcard: !!$scope.qvalue}
+        client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
+          console.log 'paged search got back list of '+newlist.length+' items'
+          tmp = []
+          newlist.forEach (item)-> tmp.push item.id
+          $scope.list = tmp
+          $scope.renderList())###
+
+        $scope.renderList()
+
       $scope.onsearchchange = (v)->
         $scope.qvalue = v
         console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
@@ -602,30 +680,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.doSearch = (v) ->
         console.log 'dosearch called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if v
-          q = {property: $scope.qproperty, value: v, wildcard: true }
-          console.log '---- query sent to server is..'
-          console.dir q
-          client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then( (newlist) ->
-            console.log 'search got back list of '+newlist.length+' items'
-            tmp = []
-            newlist.forEach (item)-> tmp.push item.id
-            $scope.list = tmp
-            $scope.renderList())
-        else
-          client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then( (newlist2) ->
-            tmp = []
-            newlist2.forEach (item)-> tmp.push item.id
-            $scope.list = tmp
-            $scope.renderList())
+        if $scope.searchfunc then $scope.searchfunc(v, $scope.qproperty, $scope.qvalue, $scope.selectedindex) else console.log 'no searchfunc defined'
 
       $scope.localSearch = (v) ->
         console.log 'localSearch called. v = '+v
         tmp = []
-
         $scope.origlist.forEach (id) ->
           item = client.objects[id]
-          console.log 'localSearch comparing property '+$scope.qproperty+' which is '+item[$scope.qproperty]+' to see if ti is '+v
+          console.log 'localSearch comparing property '+$scope.qproperty+' which is '+item[$scope.qproperty]+' to see if it is '+v
           if v
             if (""+item[$scope.qproperty]).indexOf(v) > -1 then tmp.push item.id
           else
@@ -644,27 +706,49 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.$watch 'list', (newval, oldval) ->
         $scope.renderList()
 
-      $scope.renderList = () ->
-        $scope.expandedlist = []
-        console.log 'scope list is '
-        console.dir $scope.list
-        if $scope.list
-          for modelid,i in $scope.list
-            console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
-            if client.objects[modelid]
-              console.log 'found model '+i+' in cache '+modelid
-              $scope.addExpandedModel(client.objects[modelid])
-            else
-              #console.log 'fetching model '+i+' from server '+modelid
-              client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
-                client.objects[o.id] = o
-                $scope.addExpandedModel(o)
-              , failure)
+      $scope.renderPageSelector = () ->
+        count = $scope.list.length
+        if count < 10
+          $scope.listcount.length = 1
+        else
+          $scope.listcount.length = parseInt(count/10) + ((count % 10) > 0 ? 1 : 0)
+        $scope.totalcount = count
+        console.log 'renderpageSelector - listcount = '+$scope.listcount.length+' expandedlist is '+$scope.expandedlist.length+', count = '+count
+        console.dir $scope.expandedlist
 
-      $scope.addExpandedModel = (o) ->
-        for modid,i in $scope.list
+      $scope.renderList = () ->
+        console.log 'renderList called'
+        $scope.renderPageSelector()
+        $scope.expandedlist = []
+        base = $scope.selectedindex*10
+        console.log 'renderList - listcount = '+$scope.listcount.length+', base = '+base
+        slice = $scope.list
+        if $scope.list.length > 10
+          slice = []
+          for x in [base..base+10]
+            id = $scope.list[x]
+            #console.log 'adding slice '+id
+            slice.push(id)
+
+        for modelid,i in slice
+          #console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+          if client.objects[modelid]
+            #console.log 'found model '+i+' in cache '+modelid
+            #console.dir(client.objects[modelid])
+            $scope.addExpandedModel(client.objects[modelid], slice)
+          else
+            #console.log 'fetching model '+i+' from server '+modelid
+            client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
+              client.objects[o.id] = o
+              #console.log 'got back from server '+o.id+' -> '+o
+              $scope.addExpandedModel(o, slice)
+            , failure)
+
+      $scope.addExpandedModel = (o, list) ->
+        for modid,i in list
           if modid == o.id
-            console.log '-- exchanging list id '+o.id+' with actual list model from server'
+            #console.log 'addExpandedModel -- exchanging list id '+o.id+' with actual list model from server'
+            #console.dir(o)
             $scope.expandedlist[i] = o
 
       $scope.onSubscribedObject = (o) ->
@@ -679,6 +763,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               added = true
               mod[k] = v
         if not added
+          console.log 'adding new subscribed object to expanded list.. '+o.id
+          #console.dir o
           $scope.expandedlist.push(o)
         $scope.$apply()
 
@@ -750,133 +836,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     }
   ]
-.directive 'spinmodelcompact', [
-  'spinclient', '$mdDialog'
-  (client, $mdDialog) ->
-    {
-    restrict: 'AE'
-    replace: true
-    template: '
-    <div layout="row"layout-fill style="margin-right:16px" style="background-color: #cdefaa">
-      <div  flex="{{calcflex}}" ng-repeat="prop in listprops" >
-              <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array" ng-click="enterDirectReference(prop)">{{prop.name}}</span>
-              <input flex ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
-              <input flex ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
-              <span flex ng-if="isEditable(prop.name) && (prop.array || prop.hashtable)" ng-model="model[prop.name]" ng-click="selectModel(prop.type, prop.name)">{{prop.name}}</span>
-              <span flex ng-if="!isEditable(prop.name) && (prop.array || prop.hashtable)" >{{prop.name}}</span>
-       </div>
-    </div>'
-    scope:
-      model: '=model'
-      edit: '=?edit'
-      onselect: '&'
-      hideproperties: '=?hideproperties'
-
-    link: (scope) ->
-      scope.onselect = scope.onselect()
-
-    controller: ($scope) ->
-      $scope.hideproperties = $scope.hideproperties or []
-      $scope.isarray = angular.isArray
-      $scope.subscription = undefined
-      $scope.nonEditable = ['createdAt', 'createdBy', 'modifiedAt']
-      $scope.activeField = undefined
-      $scope.objects = client.objects
-      $scope.accessrights = []
-      $scope.edit = true
-      $scope.caclflex=25
-
-
-      $scope.onSubscribedObject = (o) ->
-        console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
-        #console.dir o
-        for k,v of o
-          $scope.model[k] = o[k]
-
-      $scope.isEditable = (propname) =>
-        rv = $scope.edit
-        if propname in $scope.nonEditable then rv = false
-        return rv
-
-      $scope.$watch 'model', (newval, oldval) ->
-        console.log 'spinmodel watch fired for '+newval
-        #console.log 'edit is '+$scope.edit
-        if $scope.model
-          client.getRightsFor($scope.model.type).then (rights) -> $scope.accessrights[$scope.model.type] = rights
-          if $scope.listprops and newval.id == oldval.id
-            $scope.updateModel()
-          else
-            $scope.renderModel()
-          if not $scope.subscription
-            client.registerObjectSubscriber({ id: $scope.model.id, type: $scope.model.type, cb: $scope.onSubscribedObject}).then (listenerid) ->
-              $scope.subscription = {sid: listenerid, o: $scope.model}
-
-      success = (result) =>
-        console.log 'success: '+result
-
-      failure = (err) =>
-        console.log 'error: '+err
-
-      $scope.onChange = (model) =>
-        console.log 'spincompactmodel onChange called for'
-        console.dir model
-        $scope.activeField = model.type
-        #console.dir prop
-        client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
-
-      $scope.updateModel = () ->
-        for k,v of $scope.model
-          $scope.listprops.forEach (lp) ->
-            console.log 'compactmodel.updateModel run for '+lp
-            if lp.type
-              client.getRightsFor(lp.type).then (rights) -> $scope.accessrights[lp.type] = rights
-            if lp.name == k then lp.value = v
-
-      $scope.renderModel = () =>
-        $scope.listprops = []
-        client.getModelFor($scope.model.type).then (md) ->
-          modeldef = {}
-          md.forEach (modelprop) -> modeldef[modelprop.name] = modelprop
-          if $scope.model
-            $scope.listprops.push {name: 'id', value: $scope.model.id}
-            #delete $scope.model.id
-            for prop,i in md
-              if prop.type
-                client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
-              notshow = prop.name in $scope.hideproperties
-              #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
-              if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
-                foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
-                $scope.listprops.push foo
-            $scope.calcflex=parseInt((1/md.length)*100)
-
-      $scope.selectModel = (type, propname) ->
-        client.emitMessage(target: '_list'+type+'s').then (objlist) ->
-          $mdDialog.show
-            controller: (scope) ->
-              console.log '++++++++++++++ selectModel controller type='+type+', propname='+propname+' objlist is...'
-              console.dir objlist
-              list = []
-              objlist.forEach (obj)-> list.push obj.id
-              scope.list = list
-              scope.type = type
-              console.log 'list is'
-              console.dir list
-              scope.onselect = (model) ->
-                console.log '* selectMode onselect callback'
-                console.dir model
-                $scope.model[propname].push(model.id)
-                client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
-                $mdDialog.hide()
-            template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
-
-      $scope.$on '$destroy', () =>
-        s = $scope.subscription
-        console.log 'spinmodel captured $destroy event s = '+s
-        if s
-          client.deRegisterObjectSubscriber(s.sid, s.o)
-    }
-  ]
 .directive 'spingrid', [
   'spinclient', '$mdDialog'
   (client, $mdDialog) ->
@@ -944,7 +903,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                   #console.log 'adding cell '+o.name+' - '+v.name
                   #console.dir {item: o, prop: v}
           , failure)
-
 
       failure = (err) =>
         console.log 'error: '+err

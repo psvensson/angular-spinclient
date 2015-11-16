@@ -4,6 +4,7 @@ angular.module('myApp').controller('HomeCtrl', ['$scope', 'spinclient', function
     $scope.objects = spinclient.objects;
 
     $scope.allgames = [];
+	$scope.allplayers = [];
     $scope.selectedgame = undefined;
 
     spinclient.setWebSocketInstance(wsio);
@@ -17,6 +18,18 @@ angular.module('myApp').controller('HomeCtrl', ['$scope', 'spinclient', function
             $scope.allgames.push(user.id);
         });
     });
+
+	spinclient.emitMessage({target: '_listSamplePlayers'}).then(function(plist)
+	{
+		console.log('initial list of players got back..');
+		console.dir(plist);
+		plist.forEach(function(user)
+		{
+			spinclient.objects[user.id] = user;
+			console.log('adding  player '+user.id)
+			$scope.allplayers.push(user.id);
+		});
+	});
 
     $scope.onselect = function(obj)
     {
