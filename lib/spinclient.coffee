@@ -281,7 +281,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     restrict:    'AE'
     replace:     true
     #templateUrl: 'spinmodel.html'
-    template:'<div>
+    template:'<div style="padding:15px">
     <md-subheader class="md-no-sticky" style="background-color:#ddd">
             <md-icon md-svg-src="assets/images/ic_folder_shared_24px.svg" ></md-icon>
             {{model.type}} {{objects[model.id].name}}
@@ -601,7 +601,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             </md-button>
         </md-list-item>
     </md-list>
-    <div ng-if="listcount.length>0">
+    <div ng-if="listcount.length>0" style="padding:15px">
       <span ng-style="setIndexStyle($index)" ng-click="selectPage($index)" ng-repeat="n in listcount track by $index"> {{$index}}</span>
     </div>
 </div>'
