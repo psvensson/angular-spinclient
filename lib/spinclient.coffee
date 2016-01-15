@@ -541,7 +541,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     controller: ($scope) ->
       $scope.onourselect = (item)->
         console.log 'spinlistmodel our select called'
-        $scope.select(item) if $scope.onselect
+        $scope.onselect(item) if $scope.onselect
       $scope.search = 'server'
       console.log '*** spinlistmodel created, type is ' + $scope.listmodel + ', search is ' + $scope.search
       client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then (newlist2) ->
