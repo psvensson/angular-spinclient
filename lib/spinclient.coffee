@@ -554,7 +554,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.searchfunc = (v, qprop, qval, selectedindex) ->
         console.log 'spinlistmodel - searchfunc'
         if v
-          q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
+          if qprop = 'id'
+            q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex}
+          else
+            q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
           console.log '---- query sent to server is..'
           console.dir q
           client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then (newlist) ->
