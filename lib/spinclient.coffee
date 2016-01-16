@@ -639,6 +639,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
+        $scope.objectmodel.push {name:'id',public:true, value:'id'}
         #console.log '** objectmodel for list is **'
         #console.dir md
 
@@ -894,6 +895,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
+        $scope.objectmodel.push {name:'id',public:true, value:'id'}
         $scope.ocols = md.length
         for mid in $scope.list
           client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: mid, type: $scope.listmodel }}).then( (o)->
