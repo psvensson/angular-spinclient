@@ -540,8 +540,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     controller: ($scope) ->
       $scope.onourselect = (item)->
-        console.log 'spinlistmodel our select called'
+        console.log 'spinlistmodel our select called. provided select is '+$scope.onselect
         $scope.onselect(item) if $scope.onselect
+
       $scope.search = 'server'
       console.log '*** spinlistmodel created, type is ' + $scope.listmodel + ', search is ' + $scope.search
       client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then (newlist2) ->
@@ -673,7 +674,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.onsearchchange = (v)->
-        $scope.qvalue = v
+        #$scope.qvalue = v
         console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
         if $scope.search != 'local' then $scope.doSearch(v) else $scope.localSearch(v)
 
