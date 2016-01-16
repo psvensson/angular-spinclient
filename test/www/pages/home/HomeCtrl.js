@@ -31,11 +31,18 @@ angular.module('myApp').controller('HomeCtrl', ['$scope', 'spinclient', function
 		});
 	});
 
-    $scope.onselect = function(obj)
-    {
-        console.log('HomeCtrl game selected');
-        console.dir(obj);
-        $scope.selectedgame = obj;
-    };
+  $scope.onselect = function(obj)
+  {
+      console.log('HomeCtrl game selected');
+      console.dir(obj);
+      $scope.selectedgame = obj;
+  };
+
+  $scope.onselectplayer = function(obj)
+  {
+    console.log('HomeCtrl player selected');
+    console.dir(obj);
+    $scope.selectedplayer = obj;
+  };
 
 }]);
