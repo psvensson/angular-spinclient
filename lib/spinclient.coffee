@@ -555,7 +555,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'spinlistmodel - searchfunc'
         if v
           if qprop = 'id'
-            q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex}
+            q = {property: qprop, value: v or ''}
           else
             q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
           console.log '---- query sent to server is..'
