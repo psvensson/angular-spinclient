@@ -492,12 +492,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.dir newval
         console.log 'oldval is'
         console.dir oldval
-        if($scope.model)
-          if not $scope.breadcrumbs
-            console.log '************************************************* creating new breadcrumbs...'
-            $scope.breadcrumbs = [$scope.model]
-          $scope.selectedmodel = $scope.model
-        $scope.onselect($scope.model, $scope.replace)
+        if oldval isnt newval
+          if($scope.model)
+            if not $scope.breadcrumbs
+              console.log '************************************************* creating new breadcrumbs...'
+              $scope.breadcrumbs = [$scope.model]
+            $scope.selectedmodel = $scope.model
+          $scope.onselect($scope.model, $scope.replace)
 
       $scope.crumbClicked = (model) ->
         $scope.selectedmodel = model
@@ -511,8 +512,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           $scope.breadcrumbs = $scope.breadcrumbs.slice 0, idx
 
       $scope.onselect = (model, replace) ->
+        console.log 'spinwalker.onselect model '+model+' replace '+replace
         if replace then $scope.breadcrumbs = []
         $scope.selectedmodel = model
+        console.log 'pushing..'
         $scope.breadcrumbs.push model
 
       $scope.crumbPresentation = (crumb) -> crumb.name || crumb.type
