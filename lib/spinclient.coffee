@@ -497,7 +497,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             console.log '************************************************* creating new breadcrumbs...'
             $scope.breadcrumbs = [$scope.model]
           $scope.selectedmodel = $scope.model
-        $scope.crumbclicked($scope.model)
+        $scope.crumbClicked($scope.model)
         $scope.onselect($scope.model, $scope.replace)
 
       $scope.crumbClicked = (model) ->
