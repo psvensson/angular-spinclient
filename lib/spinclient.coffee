@@ -556,8 +556,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.searchfunc = (v, qprop, qval, selectedindex) ->
         console.log 'spinlistmodel - searchfunc'
+        console.dir arguments
         if v
-          if qprop = 'id'
+          if qprop == 'id'
             q = {property: qprop, value: v or ''}
           else
             q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
@@ -683,15 +684,16 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.onsearchchange = (v)->
         #$scope.qvalue = v
         console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if $scope.search != 'local' then $scope.doSearch(v) else $scope.localSearch(v)
+        if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
 
       $scope.onvaluechanged = (v)->
         console.log '* onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if $scope.search != 'local' then $scope.doSearch(v) else $scope.localSearch(v)
+        if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
 
-      $scope.doSearch = (v) ->
-        console.log 'dosearch called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if $scope.searchfunc then $scope.searchfunc(v, $scope.qproperty, $scope.qvalue, $scope.selectedindex) else console.log 'no searchfunc defined'
+      $scope.doSearch = (prop, v) ->
+        console.log '*** dosearch called. v = '+v+' prop = '+prop+', qval = '+$scope.qvalue
+        console.dir v
+        if $scope.searchfunc then $scope.searchfunc(v, prop, $scope.qvalue, $scope.selectedindex) else console.log 'no searchfunc defined'
 
       $scope.localSearch = (v) ->
         console.log 'localSearch called. v = '+v
