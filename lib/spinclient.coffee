@@ -366,7 +366,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
 
       $scope.ondelete = (item) ->
-        #console.log 'model delete for list item'
+        console.log 'model delete for list item'
         # get property name for item type
         client.getModelFor($scope.model.type).then (md) ->
           propname = null
@@ -379,9 +379,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           # update this model
           console.log 'updating parent model to list with spliced list'
           client.emitMessage({target:'updateObject', obj: $scope.model}).then( ()->
+            console.log 'update done'
             # actually delete the model formerly in the list
-            client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type:item.type}}).then (o)=>
-              console.log 'deleted '+o.type+' on server'
+            # Nooooooooooooooooooo, default is do not. scheeeesh
+            #client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type:item.type}}).then (o)=>
+            #  console.log 'deleted '+o.type+' on server'
           , failure)
 
       $scope.updateModel = () ->
