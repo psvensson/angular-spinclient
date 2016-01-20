@@ -448,7 +448,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 $scope.model[propname].push(model.id)
                 client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
                 $mdDialog.hide()
-            template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+            template: '<md-dialog aria-label="selectdialog"><md-dialog.content style="width:300px;margin:10px"><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-dialog.content></md-dialog>'
 
       $scope.$on '$destroy', () =>
         s = $scope.subscription
@@ -1008,11 +1008,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               $mdDialog.hide()
 
           template: '<md-dialog aria-label="selectdialog">
-                      <md-content>
+                      <md-dialog-content style="width:300px;margin:10px">
                         <md-button class="md-raised" ng-click="addModel(item, type, propname)">New {{type}}</md-button>
                         <md-button class="md-raised" ng-click="hide()">Close</md-button>
                         <spinlist listmodel="type" list="list" edit="true" onselect="onselect" ondelete="ondelete"></spinlist>
-                      </md-content>
+                      </md-dialog-content>
                      </md-dialog>'
 
 
