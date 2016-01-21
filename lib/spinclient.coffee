@@ -293,10 +293,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
               <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
           </span>
-          <input flex="50" ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
-          <input flex="50" ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
+          <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
+          <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
 
-          <md-datepicker flex="50" ng-if="prop.name.indexOf(\'At\')>-1" ng-model="model[prop.name]" ng-disabled="true"></md-datepicker>
+          <input flex="50" ng-if="isdate(prop.name)" type="datetime" value="{{prop.value}}" ng-disabled="true">
 
           <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
           <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
@@ -329,6 +329,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.objects = client.objects
       $scope.accessrights = []
       $scope.local = 'local'
+
+      $scope.isdate = (name) ->
+        name.indexOf('At')>-1
 
       $scope.onSubscribedObject = (o) ->
         console.log '==== spinmodel onSubscribedModel called for '+o.id+' updating model..'
@@ -412,7 +415,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
               if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
-                if prop.name.indexOf('At') > -1 then val = new Date($scope.model[prop.name]) else val = $scope.model[prop.name]
+                if prop.name.indexOf('At') > -1
+                  #val = $scope.model[prop.name]
+                  val = new Date($scope.model[prop.name]).toString()
+                else
+                  val = $scope.model[prop.name]
+                console.log('--- '+prop.name+' -> '+val)
                 foo = {name: prop.name, value: val || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
@@ -556,7 +564,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         if $scope.delete
           $scope.delete(item)
         else
-          client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type:item.type}}).then (o)=>
+          client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type: item.type}}).then (o) =>
             console.log 'deleted '+o.type+' on server'
 
       $scope.search = 'server'
