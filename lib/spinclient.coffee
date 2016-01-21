@@ -368,7 +368,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         client.emitMessage({target:'updateObject', obj: model}).then(success, failure)
 
       $scope.ondelete = (item) ->
-        #console.log 'model delete for list item'
+        console.log 'model delete for list item'
         # get property name for item type
         client.getModelFor($scope.model.type).then (md) ->
           propname = null
@@ -381,9 +381,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           # update this model
           console.log 'updating parent model to list with spliced list'
           client.emitMessage({target:'updateObject', obj: $scope.model}).then( ()->
+            console.log 'update done'
             # actually delete the model formerly in the list
-            client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type:item.type}}).then (o)=>
-              console.log 'deleted '+o.type+' on server'
+            # Nooooooooooooooooooo, default is do not. scheeeesh
+            #client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type:item.type}}).then (o)=>
+            #  console.log 'deleted '+o.type+' on server'
           , failure)
 
       $scope.updateModel = () ->
@@ -451,7 +453,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 $scope.model[propname].push(model.id)
                 client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
                 $mdDialog.hide()
-            template: '<md-dialog aria-label="selectdialog"><md-content><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-content></md-dialog>'
+            template: '<md-dialog aria-label="selectdialog"><md-dialog.content style="width:300px;margin:10px"><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-dialog.content></md-dialog>'
 
       $scope.$on '$destroy', () =>
         s = $scope.subscription
@@ -495,11 +497,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.dir newval
         console.log 'oldval is'
         console.dir oldval
-        if($scope.model)
-          if not $scope.breadcrumbs
-            console.log '************************************************* creating new breadcrumbs...'
-            $scope.breadcrumbs = [$scope.model]
-          $scope.selectedmodel = $scope.model
+        if oldval isnt newval
+          if($scope.model)
+            if not $scope.breadcrumbs
+              console.log '************************************************* creating new breadcrumbs...'
+              $scope.breadcrumbs = [$scope.model]
+            $scope.selectedmodel = $scope.model
+          $scope.onselect($scope.model, $scope.replace)
 
       $scope.crumbClicked = (model) ->
         $scope.selectedmodel = model
@@ -513,12 +517,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           $scope.breadcrumbs = $scope.breadcrumbs.slice 0, idx
 
       $scope.onselect = (model, replace) ->
+        console.log 'spinwalker.onselect model '+model+' replace '+replace
         if replace then $scope.breadcrumbs = []
         $scope.selectedmodel = model
+        console.log 'pushing..'
         $scope.breadcrumbs.push model
 
-      $scope.crumbPresentation = (crumb) =>
-        crumb.name || crumb.type
+      $scope.crumbPresentation = (crumb) -> crumb.name || crumb.type
 
     }
   ]
@@ -529,7 +534,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     restrict: 'AE'
     replace: true
     template: '<div >
-      <spinlist listmodel="listmodel" list="list" onselect="onourselect" replace="replace" ondelete="ondelete" edit="edit" search="search" searchfunc="searchfunc"></spinlist>
+      <spinlist listmodel="listmodel" list="list" onselect="onourselect" replace="replace" ondelete="onourdelete" edit="edit" search="search" searchfunc="searchfunc"></spinlist>
     </div>'
     scope:
       listmodel: '=listmodel'
@@ -543,8 +548,17 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     controller: ($scope) ->
       $scope.onourselect = (item)->
-        console.log 'spinlistmodel our select called'
+        console.log 'spinlistmodel our select called. provided select is '+$scope.onselect
         $scope.onselect(item) if $scope.onselect
+
+      $scope.onourdelete = (item) ->
+        console.log 'spinlistmodel delete called'
+        if $scope.delete
+          $scope.delete(item)
+        else
+          client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type:item.type}}).then (o)=>
+            console.log 'deleted '+o.type+' on server'
+
       $scope.search = 'server'
       console.log '*** spinlistmodel created, type is ' + $scope.listmodel + ', search is ' + $scope.search
       client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then (newlist2) ->
@@ -555,8 +569,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.searchfunc = (v, qprop, qval, selectedindex) ->
         console.log 'spinlistmodel - searchfunc'
+        console.dir arguments
         if v
-          q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
+          if qprop == 'id'
+            q = {property: qprop, value: v or ''}
+          else
+            q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
           console.log '---- query sent to server is..'
           console.dir q
           client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then (newlist) ->
@@ -641,6 +659,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
+        $scope.objectmodel.push {name:'id',public:true, value:'id'}
         #console.log '** objectmodel for list is **'
         #console.dir md
 
@@ -676,17 +695,18 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.onsearchchange = (v)->
-        $scope.qvalue = v
+        #$scope.qvalue = v
         console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if $scope.search != 'local' then $scope.doSearch(v) else $scope.localSearch(v)
+        if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
 
       $scope.onvaluechanged = (v)->
         console.log '* onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if $scope.search != 'local' then $scope.doSearch(v) else $scope.localSearch(v)
+        if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
 
-      $scope.doSearch = (v) ->
-        console.log 'dosearch called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
-        if $scope.searchfunc then $scope.searchfunc(v, $scope.qproperty, $scope.qvalue, $scope.selectedindex) else console.log 'no searchfunc defined'
+      $scope.doSearch = (prop, v) ->
+        console.log '*** dosearch called. v = '+v+' prop = '+prop+', qval = '+$scope.qvalue
+        console.dir v
+        if $scope.searchfunc then $scope.searchfunc(v, prop, $scope.qvalue, $scope.selectedindex) else console.log 'no searchfunc defined'
 
       $scope.localSearch = (v) ->
         console.log 'localSearch called. v = '+v
@@ -896,6 +916,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       client.getModelFor($scope.listmodel).then (md) ->
         $scope.objectmodel = md
+        $scope.objectmodel.push {name:'id',public:true, value:'id'}
         $scope.ocols = md.length
         for mid in $scope.list
           client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: mid, type: $scope.listmodel }}).then( (o)->
@@ -1000,11 +1021,11 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               $mdDialog.hide()
 
           template: '<md-dialog aria-label="selectdialog">
-                      <md-content>
+                      <md-dialog-content style="width:300px;margin:10px">
                         <md-button class="md-raised" ng-click="addModel(item, type, propname)">New {{type}}</md-button>
                         <md-button class="md-raised" ng-click="hide()">Close</md-button>
                         <spinlist listmodel="type" list="list" edit="true" onselect="onselect" ondelete="ondelete"></spinlist>
-                      </md-content>
+                      </md-dialog-content>
                      </md-dialog>'
 
 

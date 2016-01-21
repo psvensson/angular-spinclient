@@ -3,7 +3,7 @@
         <h1 class="md-display-2">Games</h1>
         <div>
             <!-- <spingrid layout-fill ng-if="allgames.length > 0" list="allgames" listmodel="'SampleGame'" onselect="onselect" style="height:250px;overflow:auto;border-bottom:1px solid grey;" edit="true" replace="true"></spingrid> -->
-            <spingrid layout-fill ng-if="allgames.length > 0" list="allgames" listmodel="'SampleGame'" style="height:250px;overflow:auto;border-bottom:1px solid grey;" edit="true" replace="true"></spingrid>
+            <spingrid layout-fill ng-if="allgames.length > 0" list="allgames" listmodel="'SampleGame'" onselect="onselect" style="height:250px;overflow:auto;border-bottom:1px solid grey;" edit="true" replace="true"></spingrid>
         </div>
     </md-content>
 
@@ -12,9 +12,10 @@
     <md-content>
 
         <div>
-            <spinwalker ng-if="selectedgame" model="objects[selectedgame.id]"  edit="true" hideproperties="['admin', 'id']"></spinwalker>
+            <spinwalker ng-if="selectedgame" model="objects[selectedgame.id]" edit="true" hideproperties="['admin', 'id']"></spinwalker>
         </div>
 
     </md-content>
-	<spinlistmodel ng-if="allplayers.length > 0"  listmodel="'SamplePlayer'" ></spinlistmodel>
+	<spinlistmodel ng-if="allplayers.length > 0" onselect="onselectplayer"  listmodel="'SamplePlayer'" ></spinlistmodel>
+    <spinwalker ng-if="selectedplayer" model="objects[selectedplayer.id]" replace="true" edit="true" hideproperties="['admin', 'id']"></spinwalker>
 </div>
