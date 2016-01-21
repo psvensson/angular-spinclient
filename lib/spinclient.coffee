@@ -562,8 +562,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       $scope.onourdelete = (item) ->
         console.log 'spinlistmodel delete called'
-        if $scope.delete
-          $scope.delete(item)
+        if $scope.ondelete
+          $scope.ondelete(item)
         else
           client.emitMessage( {target:'_delete'+item.type, obj: {id: item.id, type: item.type}}).then (o) =>
             console.log 'deleted '+o.type+' on server'
@@ -735,8 +735,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.onselect(item, $scope.replace) if $scope.onselect
 
       $scope.deleteItem = (item) ->
-        console.log 'list item delete clicked'
-        $scope.ondelete(item) if $scope.ondelete
+        console.log 'list item delete clicked. $scope.ondelete = '+$scope.ondelete
+        if $scope.ondelete then $scope.ondelete(item)
 
       $scope.$watch 'list', (newval, oldval) ->
         $scope.renderList()
