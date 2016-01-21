@@ -296,6 +296,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           <input flex="50" ng-if="!prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
           <input flex="50" ng-if="!prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
 
+          <md-datepicker flex="50" ng-if="prop.name.indexOf(\'At\')>-1" ng-model="model[prop.name]" ng-disabled="true"></md-datepicker>
+
           <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
           <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
           <spinlist ng-if="isEditable(prop.name) && prop.array" flex search="local" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
@@ -408,7 +410,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
               if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
-                foo = {name: prop.name, value: $scope.model[prop.name] || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
+                if prop.name.indexOf('At') > -1 then val = new Date($scope.model[prop.name]) else val = $scope.model[prop.name]
+                foo = {name: prop.name, value: val || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
       $scope.enterDirectReference = (prop) =>
@@ -524,9 +527,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict: 'AE'
-    replace: false
+    replace: true
     template: '<div >
-      <spinlist listmodel="listmodel" list="list" onselect="onourselect" ondelete="ondelete" edit="edit" search="search" searchfunc="searchfunc"></spinlist>
+      <spinlist listmodel="listmodel" list="list" onselect="onourselect" replace="replace" ondelete="ondelete" edit="edit" search="search" searchfunc="searchfunc"></spinlist>
     </div>'
     scope:
       listmodel: '=listmodel'
