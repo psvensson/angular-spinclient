@@ -414,7 +414,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
-              if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
+              #if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
+              if(prop.name != 'id' and not notshow and prop.name != $scope.activeField)
                 if prop.name.indexOf('At') > -1
                   #val = $scope.model[prop.name]
                   val = new Date($scope.model[prop.name]).toString()
