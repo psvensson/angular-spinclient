@@ -419,6 +419,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 if prop.name.indexOf('At') > -1
                   #val = $scope.model[prop.name]
                   val = new Date($scope.model[prop.name]).toString()
+                else if typeof $scope.model[prop.name] == 'object' then val = JSON.stringify($scope.model[prop.name])
                 else
                   val = $scope.model[prop.name]
                 console.log('--- '+prop.name+' -> '+val)
