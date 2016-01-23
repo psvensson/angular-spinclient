@@ -21,6 +21,17 @@
         "public": true,
         value: 'name',
         "default": 'player'
+      }, {
+        name: 'something',
+        "public": true,
+        value: 'something',
+        "default": {
+          foo: 'bar',
+          baz: {
+            x: 17,
+            broxo: "yhao"
+          }
+        }
       }
     ];
 

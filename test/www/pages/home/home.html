@@ -17,5 +17,5 @@
 
     </md-content>
 	<spinlistmodel ng-if="allplayers.length > 0" onselect="onselectplayer"  listmodel="'SamplePlayer'" ></spinlistmodel>
-    <spinwalker ng-if="selectedplayer" model="objects[selectedplayer.id]" replace="true" edit="true" hideproperties="['admin', 'id']"></spinwalker>
+    <spinwalker ng-if="selectedplayer" model="objects[selectedplayer.id]" replace="'true'" edit="'true'" hideproperties="['admin', 'id']"></spinwalker>
 </div>

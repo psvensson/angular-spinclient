@@ -293,8 +293,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           <span flex ng-if="prop.type && prop.value && !prop.hashtable && !prop.array">
               <md-button ng-click="enterDirectReference(prop)">{{prop.name}}</md-button> >
           </span>
-          <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="model[prop.name]" ng-change="onChange(model, prop.name)">
-          <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="model[prop.name]" disabled="true">
+          <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && isEditable(prop.name) && prop.name != \'id\'" type="text" ng-model="prop.value" ng-change="onChange(model, prop.name, prop.value)">
+          <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="prop.value" disabled="true">
 
           <input flex="50" ng-if="isdate(prop.name)" type="datetime" value="{{prop.value}}" ng-disabled="true">
 
@@ -363,8 +363,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       failure = (err) =>
         console.log 'error: '+err
 
-      $scope.onChange = (model) =>
+      $scope.onChange = (model, prop, val) =>
         console.log 'spinmodel onChange called for'
+        model[prop] = val
         console.dir model
         $scope.activeField = model.type
         #console.dir prop
@@ -414,15 +415,18 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
+              console.log 'typeof $scope.model[prop.name] for '+prop.name+' is '+(typeof $scope.model[prop.name])
               #if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
               if(prop.name != 'id' and not notshow and prop.name != $scope.activeField)
                 if prop.name.indexOf('At') > -1
                   #val = $scope.model[prop.name]
                   val = new Date($scope.model[prop.name]).toString()
-                else if typeof $scope.model[prop.name] == 'object' then val = JSON.stringify($scope.model[prop.name])
+                else if typeof $scope.model[prop.name] == 'object'
+                  console.log '----stringifying----'
+                  val = JSON.stringify($scope.model[prop.name])
                 else
                   val = $scope.model[prop.name]
-                console.log('--- '+prop.name+' -> '+val)
+                console.log('--- '+prop.name+' -> '+val+' resulting typeof is '+(typeof val))
                 foo = {name: prop.name, value: val || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
@@ -498,6 +502,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     controller: ($scope) ->
       console.log 'spinwalker model originally is'
       console.dir $scope.model
+      if typeof $scope.replace == 'undefined' then $scope.replace = true
       $scope.selectedmodel = $scope.model
       $scope.breadcrumbs = [$scope.model]
 
@@ -526,9 +531,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           #console.log 'splicing at index '+idx
           $scope.breadcrumbs = $scope.breadcrumbs.slice 0, idx
 
-      $scope.onselect = (model, replace) ->
-        console.log 'spinwalker.onselect model '+model+' replace '+replace
-        if replace then $scope.breadcrumbs = []
+      $scope.onselect = (model) ->
+        console.log 'spinwalker.onselect model '+model+' replace '+$scope.replace
+        if $scope.replace then $scope.breadcrumbs = []
         $scope.selectedmodel = model
         console.log 'pushing..'
         $scope.breadcrumbs.push model
