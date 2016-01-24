@@ -56,8 +56,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               else
                 #console.log 'delivering message '+message+' reply to '+detail.target+' to '+reply.messageId
                 service.infomessage = reply.info
-                service.failuremessage = ""
-                  detail.d.resolve(message)
+                service.failuremessage = ''
+                detail.d.resolve(message)
                 index = i
                 break
             i++
