@@ -50,10 +50,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 console.log 'spinclient message FAILURE'
                 console.dir reply
                 service.failuremessage = reply.info
+                service.infomessage = ''
                 detail.d.reject reply
                 break
               else
                 #console.log 'delivering message '+message+' reply to '+detail.target+' to '+reply.messageId
+                service.infomessage = reply.info
                 detail.d.resolve(message)
                 index = i
                 break
@@ -415,18 +417,18 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 client.getRightsFor(prop.type).then (rights) -> $scope.accessrights[prop.type] = rights
               notshow = prop.name in $scope.hideproperties
               #console.log 'spinmodel::renderModel '+prop.name+' -> '+$scope.model[prop.name]+' notshow = '+notshow
-              console.log 'typeof $scope.model[prop.name] for '+prop.name+' is '+(typeof $scope.model[prop.name])
+              #console.log 'typeof $scope.model[prop.name] for '+prop.name+' is '+(typeof $scope.model[prop.name])
               #if(prop.name != 'id' and not notshow and prop.name != $scope.activeField and $scope.model[prop.name])
               if(prop.name != 'id' and not notshow and prop.name != $scope.activeField)
                 if prop.name.indexOf('At') > -1
                   #val = $scope.model[prop.name]
                   val = new Date($scope.model[prop.name]).toString()
                 else if typeof $scope.model[prop.name] == 'object'
-                  console.log '----stringifying----'
+                  #console.log '----stringifying----'
                   val = JSON.stringify($scope.model[prop.name])
                 else
                   val = $scope.model[prop.name]
-                console.log('--- '+prop.name+' -> '+val+' resulting typeof is '+(typeof val))
+                #console.log('--- '+prop.name+' -> '+val+' resulting typeof is '+(typeof val))
                 foo = {name: prop.name, value: val || "", type: modeldef[prop.name].type, array:modeldef[prop.name].array, hashtable:modeldef[prop.name].hashtable}
                 $scope.listprops.push foo
 
