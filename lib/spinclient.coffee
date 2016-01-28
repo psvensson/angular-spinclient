@@ -816,15 +816,15 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.$apply()
 
       #console.log 'subscribing to list ids..'
-      $scope.list.forEach (model) ->
-        console.log 'subscribing to list id '+model.id
-        if model.id
+      $scope.list.forEach (id) ->
+        console.log 'subscribing to list id '+id
+        if id
           client.registerObjectSubscriber(
-            id: model.id
+            id: id
             type: $scope.listmodel
             cb: $scope.onSubscribedObject
           ).then (listenerid) ->
-            $scope.subscriptions.push {sid: listenerid, o: {type:$scope.listmodel, id: model.id}}
+            $scope.subscriptions.push {sid: listenerid, o: {type:$scope.listmodel, id: id}}
 
       $scope.$on '$destroy', () =>
         console.log 'spinlist captured $destroy event'
