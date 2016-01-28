@@ -662,6 +662,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.search = $scope.search or 'local'
       $scope.list = $scope.list or []
       console.log '*** spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel+', search is '+$scope.search
+      console.log 'ondelete = '+$scope.ondelete+' onselect = '+$scope.onselect
       console.dir $scope.list
       $scope.subscriptions = []
       $scope.expandedlist = []
