@@ -691,7 +691,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       #-----------------------------------------------------------------------------------------------------------------
 
       $scope.setIndexStyle = (i)->
-        #console.log 'setIndexStyle i='+i+', selectedIndex='+$scope.selectedindex
+        console.log 'setIndexStyle i='+i+', selectedIndex='+$scope.selectedindex
         if i != $scope.selectedindex
           rv = {color:"black", "background-color":"white",padding:"20px"}
         else
@@ -713,6 +713,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.onsearchchange = (v)->
+        console.log 'onsearchchange'
         #$scope.qvalue = v
         console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
         if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
@@ -740,7 +741,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.selectItem = (item) =>
-        #console.log 'item '+item.name+' selected'
+        console.log 'item '+item.name+' selected'
         $scope.onselect(item, $scope.replace) if $scope.onselect
 
       $scope.deleteItem = (item) ->
@@ -751,6 +752,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.renderPageSelector = () ->
+        console.log 'renderpageselector called'
         count = $scope.list.length
         if count < 10
           $scope.listcount.length = 1
@@ -775,13 +777,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             slice.push(id)
 
         for modelid,i in slice
-          #console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+          console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
           if client.objects[modelid]
-            #console.log 'found model '+i+' in cache '+modelid
+            console.log 'found model '+i+' in cache '+modelid
             #console.dir(client.objects[modelid])
             $scope.addExpandedModel(client.objects[modelid], slice)
           else
-            #console.log 'fetching model '+i+' from server '+modelid
+            console.log 'fetching model '+i+' from server '+modelid
             client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
               client.objects[o.id] = o
               #console.log 'got back from server '+o.id+' -> '+o
@@ -791,7 +793,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.addExpandedModel = (o, list) ->
         for modid,i in list
           if modid == o.id
-            #console.log 'addExpandedModel -- exchanging list id '+o.id+' with actual list model from server'
+            console.log 'addExpandedModel -- exchanging list id '+o.id+' with actual list model from server'
             #console.dir(o)
             $scope.expandedlist[i] = o
 
@@ -814,6 +816,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
       #console.log 'subscribing to list ids..'
       $scope.list.forEach (model) ->
+        console.log 'subscribing to list id '+model.id
         if model.id
           client.registerObjectSubscriber(
             id: model.id
