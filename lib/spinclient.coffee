@@ -714,7 +714,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.onsearchchange = (v)->
-        console.log 'onsearchchange'
+        console.log 'onsearchchange *'
         #$scope.qvalue = v
         console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
         if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
