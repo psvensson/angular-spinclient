@@ -464,13 +464,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
               scope.type = type
               console.log 'list is'
               console.dir list
+              scope.onlistmodeldelete = ()-> console.log 'onlistmodeldelete called. Ignoring this since we\'re in the middle of selecting'
               scope.onselect = (model) ->
                 console.log '* selectModel onselect callback'
                 console.dir model
                 $scope.model[propname].push(model.id)
                 client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
                 $mdDialog.hide()
-            template: '<md-dialog aria-label="selectdialog"><md-dialog.content style="width:300px;margin:10px"><spinlist listmodel="type" list="list" onselect="onselect"></spinlist></md-dialog.content></md-dialog>'
+            template: '<md-dialog aria-label="selectdialog"><md-dialog.content style="width:300px;margin:10px"><spinlist listmodel="type" list="list" onselect="onselect" ondelete="onlistmodeldelete" search="\'local\'"></spinlist></md-dialog.content></md-dialog>'
 
       $scope.$on '$destroy', () =>
         s = $scope.subscription
@@ -661,9 +662,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     controller:  ($scope) ->
       $scope.search = $scope.search or 'local'
       $scope.list = $scope.list or []
-      console.log '* * spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel+', search is '+$scope.search
-      console.log 'ondelete = '+$scope.ondelete+' onselect = '+$scope.onselect
-      console.dir $scope.list
+      #console.log '* * spinlist created. list is '+$scope.list+' items, type is '+$scope.listmodel+', search is '+$scope.search
+      #console.log 'ondelete = '+$scope.ondelete+' onselect = '+$scope.onselect
+      #console.dir $scope.list
       $scope.subscriptions = []
       $scope.expandedlist = []
       $scope.objects = client.objects
@@ -692,7 +693,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       #-----------------------------------------------------------------------------------------------------------------
 
       $scope.setIndexStyle = (i)->
-        console.log 'setIndexStyle i='+i+', selectedIndex='+$scope.selectedindex
+        #console.log 'setIndexStyle i='+i+', selectedIndex='+$scope.selectedindex
         if i != $scope.selectedindex
           rv = {color:"black", "background-color":"white",padding:"20px"}
         else
@@ -714,30 +715,31 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.onsearchchange = (v)->
-        console.log 'onsearchchange *'
+        #console.log 'onsearchchange *'
         #$scope.qvalue = v
         console.log '* onsearchchange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
         if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
 
       $scope.onvaluechanged = (v)->
-        console.log '* onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
+        #console.log '* onvaluechange called. v = '+v+' qprop = '+$scope.qproperty+', qval = '+$scope.qvalue
         if $scope.search != 'local' then $scope.doSearch($scope.qproperty, v) else $scope.localSearch(v)
 
       $scope.doSearch = (prop, v) ->
-        console.log '*** dosearch called. v = '+v+' prop = '+prop+', qval = '+$scope.qvalue
-        console.dir v
+        #console.log '*** dosearch called. v = '+v+' prop = '+prop+', qval = '+$scope.qvalue
+        #console.dir v
         if $scope.searchfunc then $scope.searchfunc(v, prop, $scope.qvalue, $scope.selectedindex) else console.log 'no searchfunc defined'
 
       $scope.localSearch = (v) ->
-        console.log 'localSearch called. v = '+v
+        #console.log 'localSearch called. v = '+v
         tmp = []
         $scope.origlist.forEach (id) ->
           item = client.objects[id]
-          console.log 'localSearch comparing property '+$scope.qproperty+' which is '+item[$scope.qproperty]+' to see if it is '+v
+          #console.log 'localSearch comparing property '+$scope.qproperty+' which is '+item[$scope.qproperty]+' to see if it is '+v
           if v
             if (""+item[$scope.qproperty]).indexOf(v) > -1 then tmp.push item.id
           else
             tmp.push item.id
+        tmp.sort (a,b)-> if a == b then 0 else if a > b then 1 else -1
         $scope.list = tmp
         $scope.renderList()
 
@@ -753,14 +755,14 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderList()
 
       $scope.renderPageSelector = () ->
-        console.log 'renderpageselector called'
+        #console.log 'renderpageselector called'
         count = $scope.list.length
         if count < 10
           $scope.listcount.length = 1
         else
           $scope.listcount.length = parseInt(count/10) + ((count % 10) > 0 ? 1 : 0)
         $scope.totalcount = count
-        console.log 'renderpageSelector - listcount = '+$scope.listcount.length+' expandedlist is '+$scope.expandedlist.length+', count = '+count
+        #console.log 'renderpageSelector - listcount = '+$scope.listcount.length+' expandedlist is '+$scope.expandedlist.length+', count = '+count
         console.dir $scope.expandedlist
 
       $scope.renderList = () ->
@@ -768,7 +770,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderPageSelector()
         $scope.expandedlist = []
         base = $scope.selectedindex*10
-        console.log 'renderList - listcount = '+$scope.listcount.length+', base = '+base
+        #console.log 'renderList - listcount = '+$scope.listcount.length+', base = '+base
         slice = $scope.list
         if $scope.list.length > 10
           slice = []
@@ -778,13 +780,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             slice.push(id)
 
         for modelid,i in slice
-          console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+          #console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
           if client.objects[modelid]
-            console.log 'found model '+i+' in cache '+modelid
+            #console.log 'found model '+i+' in cache '+modelid
             #console.dir(client.objects[modelid])
             $scope.addExpandedModel(client.objects[modelid], slice)
           else
-            console.log 'fetching model '+i+' from server '+modelid
+            #console.log 'fetching model '+i+' from server '+modelid
             client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
               client.objects[o.id] = o
               #console.log 'got back from server '+o.id+' -> '+o
@@ -794,30 +796,30 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       $scope.addExpandedModel = (o, list) ->
         for modid,i in list
           if modid == o.id
-            console.log 'addExpandedModel -- exchanging list id '+o.id+' with actual list model from server'
+            #console.log 'addExpandedModel -- exchanging list id '+o.id+' with actual list model from server'
             #console.dir(o)
             $scope.expandedlist[i] = o
 
       $scope.onSubscribedObject = (o) ->
-        console.log 'onSubscribedObject called ++++++++++++++++++++++++'
-        console.dir(o)
+        #console.log 'onSubscribedObject called ++++++++++++++++++++++++'
+        #console.dir(o)
         added = false
         for model,i in $scope.list
           if model.id == o.id
-            console.log 'found match in update for object '+o.id+' name '+o.name
+            #console.log 'found match in update for object '+o.id+' name '+o.name
             mod = $scope.expandedlist[i]
             for k,v of o
               added = true
               mod[k] = v
         if not added
-          console.log 'adding new subscribed object to expanded list.. '+o.id
+          #console.log 'adding new subscribed object to expanded list.. '+o.id
           #console.dir o
           $scope.expandedlist.push(o)
         $scope.$apply()
 
       #console.log 'subscribing to list ids..'
       $scope.list.forEach (id) ->
-        console.log 'subscribing to list id '+id
+        #console.log 'subscribing to list id '+id
         if id
           client.registerObjectSubscriber(
             id: id
