@@ -785,12 +785,16 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             console.dir(client.objects[modelid])
             $scope.addExpandedModel(client.objects[modelid], slice)
           else
-            console.log 'fetching model '+i+' from server '+modelid
-            client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
-              client.objects[o.id] = o
-              console.log 'got back from server '+o.id+' -> '+o
-              $scope.addExpandedModel(o, slice)
-            , failure)
+            if modelid
+              console.log 'fetching model '+i+' from server '+modelid
+              client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
+                client.objects[o.id] = o
+                console.log 'got back from server '+o.id+' -> '+o
+                $scope.addExpandedModel(o, slice)
+              , failure)
+            else
+              console.log 'slice contains null value!!!'
+              console.dir slice
 
       $scope.addExpandedModel = (o, list) ->
         for modid,i in list
