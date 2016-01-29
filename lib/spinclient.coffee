@@ -690,6 +690,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'error: '+err
         console.dir err
 
+
+      $scope.list.sort (a,b)-> if a.name == b.name then 0 else if a.name > b.name then 1 else -1
       #-----------------------------------------------------------------------------------------------------------------
 
       $scope.setIndexStyle = (i)->
@@ -739,7 +741,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             if (""+item[$scope.qproperty]).indexOf(v) > -1 then tmp.push item.id
           else
             tmp.push item.id
-        tmp.sort (a,b)-> if a == b then 0 else if a > b then 1 else -1
         $scope.list = tmp
         $scope.renderList()
 
