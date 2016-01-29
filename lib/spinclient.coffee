@@ -769,26 +769,26 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         $scope.renderPageSelector()
         $scope.expandedlist = []
         base = $scope.selectedindex*10
-        #console.log 'renderList - listcount = '+$scope.listcount.length+', base = '+base
+        console.log 'renderList - listcount = '+$scope.listcount.length+', base = '+base
         slice = $scope.list
         if $scope.list.length > 10
           slice = []
           for x in [base..base+10]
             id = $scope.list[x]
-            #console.log 'adding slice '+id
+            console.log 'adding slice '+id
             slice.push(id)
 
         for modelid,i in slice
-          #console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
+          console.log '**spinlist expanding list reference for model id '+modelid+' of type '+$scope.listmodel
           if client.objects[modelid]
-            #console.log 'found model '+i+' in cache '+modelid
-            #console.dir(client.objects[modelid])
+            console.log 'found model '+i+' in cache '+modelid
+            console.dir(client.objects[modelid])
             $scope.addExpandedModel(client.objects[modelid], slice)
           else
-            #console.log 'fetching model '+i+' from server '+modelid
+            console.log 'fetching model '+i+' from server '+modelid
             client.emitMessage({ target:'_get'+$scope.listmodel, obj: {id: modelid, type: $scope.listmodel }}).then( (o)->
               client.objects[o.id] = o
-              #console.log 'got back from server '+o.id+' -> '+o
+              console.log 'got back from server '+o.id+' -> '+o
               $scope.addExpandedModel(o, slice)
             , failure)
 
