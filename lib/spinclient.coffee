@@ -108,12 +108,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
 
     _registerObjectSubscriber: (detail) ->
       d = $q.defer()
-      console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
+      #console.log 'message-router registering subscriber for object ' + detail.id + ' type ' + detail.type
       subscribers = service.objsubscribers[detail.id] or []
 
       service.emitMessage({target: 'registerForUpdatesOn', obj: {id: detail.id, type: detail.type} }).then(
         (reply)->
-          console.log 'server subscription id for id '+detail.id+' is '+reply
+          #console.log 'server subscription id for id '+detail.id+' is '+reply
           subscribers[reply] = detail.cb
           service.objsubscribers[detail.id] = subscribers
           d.resolve(reply)
@@ -814,13 +814,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           #console.log 'adding new subscribed object to expanded list.. '+o.id
           #console.dir o
           $scope.expandedlist.push(o)
-        $scope.expandedlist.sort (a,b)-> if a.name == b.name then 0 else if a.name > b.name then 1 else -100
+        $scope.expandedlist.sort (a,b)-> if a.name == b.name then 0 else if a.name > b.name then 1 else -1
         $scope.$apply()
 
-      console.log 'subscribing to list ids..'
-      console.dir $scope.list
+      #console.log 'subscribing to list ids..'
+      #console.dir $scope.list
       $scope.list.forEach (id) ->
-        console.log 'subscribing to list id '+id
+        #console.log 'subscribing to list id '+id
         if id
           client.registerObjectSubscriber(
             id: id
