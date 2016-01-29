@@ -690,8 +690,6 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.log 'error: '+err
         console.dir err
 
-
-      $scope.list.sort (a,b)-> if a.name == b.name then 0 else if a.name > b.name then 1 else -1
       #-----------------------------------------------------------------------------------------------------------------
 
       $scope.setIndexStyle = (i)->
@@ -767,7 +765,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
         console.dir $scope.expandedlist
 
       $scope.renderList = () ->
-        console.log 'renderList called'
+        #console.log 'renderList called'
         $scope.renderPageSelector()
         $scope.expandedlist = []
         base = $scope.selectedindex*10
@@ -816,11 +814,13 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           #console.log 'adding new subscribed object to expanded list.. '+o.id
           #console.dir o
           $scope.expandedlist.push(o)
+        $scope.expandedlist.sort (a,b)-> if a.name == b.name then 0 else if a.name > b.name then 1 else -100
         $scope.$apply()
 
-      #console.log 'subscribing to list ids..'
+      console.log 'subscribing to list ids..'
+      console.dir $scope.list
       $scope.list.forEach (id) ->
-        #console.log 'subscribing to list id '+id
+        console.log 'subscribing to list id '+id
         if id
           client.registerObjectSubscriber(
             id: id
