@@ -300,12 +300,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="prop.value" disabled="true">
 
           <input flex="50" ng-if="isdate(prop.name)" type="datetime" value="{{prop.value}}" ng-disabled="true">
-
-          <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
-          <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
           <spinlist ng-if="isEditable(prop.name) && prop.array" flex search="local" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
           <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
           <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+
+          <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
+          <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
         </md-input-container>
       </md-list-item>
     </md-list>
@@ -471,7 +471,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 $scope.model[propname].push(model.id)
                 client.emitMessage({target:'updateObject', obj: $scope.model}).then(success, failure)
                 $mdDialog.hide()
-            template: '<md-dialog aria-label="selectdialog"><md-dialog.content style="width:300px;margin:10px"><spinlist listmodel="type" list="list" onselect="onselect" ondelete="onlistmodeldelete" search="\'local\'"></spinlist></md-dialog.content></md-dialog>'
+            template: '<md-dialog aria-label="selectdialog"><md-dialog.content style="width:300px;margin:10px;overflow:auto"><spinlist listmodel="type" list="list" onselect="onselect" ondelete="onlistmodeldelete" search="\'local\'"></spinlist></md-dialog.content></md-dialog>'
 
       $scope.$on '$destroy', () =>
         s = $scope.subscription
