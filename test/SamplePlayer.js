@@ -32,6 +32,11 @@
             broxo: "yhao"
           }
         }
+      }, {
+        name: 'foohash',
+        hashtable: true,
+        "public": true,
+        type: 'FooThing'
       }
     ];
 

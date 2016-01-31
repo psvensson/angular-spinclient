@@ -17,6 +17,7 @@
           console.log(' DB init done..');
           _this.messageRouter.objectManager.expose('SampleGame');
           _this.messageRouter.objectManager.expose('SamplePlayer');
+          _this.messageRouter.objectManager.expose('FooThing');
           return DB.getOrCreateObjectByRecord({
             id: 17,
             name: 'fooGame',

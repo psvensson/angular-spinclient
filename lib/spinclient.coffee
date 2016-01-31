@@ -300,9 +300,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           <input flex="50" ng-if="!isdate(prop.name) && !prop.array && !prop.type && !isEditable(prop.name) || prop.name == \'id\'" type="text" ng-model="prop.value" disabled="true">
 
           <input flex="50" ng-if="isdate(prop.name)" type="datetime" value="{{prop.value}}" ng-disabled="true">
-          <spinlist ng-if="isEditable(prop.name) && prop.array" flex search="local" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete"></spinlist>
-          <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect"></spinlist>
-          <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect"></spinhash>
+          <spinlist ng-if="isEditable(prop.name) && prop.array" flex search="local" listmodel="prop.type" edit="edit" list="model[prop.name]" onselect="onselect" ondelete="ondelete" replace="true"></spinlist>
+          <spinlist ng-if="!isEditable(prop.name) && prop.array" flex  listmodel="prop.type" list="model[prop.name]" onselect="onselect" replace="true"></spinlist>
+          <spinhash ng-if="prop.hashtable" flex  listmodel="prop.type" list="prop.value" onselect="onselect" replace="true"></spinhash>
 
           <div layout-align="right" ng-if="accessrights[prop.type].create && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="addModel(prop.type, prop.name)">New {{prop.type}}</md-button></div>
           <div layout-align="right" ng-if="accessrights[model.type].write && (prop.array || prop.hashtable)"><md-button class="md-raised" ng-click="selectModel(prop.type, prop.name)">Add {{prop.type}}</md-button></div>
@@ -486,7 +486,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
   (client) ->
     {
     restrict: 'AE'
-    replace: false
+    replace: true
     #templateUrl: 'spinwalker.html
     template:'<div>
     <span ng-repeat="crumb in breadcrumbs">
@@ -524,6 +524,10 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
             $scope.selectedmodel = $scope.model
           $scope.onselect($scope.model, $scope.replace)
 
+      #
+      # TODO: It's like this: When model is changed from outside, replace should be true, but when changed by selecting a model item (from a model list) it should be false. Otherwise we either add wrongly old selections form an outer list
+      # to the crumbs - OR - we replace a needed path back up the model tree by the latets selected model list item.
+      #
       $scope.crumbClicked = (model) ->
         $scope.selectedmodel = model
         idx = -1
@@ -535,9 +539,9 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           #console.log 'splicing at index '+idx
           $scope.breadcrumbs = $scope.breadcrumbs.slice 0, idx
 
-      $scope.onselect = (model) ->
-        console.log 'spinwalker.onselect model '+model+' replace '+$scope.replace
-        if $scope.replace then $scope.breadcrumbs = []
+      $scope.onselect = (model, replace) ->
+        console.log 'spinwalker.onselect model '+model+' replace '+replace
+        if replace then $scope.breadcrumbs = []
         $scope.selectedmodel = model
         console.log 'pushing..'
         $scope.breadcrumbs.push model
@@ -793,8 +797,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
                 $scope.addExpandedModel(o, slice)
               , failure)
             else
-              console.log 'slice contains null value!!!'
-              console.dir slice
+              #console.log 'slice contains null value!!!'
+              #console.dir slice
 
       $scope.addExpandedModel = (o, list) ->
         for modid,i in list
@@ -866,9 +870,12 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
     link: (scope, elem, attrs) ->
       scope.onselect = scope.onselect()
       #scope.ondelete = scope.ondelete()
+      scope.objects = client.objects
 
     controller: ($scope) ->
-      console.log 'spinhash list for model '+$scope.listmodel+' is'
+      console.log 'spinhash list for model '+$scope.listmodel+' is a '+(typeof $scope.list)
+      console.dir $scope.list
+      if typeof $scope.list == 'string' then $scope.list = eval($scope.list)
       console.dir $scope.list
       $scope.objects = client.objects
       $scope.expandedlist = []
@@ -882,7 +889,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           for modid,i in $scope.list
             if modid == o.id
               console.log 'adding hashtable element '+o.name
-              $scope.expandedlist[i] = o
+              client.objects[o.id] = o
+              $scope.expandedlist.push o
         , failure)
 
       $scope.selectItem = (item) =>
