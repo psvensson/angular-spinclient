@@ -587,7 +587,8 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
       client.emitMessage({ target:'_list'+$scope.listmodel+'s'}).then (newlist2) ->
         tmp = []
         newlist2.forEach (item)-> tmp.push item.id
-        console.log 'spinlistmodel list is now '+tmp
+        console.log '######### spinlistmodel list is now '+tmp
+        console.dir tmp
         $scope.list = tmp
 
       $scope.searchfunc = (v, qprop, qval, selectedindex) ->
@@ -597,7 +598,7 @@ angular.module('ngSpinclient', ['uuid4', 'ngMaterial']).factory 'spinclient', (u
           if qprop == 'id'
             q = {property: qprop, value: v or ''}
           else
-            q = {property: qprop, value: v or '', limit:10, skip: 10*selectedindex, wildcard: !!v}
+            q = {property: qprop, value: v or '', limit:50, skip: 50*selectedindex, wildcard: !!v}
           console.log '---- query sent to server is..'
           console.dir q
           client.emitMessage({ target:'_list'+$scope.listmodel+'s', query: q}).then (newlist) ->
